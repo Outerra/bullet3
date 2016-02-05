@@ -26,6 +26,8 @@ subject to the following restrictions:
 
 //Original repository is at http://github.com/erwincoumans/bullet3
 #define B3_BULLET_VERSION 300
+#define B3_USE_DOUBLE_PRECISION // use double precision 
+
 
 inline int b3GetVersion()
 {
