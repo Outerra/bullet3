@@ -123,6 +123,17 @@ protected:
 	int			m_updateRevision;
 
 	btVector3 m_customDebugColorRGB;
+public:
+
+    ///users can point to their objects, m_userPointer is not used by Bullet, see setUserPointer/getUserPointer
+
+    void*			m_userObjectPointer;
+
+    union {
+        void*		m_userDataExt;
+        intptr_t	m_userIndex;
+    };
+
 
 public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
@@ -546,7 +557,7 @@ public:
 		return m_userObjectPointer;
 	}
 
-	int	getUserIndex() const
+    intptr_t	getUserIndex() const
 	{
 		return m_userIndex;
 	}
@@ -568,7 +579,7 @@ public:
 	}
 
 	///users can point to their objects, userPointer is not used by Bullet
-	void	setUserIndex(int index)
+	void	setUserIndex(intptr_t index)
 	{
 		m_userIndex = index;
 	}
