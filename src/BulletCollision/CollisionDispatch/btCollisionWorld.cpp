@@ -293,6 +293,8 @@ void btCollisionWorld::rayTestSingleInternal(const btTransform& rayFromTrans, co
 	const btCollisionShape* collisionShape = collisionObjectWrap->getCollisionShape();
 	const btTransform& colObjWorldTransform = collisionObjectWrap->getWorldTransform();
 
+    const_cast<btCollisionObject*>(collisionObjectWrap->getCollisionObject())->setCollisionShape2(const_cast<btCollisionShape*>(collisionShape));
+
 	if (collisionShape->isConvex())
 	{
 		//		BT_PROFILE("rayTestConvex");
