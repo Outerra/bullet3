@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\src\otbullet\wrapper.cpp" />
+    <ClCompile Include="..\..\src\otbullet\rigid_body.cpp" />
+    <ClCompile Include="..\..\src\otbullet\otbullet.intergen.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <hpp Include="..\..\src\otbullet\otbullet.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\otbullet\physics_cfg.h" />
+  </ItemGroup>
+</Project>
