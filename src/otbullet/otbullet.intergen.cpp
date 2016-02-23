@@ -149,6 +149,14 @@ public:
         return _generic_interface_creator(__host__.get(), __here__);
     }
 
+    static iref<physics> get( physics* __here__ )
+    {
+        iref< ::physics> __host__ = ::physics::get();
+        if(!__host__)
+            return 0;
+        return _generic_interface_creator(__host__.get(), __here__);
+    }
+
     ///Register interface creators in the global registry
     static void* register_interfaces()
     {
@@ -156,7 +164,9 @@ public:
             "bt::physics@wrapper", (void*)&_generic_interface_creator);
 
         interface_register::register_interface_creator(
-            "bt::physics.create@4238532114", (void*)&create);
+            "bt::physics.create@2201364551", (void*)&create);
+        interface_register::register_interface_creator(
+            "bt::physics.get@2201364551", (void*)&get);
 
         return (void*)&register_interfaces;
     }

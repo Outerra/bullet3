@@ -18,17 +18,18 @@
 #include "physics_cfg.h"
 
 #include <comm/ref_i.h>
+#include <comm/commexception.h>
 
 static btBroadphaseInterface* _overlappingPairCache = 0;
 static btCollisionDispatcher* _dispatcher = 0;
 static btConstraintSolver* _constraintSolver = 0;
 static btDefaultCollisionConfiguration* _collisionConfiguration = 0;
 
-
+static physics * p = nullptr;
 ////////////////////////////////////////////////////////////////////////////////
 iref<physics> physics::create( double r )
 {
-    iref<physics> p = new physics;
+    p = new physics;
 
     _collisionConfiguration = new btDefaultCollisionConfiguration();
     _dispatcher = new btCollisionDispatcher(_collisionConfiguration);
@@ -46,6 +47,15 @@ iref<physics> physics::create( double r )
     p->_world->setForceUpdateAllAabbs(false);
 
     return p;
+}
+
+ifc_fn iref<physics> physics::get()
+{
+	if (!p) {
+		throw coid::exception("Bullet not initialized yet!");
+	}
+
+	return p;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

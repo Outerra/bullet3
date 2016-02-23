@@ -29,6 +29,7 @@ public:
     ifc_class(bt::physics, "");
 
     ifc_fn static iref<physics> create( double r );
+	ifc_fn static iref<physics> get();
 
     ifc_fn void step_simulation( double step );
     ifc_fn void ray_test( const double from[3], const double to[3], void* cb);

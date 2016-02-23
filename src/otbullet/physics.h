@@ -97,10 +97,16 @@ public:
 
     template<class T>
     static iref<T> create( T* _subclass_, double r );
+    static iref<physics> get() {
+        return get<physics>(0);
+    }
+
+    template<class T>
+    static iref<T> get( T* _subclass_ );
 
     // --- internal helpers ---
 
-    static const int HASHID = 4238532114;
+    static const int HASHID = 2201364551;
     
     int intergen_hash_id() const override { return HASHID; }
     
@@ -110,7 +116,7 @@ public:
     }
 
     const coid::token& intergen_default_creator() const override {
-        static const coid::token _dc("");
+        static const coid::token _dc("bt::physics.get@2201364551");
         return _dc;
     }
 
@@ -137,7 +143,7 @@ inline iref<T> physics::create( T* _subclass_, double r )
     typedef iref<T> (*fn_creator)(physics*, double);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.create@4238532114";
+    static const coid::token ifckey = "bt::physics.create@2201364551";
 
     if(!create)
         create = reinterpret_cast<fn_creator>(
@@ -147,6 +153,24 @@ inline iref<T> physics::create( T* _subclass_, double r )
         throw coid::exception("interface creator inaccessible: ") << ifckey;
 
     return create(_subclass_, r);
+}
+////////////////////////////////////////////////////////////////////////////////
+template<class T>
+inline iref<T> physics::get( T* _subclass_ )
+{
+    typedef iref<T> (*fn_creator)(physics*);
+
+    static fn_creator create = 0;
+    static const coid::token ifckey = "bt::physics.get@2201364551";
+
+    if(!create)
+        create = reinterpret_cast<fn_creator>(
+            coid::interface_register::get_interface_creator(ifckey));
+
+    if(!create)
+        throw coid::exception("interface creator inaccessible: ") << ifckey;
+
+    return create(_subclass_);
 }
 
 
