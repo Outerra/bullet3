@@ -25,9 +25,10 @@ static btCollisionDispatcher* _dispatcher = 0;
 static btConstraintSolver* _constraintSolver = 0;
 static btDefaultCollisionConfiguration* _collisionConfiguration = 0;
 
-static physics * p = nullptr;
+static physics* p = nullptr;
+
 ////////////////////////////////////////////////////////////////////////////////
-iref<physics> physics::create( double r )
+iref<physics> physics::create( double r, void* context )
 {
     p = new physics;
 
@@ -49,11 +50,11 @@ iref<physics> physics::create( double r )
     return p;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 ifc_fn iref<physics> physics::get()
 {
-	if (!p) {
+	if(!p)
 		throw coid::exception("Bullet not initialized yet!");
-	}
 
 	return p;
 }

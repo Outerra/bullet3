@@ -91,12 +91,12 @@ public:
 
     // --- creators ---
 
-    static iref<physics> create( double r ) {
-        return create<physics>(0, r);
+    static iref<physics> create( double r, void* context ) {
+        return create<physics>(0, r, context);
     }
 
     template<class T>
-    static iref<T> create( T* _subclass_, double r );
+    static iref<T> create( T* _subclass_, double r, void* context );
     static iref<physics> get() {
         return get<physics>(0);
     }
@@ -106,7 +106,7 @@ public:
 
     // --- internal helpers ---
 
-    static const int HASHID = 2201364551;
+    static const int HASHID = 1952619542;
     
     int intergen_hash_id() const override { return HASHID; }
     
@@ -116,7 +116,7 @@ public:
     }
 
     const coid::token& intergen_default_creator() const override {
-        static const coid::token _dc("bt::physics.get@2201364551");
+        static const coid::token _dc("bt::physics.get@1952619542");
         return _dc;
     }
 
@@ -138,12 +138,12 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 template<class T>
-inline iref<T> physics::create( T* _subclass_, double r )
+inline iref<T> physics::create( T* _subclass_, double r, void* context )
 {
-    typedef iref<T> (*fn_creator)(physics*, double);
+    typedef iref<T> (*fn_creator)(physics*, double, void*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.create@2201364551";
+    static const coid::token ifckey = "bt::physics.create@1952619542";
 
     if(!create)
         create = reinterpret_cast<fn_creator>(
@@ -152,7 +152,7 @@ inline iref<T> physics::create( T* _subclass_, double r )
     if(!create)
         throw coid::exception("interface creator inaccessible: ") << ifckey;
 
-    return create(_subclass_, r);
+    return create(_subclass_, r, context);
 }
 ////////////////////////////////////////////////////////////////////////////////
 template<class T>
@@ -161,7 +161,7 @@ inline iref<T> physics::get( T* _subclass_ )
     typedef iref<T> (*fn_creator)(physics*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.get@2201364551";
+    static const coid::token ifckey = "bt::physics.get@1952619542";
 
     if(!create)
         create = reinterpret_cast<fn_creator>(

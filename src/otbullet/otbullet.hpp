@@ -28,7 +28,7 @@ public:
     ///Interface for physics module
     ifc_class(bt::physics, "");
 
-    ifc_fn static iref<physics> create( double r );
+    ifc_fn static iref<physics> create( double r, void* context );
 	ifc_fn static iref<physics> get();
 
     ifc_fn void step_simulation( double step );
