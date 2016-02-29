@@ -4,6 +4,7 @@ del /S /Q ..\..\..\include\bullet\*.*
 xcopy BulletCollision ..\..\..\include\bullet\BulletCollision\ /sy /exclude:copy-headers.exc
 xcopy BulletDynamics ..\..\..\include\bullet\BulletDynamics\ /sy /exclude:copy-headers.exc
 xcopy LinearMath ..\..\..\include\bullet\LinearMath\ /sy /exclude:copy-headers.exc
+xcopy *.h ..\..\..\include\bullet\ /y
 xcopy otbullet ..\..\..\include\bullet\otbullet\ /sy /exclude:copy-headers.exc
 
 xcopy ..\bin\Debug ..\..\..\lib.12\Win32\Debug\ /sy /exclude:copy-headers.exc
