@@ -32,7 +32,7 @@ private:
     {
         if(_vtable1) return _vtable1;
 
-        _vtable1 = new ifn_t[26];
+        _vtable1 = new ifn_t[27];
         _vtable1[0] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(double)>(&::physics::step_simulation));
         _vtable1[1] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(const double[3],const double[3],void*)>(&::physics::ray_test));
         _vtable1[2] = reinterpret_cast<ifn_t>(static_cast<btRigidBody*(policy_intrusive_base::*)()>(&::physics::fixed_object));
@@ -48,17 +48,18 @@ private:
         _vtable1[12] = reinterpret_cast<ifn_t>(static_cast<btCollisionObject*(policy_intrusive_base::*)(btCollisionShape*,void*,void*)>(&::physics::create_collision_object));
         _vtable1[13] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionObject*&)>(&::physics::destroy_collision_object));
         _vtable1[14] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionObject*,const btTransform&,bool)>(&::physics::update_collision_object));
-        _vtable1[15] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionObject*,unsigned int,unsigned int,bool)>(&::physics::add_collision_object));
-        _vtable1[16] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionObject*)>(&::physics::remove_collision_object));
-        _vtable1[17] = reinterpret_cast<ifn_t>(static_cast<btCompoundShape*(policy_intrusive_base::*)()>(&::physics::create_compound_shape));
-        _vtable1[18] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCompoundShape*,btCollisionShape*,const btTransform&)>(&::physics::add_child_shape));
-        _vtable1[19] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCompoundShape*,int,const btTransform&)>(&::physics::update_child));
-        _vtable1[20] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCompoundShape*)>(&::physics::recalc_compound_shape));
-        _vtable1[21] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCompoundShape*&)>(&::physics::destroy_compound_shape));
-        _vtable1[22] = reinterpret_cast<ifn_t>(static_cast<btCollisionShape*(policy_intrusive_base::*)(bt::EShape,const float[3])>(&::physics::create_shape));
-        _vtable1[23] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionShape*,const float[3])>(&::physics::add_convex_point));
-        _vtable1[24] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionShape*)>(&::physics::close_convex_shape));
-        _vtable1[25] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionShape*&)>(&::physics::destroy_shape));
+        _vtable1[15] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionObject*,unsigned int,unsigned int)>(&::physics::set_collision_info));
+        _vtable1[16] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionObject*,unsigned int,unsigned int,bool)>(&::physics::add_collision_object));
+        _vtable1[17] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionObject*)>(&::physics::remove_collision_object));
+        _vtable1[18] = reinterpret_cast<ifn_t>(static_cast<btCompoundShape*(policy_intrusive_base::*)()>(&::physics::create_compound_shape));
+        _vtable1[19] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCompoundShape*,btCollisionShape*,const btTransform&)>(&::physics::add_child_shape));
+        _vtable1[20] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCompoundShape*,int,const btTransform&)>(&::physics::update_child));
+        _vtable1[21] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCompoundShape*)>(&::physics::recalc_compound_shape));
+        _vtable1[22] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCompoundShape*&)>(&::physics::destroy_compound_shape));
+        _vtable1[23] = reinterpret_cast<ifn_t>(static_cast<btCollisionShape*(policy_intrusive_base::*)(bt::EShape,const float[3])>(&::physics::create_shape));
+        _vtable1[24] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionShape*,const float[3])>(&::physics::add_convex_point));
+        _vtable1[25] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionShape*)>(&::physics::close_convex_shape));
+        _vtable1[26] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionShape*&)>(&::physics::destroy_shape));
         return _vtable1;
     }
 
@@ -70,7 +71,7 @@ private:
         if(_vtable2) return _vtable2;
         ifn_t* vtable1 = get_vtable();
 
-        _vtable2 = new ifn_t[26];
+        _vtable2 = new ifn_t[27];
         _vtable2[0] = vtable1[0];
         _vtable2[1] = vtable1[1];
         _vtable2[2] = vtable1[2];
@@ -97,6 +98,7 @@ private:
         _vtable2[23] = vtable1[23];
         _vtable2[24] = vtable1[24];
         _vtable2[25] = vtable1[25];
+        _vtable2[26] = vtable1[26];
         return _vtable2;
     }
 
@@ -104,7 +106,7 @@ protected:
 
     physics_dispatcher()
     {}
-
+    
     bool intergen_bind_capture( coid::binstring* capture, uint instid ) override
     {
         if(instid >= 0xffU)
@@ -164,9 +166,9 @@ public:
             "bt::physics@wrapper", (void*)&_generic_interface_creator);
 
         interface_register::register_interface_creator(
-            "bt::physics.create@1952619542", (void*)&create);
+            "bt::physics.create@1720228644", (void*)&create);
         interface_register::register_interface_creator(
-            "bt::physics.get@1952619542", (void*)&get);
+            "bt::physics.get@1720228644", (void*)&get);
 
         return (void*)&register_interfaces;
     }

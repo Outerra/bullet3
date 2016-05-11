@@ -13,3 +13,5 @@ xcopy ..\bin\ReleaseLTCG ..\..\..\lib.12\Win32\ReleaseLTCG\ /sy /exclude:copy-he
 
 xcopy ..\bin\ReleaseLTCG\otbullet.dll ..\..\..\..\bin\ /y
 xcopy ..\bin\ReleaseLTCG\otbullet.pdb ..\..\..\..\bin\ /y
+xcopy ..\bin\Debug\otbulletd.dll ..\..\..\..\bin\ /y
+xcopy ..\bin\Debug\otbulletd.pdb ..\..\..\..\bin\ /y

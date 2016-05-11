@@ -156,6 +156,16 @@ void physics::add_collision_object( btCollisionObject* obj, unsigned int group, 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void physics::set_collision_info( btCollisionObject* obj, unsigned int group, unsigned int mask )
+{
+    btBroadphaseProxy* bp = obj->getBroadphaseHandle();
+    if(bp) {
+        bp->m_collisionFilterGroup = group;
+        bp->m_collisionFilterMask = mask;
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void physics::remove_collision_object( btCollisionObject* obj )
 {
     _world->removeCollisionObject(obj);
