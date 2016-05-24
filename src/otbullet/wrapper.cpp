@@ -1,5 +1,4 @@
-
-#include <BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h>
+#include "discrete_dynamics_world.h"
 
 #include <BulletCollision/CollisionShapes/btCompoundShape.h>
 #include <BulletCollision/CollisionShapes/btCollisionShape.h>
@@ -25,39 +24,68 @@ static btCollisionDispatcher* _dispatcher = 0;
 static btConstraintSolver* _constraintSolver = 0;
 static btDefaultCollisionConfiguration* _collisionConfiguration = 0;
 
-static physics* p = nullptr;
+static physics * _physics = nullptr;
 
 ////////////////////////////////////////////////////////////////////////////////
-iref<physics> physics::create( double r, void* context )
+
+static bool _ext_collider(
+    const void* planet,
+	const double3& center,
+	float radius,
+	coid::dynarray<bt::triangle>& data,
+	coid::dynarray<bt::tree_batch*>& trees)
 {
-    p = new physics;
+    return _physics->terrain_collisions(planet, center, radius, data, trees);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+iref<physics> physics::create(double r, void* context)
+{
+    _physics = new physics;
 
     _collisionConfiguration = new btDefaultCollisionConfiguration();
     _dispatcher = new btCollisionDispatcher(_collisionConfiguration);
     btVector3 worldMin(-r,-r,-r);
     btVector3 worldMax(r,r,r);
+
     _overlappingPairCache = new bt32BitAxisSweep3(worldMin, worldMax);
     _constraintSolver = new btSequentialImpulseConstraintSolver();
 
-    p->_world = new btDiscreteDynamicsWorld(
-        _dispatcher,
-        _overlappingPairCache,
-        _constraintSolver,
-        _collisionConfiguration);
+	ot::discrete_dynamics_world * wrld = new ot::discrete_dynamics_world(
+		_dispatcher,
+		_overlappingPairCache,
+		_constraintSolver,
+		_collisionConfiguration,
+        &_ext_collider,
+		context
+        );
 
-    p->_world->setForceUpdateAllAabbs(false);
+    _physics->_world = wrld;
 
-    return p;
+    _physics->_world->setForceUpdateAllAabbs(false);
+
+    return _physics;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-ifc_fn iref<physics> physics::get()
+iref<physics> physics::get()
 {
-	if(!p)
+	if (!_physics) {
 		throw coid::exception("Bullet not initialized yet!");
+	}
 
-	return p;
+	return _physics;
 }
+
+void physics::set_debug_draw(btIDebugDraw * debug_draw) {
+	if (_physics->_world) {
+		_physics->_world->setDebugDrawer(debug_draw);
+	}
+}
+
+void physics::debug_draw_world() {
+    _physics->_world->debugDrawWorld();
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 btCollisionShape* physics::create_shape( bt::EShape sh, const float hvec[3] )
@@ -140,6 +168,16 @@ btCollisionObject* physics::create_collision_object( btCollisionShape* shape, vo
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void physics::set_collision_info(btCollisionObject* obj, unsigned int group, unsigned int mask)
+{
+	btBroadphaseProxy* bp = obj->getBroadphaseHandle();
+	if (bp) {
+		bp->m_collisionFilterGroup = group;
+		bp->m_collisionFilterMask = mask;
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void physics::destroy_collision_object( btCollisionObject*& obj )
 {
     if(obj) delete obj;
@@ -153,16 +191,6 @@ void physics::add_collision_object( btCollisionObject* obj, unsigned int group, 
         obj->setActivationState(DISABLE_SIMULATION);
 
     _world->addCollisionObject(obj, group, mask);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void physics::set_collision_info( btCollisionObject* obj, unsigned int group, unsigned int mask )
-{
-    btBroadphaseProxy* bp = obj->getBroadphaseHandle();
-    if(bp) {
-        bp->m_collisionFilterGroup = group;
-        bp->m_collisionFilterMask = mask;
-    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

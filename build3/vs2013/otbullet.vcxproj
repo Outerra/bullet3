@@ -129,7 +129,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>MAKEDLL_OTBULLET;WIN32;_DEBUG;_WINDOWS;_USRDLL;OTBULLET_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\src;$(SolutionDir)..\..\..\;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\src;$(SolutionDir)..\..\..\;$(SolutionDir)..\..\..\..\..\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
     </ClCompile>
@@ -166,7 +166,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>MAKEDLL_OTBULLET;WIN32;NDEBUG;_WINDOWS;_USRDLL;OTBULLET_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\src;$(SolutionDir)..\..\..\;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\src;$(SolutionDir)..\..\..\;$(SolutionDir)..\..\..\..\..\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
     </ClCompile>
@@ -190,7 +190,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>MAKEDLL_OTBULLET;WIN32;NDEBUG;_WINDOWS;_USRDLL;OTBULLET_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\src;$(SolutionDir)..\..\..\;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\src;$(SolutionDir)..\..\..\;$(SolutionDir)..\..\..\..\..\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -246,8 +246,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\otbullet\discrete_dynamics_world.cpp" />
     <ClCompile Include="..\..\src\otbullet\otbullet.intergen.cpp" />
+    <ClCompile Include="..\..\src\otbullet\ot_terrain_contact_common.cpp" />
     <ClCompile Include="..\..\src\otbullet\rigid_body.cpp" />
+    <ClCompile Include="..\..\src\otbullet\tree_batch.cpp" />
     <ClCompile Include="..\..\src\otbullet\wrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -262,10 +265,18 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\src\otbullet\discrete_dynamics_world.h" />
+    <ClInclude Include="..\..\src\otbullet\ot_terrain_contact_common.h" />
+    <ClInclude Include="..\..\src\otbullet\physics.h" />
+    <ClInclude Include="..\..\src\otbullet\physics.js.h" />
     <ClInclude Include="..\..\src\otbullet\physics_cfg.h" />
+    <ClInclude Include="..\..\src\otbullet\tree_batch.h" />
     <hpp Include="..\..\src\otbullet\otbullet.hpp">
-      <FileType>CppHeader</FileType>
+      <FileType>hpp</FileType>
     </hpp>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\src\otbullet\otbullet.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

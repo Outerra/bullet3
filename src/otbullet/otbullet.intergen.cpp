@@ -126,6 +126,12 @@ protected:
         }
     }
 
+    ///Cleanup routine called from ~physics()
+    static void _cleaner_callback( physics* m, intergen_interface* ifc ) {
+         ::physics* host = m->host<::physics>();
+        if(host) host->_ifc_host = ifc;
+    }
+
     static iref<physics> _generic_interface_creator( ::physics* host, physics* __here__)
     {
         //cast to dispatch to sidestep protected access restrictions
@@ -135,6 +141,10 @@ protected:
 
         __disp__->_host.create(host);
         __disp__->_vtable = _capture ? get_vtable_intercept() : get_vtable();
+        if(!host->_ifc_host) {
+            __disp__->_cleaner = &_cleaner_callback;
+            host->_ifc_host = __disp__;
+        }
 
         return __disp__;
     }
@@ -188,4 +198,16 @@ void* force_register_physics() {
 }
 
 } //namespace bt
+
+// events
+
+
+bool physics::terrain_collisions( const void* context, const double3& center, float radius, coid::dynarray<bt::triangle>& data, coid::dynarray<bt::tree_batch*>& trees )
+{
+	if(!_ifc_host) 
+        throw coid::exception() << "terrain_collisions" << " handler not implemented";
+    else
+        return _ifc_host->iface<bt::physics>()->terrain_collisions(context, center, radius, data, trees);
+}
+
 

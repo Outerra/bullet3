@@ -12,6 +12,7 @@ class btCollisionObject;
 class btRigidBody;
 class btActionInterface;
 class btTransform;
+class btIDebugDraw;
 
 namespace bt {
     class constraint_info;
@@ -25,8 +26,8 @@ class physics : public policy_intrusive_base
 {
 public:
 
-    ///Interface for physics module
-    ifc_class(bt::physics, "");
+    ///Interface for the physics module
+    ifc_class_var(bt::physics, "", _ifc_host);
 
     ifc_fn static iref<physics> create( double r, void* context );
 	ifc_fn static iref<physics> get();
@@ -64,6 +65,16 @@ public:
     ifc_fn void add_convex_point( btCollisionShape* shape, const float point[3] );
     ifc_fn void close_convex_shape( btCollisionShape* shape );
     ifc_fn void destroy_shape( ifc_inout btCollisionShape*& shape );
+
+    ifc_event bool terrain_collisions(
+        const void* context,
+        const double3& center,
+        float radius,
+        coid::dynarray<bt::triangle>& data,
+        coid::dynarray<bt::tree_batch*>& trees);
+
+    void set_debug_draw(btIDebugDraw * debug_draw);
+	void debug_draw_world();
 
 private:
 

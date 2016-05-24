@@ -84,7 +84,8 @@ void physics::destroy_rigid_body( btRigidBody*& obj )
 void physics::add_rigid_body( btRigidBody* obj, unsigned int group, unsigned int mask,
     btActionInterface* action, bt::constraint_info* constraint )
 {
-    obj->setActivationState(DISABLE_DEACTIVATION);
+    if(action)
+		obj->setActivationState(DISABLE_DEACTIVATION);
 
     _world->addRigidBody(obj, group, mask);
 

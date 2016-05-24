@@ -16,6 +16,7 @@ class btCollisionObject;
 class btRigidBody;
 class btActionInterface;
 class btTransform;
+class btIDebugDraw;
 
 namespace bt {
     class constraint_info;
@@ -29,7 +30,7 @@ class physics;
 namespace bt {
 
 ////////////////////////////////////////////////////////////////////////////////
-///Interface for physics module
+///Interface for the physics module
 class physics
     : public intergen_interface
 {
@@ -91,6 +92,18 @@ public:
 
     void destroy_shape( ifc_inout btCollisionShape*& shape );
 
+
+protected:
+    // --- interface events (callbacks from host to client) ---
+    // ---       overload these to handle host events       ---
+
+    friend class ::physics;
+
+    virtual bool terrain_collisions( const void* context, const double3& center, float radius, coid::dynarray<bt::triangle>& data, coid::dynarray<bt::tree_batch*>& trees ){ throw coid::exception("handler not implemented"); }
+
+    virtual void force_bind_script_events() {}
+
+public:
     // --- creators ---
 
     static iref<physics> create( double r, void* context ) {
@@ -107,6 +120,10 @@ public:
     static iref<T> get( T* _subclass_ );
 
     // --- internal helpers ---
+
+    virtual ~physics() {
+        if(_cleaner) _cleaner(this,0);
+    }
 
     static const int HASHID = 1720228644;
 
@@ -153,9 +170,17 @@ public:
         return intergen_default_creator_static(bck);
     }
 
+public:
+    // --- host helpers to check presence of handlers in scripts ---
+
+    virtual bool is_bound_terrain_collisions() { return true; }
+
 protected:
 
-    physics()
+    typedef void (*cleanup_fn)(physics*, intergen_interface*);
+    cleanup_fn _cleaner;
+
+    physics() : _cleaner(0)
     {}
 };
 
