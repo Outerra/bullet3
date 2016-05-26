@@ -12,15 +12,17 @@
 #endif
 
 ot_terrain_contact_common::ot_terrain_contact_common(float triangle_collision_margin, btCollisionWorld * world, btCollisionObjectWrapper * planet_body_wrap)
-	:_curr_collider(ctCount),
-	_triangle_collision_margin(triangle_collision_margin),
-	_curr_algo(0),
-	_mesh_offset(0),
-	_hull_center_g(0),
-	_hull_polydata(0),
-	_collision_world(world),
-	_planet_body_wrap(planet_body_wrap),
-	box_ca(0)
+	:_curr_collider(ctCount)
+	,_triangle_collision_margin(triangle_collision_margin)
+	,_curr_algo(0)
+	,_mesh_offset(0)
+	,_hull_center_g(0)
+	,_hull_polydata(0)
+	,_collision_world(world)
+	,_planet_body_wrap(planet_body_wrap)
+    ,_convex_object(0)
+    ,_internal_object(0)
+	,_bt_ca(0)
 #ifdef PhysX
 	,_hull_center()
 	,mPolyMap(0)
@@ -48,8 +50,8 @@ void ot_terrain_contact_common::set_terrain_mesh_offset(const glm::dvec3 & offse
 	_convex_transform.p = _hull_center;
 	_mesh_to_covex.p = V3LoadU(&glm::vec3(-offset)[0]);
 #endif
-	if (_box_object) {
-		_box_local_transform.setOrigin(_box_object->getWorldTransform().getOrigin() - btVector3(_mesh_offset.x, _mesh_offset.y, _mesh_offset.z));
+	if (_convex_object) {
+		_box_local_transform.setOrigin(_convex_object->getWorldTransform().getOrigin() - btVector3(_mesh_offset.x, _mesh_offset.y, _mesh_offset.z));
 	}
 	
 }
@@ -94,14 +96,14 @@ void ot_terrain_contact_common::prepare_hull_collision(btManifoldResult * result
 	mPolyMap = new physx::Gu::SupportLocalImpl<physx::Gu::BoxV>(_ps_box, _convex_transform, Ps::aos::M33Identity(), Ps::aos::M33Identity());
 }
 #endif
-void ot_terrain_contact_common::prepare_box_collision(btManifoldResult * result, btCollisionObjectWrapper * box_object)
+void ot_terrain_contact_common::prepare_bt_convex_collision(btManifoldResult * result, btCollisionObjectWrapper * convex_object)
 {
 	prepare(result);
 	_curr_collider = ctBox;
-	_curr_algo = &ot_terrain_contact_common::collide_box_triangle;
-	_box_local_transform = box_object->getWorldTransform();
-	_box_object = box_object;
-	box_ca = 0;
+	_curr_algo = &ot_terrain_contact_common::collide_convex_triangle;
+	_box_local_transform = convex_object->getWorldTransform();
+	_convex_object = convex_object;
+	_bt_ca = 0;
 }
 
 void ot_terrain_contact_common::process_triangle_cache()
@@ -338,7 +340,7 @@ void ot_terrain_contact_common::collide_hull_triangle(const bt::triangle & trian
 
 }
 #endif
-void ot_terrain_contact_common::collide_box_triangle(const bt::triangle & triangle)
+void ot_terrain_contact_common::collide_convex_triangle(const bt::triangle & triangle)
 {
 	btCollisionObject colObj;
 	btTriangleShape tm(btVector3(triangle.a.x, triangle.a.y , triangle.a.z ),
@@ -353,15 +355,19 @@ void ot_terrain_contact_common::collide_box_triangle(const bt::triangle & triang
 	tri_trans.setOrigin(btVector3(_mesh_offset.x, _mesh_offset.y, _mesh_offset.z));
 
 	btCollisionObjectWrapper triObWrap(_manifold->getBody0Wrap(), &tm, _manifold->getBody0Wrap()->getCollisionObject(), tri_trans, -1, -1);
-	btCollisionObjectWrapper boxObWrap(0, _box_object->getCollisionShape(), _box_object->getCollisionObject(), _box_object->getWorldTransform(), -1, -1);
+	//btCollisionObjectWrapper convexObWrap(0, _convex_object->getCollisionShape(), _convex_object->getCollisionObject(), _convex_object->getWorldTransform(), -1, -1);
 
-	if (!box_ca) {
+    const btCollisionObjectWrapper * temp = _manifold->getBody1Wrap();
+    _manifold->setBody1Wrap(_convex_object);
+
+	if (!_bt_ca) {
 		btDispatcher * dispatcher = _collision_world->getDispatcher();
-		box_ca = dispatcher->findAlgorithm(&triObWrap, &boxObWrap, _manifold->getPersistentManifold());
+		_bt_ca = dispatcher->findAlgorithm(&triObWrap, _internal_object, _manifold->getPersistentManifold());
 	}
 	
-	box_ca->processCollision(&boxObWrap, &triObWrap, _collision_world->getDispatchInfo(), _manifold);
+	_bt_ca->processCollision(_internal_object, &triObWrap, _collision_world->getDispatchInfo(), _manifold);
 
+    _manifold->setBody1Wrap(temp);
 }
 
 void ot_terrain_contact_common::generateContacts(const glm::vec3 & a, const glm::vec3 & b,
@@ -1637,5 +1643,5 @@ void ot_terrain_contact_common::prepare(btManifoldResult * result)
 	_triangle_cache.clear();
 	_contact_point_cache.clear();
 	_additional_col_objs.clear();
-	_box_object = 0;
+	_convex_object = 0;
 }

@@ -20,6 +20,7 @@ class btBroadphaseInterface;
 class btManifoldResult;
 struct skewbox;
 class ot_terrain_contact_common;
+class planet_qtree;
 
 namespace ot {
 
@@ -53,12 +54,13 @@ protected:
 		const btCollisionObjectWrapper* _parent;
 		const btCollisionShape* _shape;
 		const btCollisionObject* _collisionObject;
-		const btTransform& _worldTransform;
+		const btTransform _worldTransform;
 		int _partId;
 		int _index;
 		btCollisionObjectWrapperCtorArgs(const btCollisionObjectWrapper* parent, const btCollisionShape* shape, const btCollisionObject* collisionObject, const btTransform& worldTransform, int partId, int index)
 			:_parent(parent)
 			, _shape(shape)
+            , _collisionObject(collisionObject)
 			, _worldTransform(worldTransform)
 			, _partId(partId)
 			, _index(index)
@@ -66,7 +68,7 @@ protected:
 	private:
 		btCollisionObjectWrapperCtorArgs();
 	};
-	const void* _context;
+	const planet_qtree* _planet;
 	uint32 _frame_count;
 
 	btRigidBody * _planet_body;
@@ -90,7 +92,7 @@ protected:
 public:
 
     typedef bool (*fn_ext_collision)(
-        const void* context,
+        const planet_qtree& context,
         const double3& center,
         float radius,
         coid::dynarray<bt::triangle>& data,
@@ -102,7 +104,7 @@ public:
 		btConstraintSolver* constraintSolver,
 		btCollisionConfiguration* collisionConfiguration,
         fn_ext_collision ext_collider, 
-		const void* context = 0);
+		const planet_qtree* context = 0);
 
 protected:
 

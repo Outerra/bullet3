@@ -19,6 +19,8 @@
 #include <comm/ref_i.h>
 #include <comm/commexception.h>
 
+class planet_qtree;
+
 static btBroadphaseInterface* _overlappingPairCache = 0;
 static btCollisionDispatcher* _dispatcher = 0;
 static btConstraintSolver* _constraintSolver = 0;
@@ -27,15 +29,40 @@ static btDefaultCollisionConfiguration* _collisionConfiguration = 0;
 static physics * _physics = nullptr;
 
 ////////////////////////////////////////////////////////////////////////////////
+#ifdef _LIB
 
-static bool _ext_collider(
-    const void* planet,
+extern bool _ext_collider(const planet_qtree& context,
 	const double3& center,
 	float radius,
 	coid::dynarray<bt::triangle>& data,
-	coid::dynarray<bt::tree_batch*>& trees)
+	coid::dynarray<bt::tree_batch*>& trees);
+
+#else
+
+static bool _ext_collider(
+    const planet_qtree& planet,
+    const double3& center,
+    float radius,
+    coid::dynarray<bt::triangle>& data,
+    coid::dynarray<bt::tree_batch*>& trees)
 {
-    return _physics->terrain_collisions(planet, center, radius, data, trees);
+    return _physics->terrain_collisions(&planet, center, radius, data, trees);
+}
+
+#endif
+
+
+
+void set_debug_drawer(btIDebugDraw * debug_draw) {
+    if (_physics) {
+        _physics->set_debug_draw(debug_draw);
+    }
+}
+
+void debug_draw_world() {
+    if (_physics) {
+        _physics->debug_draw_world();
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -57,7 +84,7 @@ iref<physics> physics::create(double r, void* context)
 		_constraintSolver,
 		_collisionConfiguration,
         &_ext_collider,
-		context
+		(planet_qtree*)context
         );
 
     _physics->_world = wrld;

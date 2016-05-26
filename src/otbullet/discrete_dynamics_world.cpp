@@ -10,7 +10,7 @@
 #include <BulletCollision/CollisionShapes/btTriangleMeshShape.h>
 #include <BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h>
 
-//#include "coal.h"
+#include <ot/glm/coal.h>
 
 #include "ot_terrain_contact_common.h"
 
@@ -84,13 +84,17 @@ namespace ot {
 			_cow_internal.clear();
 			_compound_processing_stack.clear();
 			btCollisionObject * obj = m_collisionObjects[i];
-			btRigidBody * rb = (btRigidBody*)obj;
+            btRigidBody * rb = 0;
+            if (!obj->isStaticObject()) {
+                rb = reinterpret_cast<btRigidBody *>(obj);
+            }
 
-			if (rb->wantsSleeping() ||
+
+			if ((!rb || rb->wantsSleeping()) ||
 				(obj->getCollisionShape()->getShapeType() != SPHERE_SHAPE_PROXYTYPE &&
 					obj->getCollisionShape()->getShapeType() != CAPSULE_SHAPE_PROXYTYPE &&
-					obj->getCollisionShape()->getShapeType() != BOX_SHAPE_PROXYTYPE /*&&
-					obj->getCollisionShape()->getShapeType() != COMPOUND_SHAPE_PROXYTYPE*/))
+					!obj->getCollisionShape()->isConvex() &&
+					obj->getCollisionShape()->getShapeType() != COMPOUND_SHAPE_PROXYTYPE))
 			{
 				continue;
 			}
@@ -122,13 +126,19 @@ namespace ot {
 				new (_cow_internal.add_uninit(1)) btCollisionObjectWrapperCtorArgs(0, obj->getCollisionShape(), obj, obj->getWorldTransform(), -1, -1);
 
 			}
-			for (uints j = 0; j < _cow_internal.size(); j++) {
+
+            res.setPersistentManifold(manifold);
+            *_manifolds.add(1) = manifold;
+
+			for (int j = 0; j < _cow_internal.size(); j++) {
 				btCollisionObjectWrapper internal_obj_wrapper(_cow_internal[j]._parent,
 					_cow_internal[j]._shape,
 					_cow_internal[j]._collisionObject,
 					_cow_internal[j]._worldTransform,
 					_cow_internal[j]._partId,
 					_cow_internal[j]._index);
+
+                common_data.set_internal_obj_wrapper(&internal_obj_wrapper);
 
 				btVector3 sc = internal_obj_wrapper.getWorldTransform().getOrigin();
 				//int face = ot::xyz_to_cubeface(&sc.m_floats[0]);
@@ -155,24 +165,26 @@ namespace ot {
 
 					common_data.prepare_capsule_collision(&res, glm::dvec3(p0.x(), p0.y(), p0.z()), glm::dvec3(p1.x(), p1.y(), p1.z()), cap_rad, caps->getMargin());
 				}
-				else if (internal_obj_wrapper.getCollisionShape()->getShapeType() == BOX_SHAPE_PROXYTYPE) {
-					const btBoxShape * box = reinterpret_cast<const btBoxShape*>(internal_obj_wrapper.getCollisionShape());
+				else if (internal_obj_wrapper.getCollisionShape()->isConvex()) {
 					btTransform t = internal_obj_wrapper.getWorldTransform();
 					btQuaternion q = t.getRotation();
 					btVector3 p = t.getOrigin();
-					//glm::quat rot(q.x(), q.y(), q.z(), q.w());
-					//glm::dvec3 pos(p.x(), p.y(), p.z());
-					_rad = box->getHalfExtentsWithMargin().length();
+					glm::quat rot(q.x(), q.y(), q.z(), q.w());
+					glm::dvec3 pos(p.x(), p.y(), p.z());
+					btVector3 dummy;
+					btScalar rad;
+					internal_obj_wrapper.getCollisionShape()->getBoundingSphere(dummy, rad);
+					_rad = (float)rad;
 
-					common_data.prepare_box_collision(&res, &internal_obj_wrapper);
+					common_data.prepare_bt_convex_collision(&res, &internal_obj_wrapper);
 				}
-
-				res.setPersistentManifold(manifold);
-				*_manifolds.add(1) = manifold;
+				else {
+					continue;
+				}
 
 				_triangles.clear();
 
-                if(!_sphere_intersect(_context, _from, _rad, _triangles, _trees))
+                if(!_sphere_intersect(*_planet, _from, _rad, _triangles, _trees))
                     continue;
 
 				if (_triangles.size() > 0) {
@@ -234,10 +246,10 @@ namespace ot {
 		btConstraintSolver * constraintSolver, 
 		btCollisionConfiguration * collisionConfiguration,
         fn_ext_collision ext_collider,
-		const void* context)
+		const planet_qtree* context)
 		: btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver,collisionConfiguration)
         , _sphere_intersect(ext_collider)
-		, _context(context)
+		, _planet(context)
 		//, _frame_count(0)
 	{
 		btTriangleShape * ts = new btTriangleShape();

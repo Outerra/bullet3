@@ -188,7 +188,8 @@ public:
 	void prepare_sphere_collision(btManifoldResult * result, const glm::dvec3 & center, float radius, float collision_margin);
 	void prepare_capsule_collision(btManifoldResult * result, const glm::dvec3 & p0, const glm::dvec3 & p1,float radius,float collision_margin);
 	void prepare_hull_collision(btManifoldResult * result, const glm::quat  & hull_rot, const glm::dvec3 & hull_pos, const btConvexPolyhedron & hull_polydata);
-	void prepare_box_collision(btManifoldResult * result, btCollisionObjectWrapper * box_object);
+	void prepare_bt_convex_collision(btManifoldResult * result, btCollisionObjectWrapper * convex_object);
+
 	void process_triangle_cache();
 	void process_triangle_cache(const coid::dynarray<bt::triangle>& triangle_cache);
 	void process_collision_points();
@@ -197,11 +198,13 @@ public:
 	void collide_sphere_triangle(const bt::triangle & triangle);
 	void collide_capsule_triangle(const bt::triangle & triangle);
 	void collide_hull_triangle(const bt::triangle & triangle);
-	void collide_box_triangle(const bt::triangle & triangle);
+	void collide_convex_triangle(const bt::triangle & triangle);
 
 	void add_triangle(const glm::vec3 & a, const glm::vec3 & b, const glm::vec3 & c, uint32 ia, uint32 ib, uint32 ic, uint8 flags, const double3 * mesh_offset);
 	void add_additional_col_obj(btCollisionObject * col_obj);
 
+    void set_internal_obj_wrapper(btCollisionObjectWrapper * internal_wrap) { _internal_object = internal_wrap;}
+    ;
 private:
 	typedef void(ot_terrain_contact_common::*CollisionAlgorithm)(const bt::triangle &);
 	btCollisionObjectWrapper * _planet_body_wrap;
@@ -235,9 +238,10 @@ private:
 	const btConvexPolyhedron * _hull_polydata;
 	coid::hash_keyset<cached_edge,edge_keyext<cached_edge,uint32> > _cached_edges;
 
-	btCollisionObjectWrapper * _box_object;
+	btCollisionObjectWrapper * _convex_object;
+    btCollisionObjectWrapper * _internal_object;
 	btTransform _box_local_transform;
-	btCollisionAlgorithm * box_ca;
+	btCollisionAlgorithm * _bt_ca;
 
 #ifdef PhysX
 	physx::Gu::BoxV _ps_box;
