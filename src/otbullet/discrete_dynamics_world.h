@@ -5,7 +5,6 @@
 #include <LinearMath/btAlignedObjectArray.h>
 
 #include "physics_cfg.h"
-#include "tree_batch.h"
 
 #include <ot/glm/glm_types.h>
 
@@ -20,9 +19,15 @@ class btBroadphaseInterface;
 class btManifoldResult;
 struct skewbox;
 class ot_terrain_contact_common;
-class planet_qtree;
 
 namespace ot {
+///
+struct tree_collision_pair
+{
+    btCollisionObject* obj;
+    bt::tree_collision_info* tree;
+};
+
 
 ///
 struct raw_collision_pair {
@@ -68,14 +73,13 @@ protected:
 	private:
 		btCollisionObjectWrapperCtorArgs();
 	};
-	const planet_qtree* _planet;
-	uint32 _frame_count;
+	const void* _context;
 
 	btRigidBody * _planet_body;
 	btCollisionObjectWrapper * _pb_wrap;
 	coid::dynarray<btPersistentManifold *> _manifolds;
 	//coid::slotalloc<tree_batch> _tree_cache;
-	coid::dynarray<bt::tree_collision_pair> _additional_pairs;
+	coid::dynarray<tree_collision_pair> _tree_collision_pairs;
 	coid::dynarray<btCollisionObjectWrapperCtorArgs> _cow_internal;
 	coid::dynarray<compound_processing_entry> _compound_processing_stack;
 	//iref<ot::logger> _logger;
@@ -92,7 +96,7 @@ protected:
 public:
 
     typedef bool (*fn_ext_collision)(
-        const planet_qtree& context,
+        const void* context,
         const double3& center,
         float radius,
         coid::dynarray<bt::triangle>& data,
@@ -104,7 +108,7 @@ public:
 		btConstraintSolver* constraintSolver,
 		btCollisionConfiguration* collisionConfiguration,
         fn_ext_collision ext_collider, 
-		const planet_qtree* context = 0);
+		const void* context = 0);
 
 protected:
 
@@ -113,9 +117,12 @@ protected:
 	void ot_terrain_collision_step();
 	void ot_terrain_collision_step_cleanup();
 
+    void process_trees_cache(btCollisionObject * cur_obj,const coid::dynarray<bt::tree_batch*>& trees_cache, uint32 frame);
+    void build_tb_collision_info(bt::tree_batch * tb);
+
     fn_ext_collision _sphere_intersect;
 
-	virtual void process_acp();
+	virtual void process_tree_collisions();
 	//bool sphere_skewbox_test(const double3 & center, float r, const skewbox* sb, float * dist);
 	bool point_skewbox_test(const double3 & point, const skewbox* sb, float * dist);
 

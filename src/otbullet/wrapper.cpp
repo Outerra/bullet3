@@ -19,8 +19,6 @@
 #include <comm/ref_i.h>
 #include <comm/commexception.h>
 
-class planet_qtree;
-
 static btBroadphaseInterface* _overlappingPairCache = 0;
 static btCollisionDispatcher* _dispatcher = 0;
 static btConstraintSolver* _constraintSolver = 0;
@@ -31,7 +29,7 @@ static physics * _physics = nullptr;
 ////////////////////////////////////////////////////////////////////////////////
 #ifdef _LIB
 
-extern bool _ext_collider(const planet_qtree& context,
+extern bool _ext_collider(const void* context,
 	const double3& center,
 	float radius,
 	coid::dynarray<bt::triangle>& data,
@@ -40,13 +38,13 @@ extern bool _ext_collider(const planet_qtree& context,
 #else
 
 static bool _ext_collider(
-    const planet_qtree& planet,
+    const void* planet,
     const double3& center,
     float radius,
     coid::dynarray<bt::triangle>& data,
     coid::dynarray<bt::tree_batch*>& trees)
 {
-    return _physics->terrain_collisions(&planet, center, radius, data, trees);
+    return _physics->terrain_collisions(planet, center, radius, data, trees);
 }
 
 #endif
@@ -84,7 +82,7 @@ iref<physics> physics::create(double r, void* context)
 		_constraintSolver,
 		_collisionConfiguration,
         &_ext_collider,
-		(planet_qtree*)context
+		context
         );
 
     _physics->_world = wrld;

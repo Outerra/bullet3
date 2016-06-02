@@ -85,15 +85,10 @@ struct tree_batch
     uint8 buf[16 * sizeof(tree_collision_info)];
 
     tree_collision_info* info(int i) { return (tree_collision_info*)buf + i; }
+    ~tree_batch() {
+        tree_count = 0;
+    }
 };
-
-//
-struct tree_collision_pair
-{
-    void* obj;
-    tree_collision_info* tree;
-};
-
 
 //
 class constraint_info
