@@ -134,6 +134,7 @@ namespace ot {
             *_manifolds.add(1) = manifold;
 
 			for (int j = 0; j < _cow_internal.size(); j++) {
+
 				btCollisionObjectWrapper internal_obj_wrapper(_cow_internal[j]._parent,
 					_cow_internal[j]._shape,
 					_cow_internal[j]._collisionObject,
@@ -176,10 +177,10 @@ namespace ot {
 					btTransform t = internal_obj_wrapper.getWorldTransform();
 					btQuaternion q = t.getRotation();
 					btVector3 p = t.getOrigin();
-					glm::quat rot(q.x(), q.y(), q.z(), q.w());
-					glm::dvec3 pos(p.x(), p.y(), p.z());
 					btVector3 dummy;
 					btScalar rad;
+					glm::quat rot(q.x(), q.y(), q.z(), q.w());
+					glm::dvec3 pos(p.x(), p.y(), p.z());;
 					internal_obj_wrapper.getCollisionShape()->getBoundingSphere(dummy, rad);
 					_rad = (float)rad;
 
@@ -206,12 +207,12 @@ namespace ot {
 				int num_contacts = manifold->getNumContacts();
 
 				common_data.process_collision_points();
-
-				if (manifold->getNumContacts() == 0) {
-					getDispatcher()->releaseManifold(manifold);
-					_manifolds.del(_manifolds.size() - 1, 1);
-				}
 			}
+
+            if (manifold->getNumContacts() == 0) {
+                getDispatcher()->releaseManifold(manifold);
+                _manifolds.del(_manifolds.size() - 1, 1);
+            }
 		}
 
         ++frame_count;

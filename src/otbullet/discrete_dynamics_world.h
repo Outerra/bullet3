@@ -19,6 +19,7 @@ class btBroadphaseInterface;
 class btManifoldResult;
 struct skewbox;
 class ot_terrain_contact_common;
+class planet_qtree;
 
 namespace ot {
 ///
