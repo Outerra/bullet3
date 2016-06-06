@@ -133,7 +133,7 @@ namespace ot {
             res.setPersistentManifold(manifold);
             *_manifolds.add(1) = manifold;
 
-			for (int j = 0; j < _cow_internal.size(); j++) {
+			for (uints j = 0; j < _cow_internal.size(); j++) {
 
 				btCollisionObjectWrapper internal_obj_wrapper(_cow_internal[j]._parent,
 					_cow_internal[j]._shape,
@@ -159,7 +159,7 @@ namespace ot {
 				if (internal_obj_wrapper.getCollisionShape()->getShapeType() == SPHERE_SHAPE_PROXYTYPE) {
 					const btSphereShape * sph = reinterpret_cast<const btSphereShape*>(internal_obj_wrapper.getCollisionShape());
 					_rad = float(sph->getRadius() + 0.02);
-					common_data.prepare_sphere_collision(&res, _from, sph->getRadius(), 0.02f);
+					common_data.prepare_sphere_collision(&res, _from, float(sph->getRadius()), 0.02f);
 				}
 				else if (internal_obj_wrapper.getCollisionShape()->getShapeType() == CAPSULE_SHAPE_PROXYTYPE) {
 					const btCapsuleShape * caps = reinterpret_cast<const btCapsuleShape*>(internal_obj_wrapper.getCollisionShape());
@@ -171,7 +171,7 @@ namespace ot {
 					btVector3 p0 = sc + (main_axis * cap_hheight);
 					btVector3 p1 = sc - (main_axis * cap_hheight);
 
-					common_data.prepare_capsule_collision(&res, glm::dvec3(p0.x(), p0.y(), p0.z()), glm::dvec3(p1.x(), p1.y(), p1.z()), cap_rad, caps->getMargin());
+					common_data.prepare_capsule_collision(&res, glm::dvec3(p0.x(), p0.y(), p0.z()), glm::dvec3(p1.x(), p1.y(), p1.z()), cap_rad, float(caps->getMargin()));
 				}
 				else if (internal_obj_wrapper.getCollisionShape()->isConvex()) {
 					btTransform t = internal_obj_wrapper.getWorldTransform();
@@ -179,8 +179,6 @@ namespace ot {
 					btVector3 p = t.getOrigin();
 					btVector3 dummy;
 					btScalar rad;
-					glm::quat rot(q.x(), q.y(), q.z(), q.w());
-					glm::dvec3 pos(p.x(), p.y(), p.z());;
 					internal_obj_wrapper.getCollisionShape()->getBoundingSphere(dummy, rad);
 					_rad = (float)rad;
 
