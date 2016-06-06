@@ -167,7 +167,7 @@ namespace ot {
 					float cap_hheight = float(caps->getHalfHeight());
 					_rad = cap_rad + cap_hheight + 0.04f;
 
-					btVector3 main_axis = internal_obj_wrapper.getWorldTransform().getBasis().getColumn(1);
+					btVector3 main_axis = internal_obj_wrapper.getWorldTransform().getBasis().getColumn(caps->getUpAxis());
 					btVector3 p0 = sc + (main_axis * cap_hheight);
 					btVector3 p1 = sc - (main_axis * cap_hheight);
 
