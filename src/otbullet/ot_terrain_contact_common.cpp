@@ -109,7 +109,7 @@ void ot_terrain_contact_common::prepare_bt_convex_collision(btManifoldResult * r
 void ot_terrain_contact_common::process_triangle_cache()
 {
 	_triangle_cache.for_each([&](const bt::triangle & t) {
-		//process_triangle(t);
+        
         (this->*_curr_algo)(t);
 	});
 
@@ -118,7 +118,18 @@ void ot_terrain_contact_common::process_triangle_cache()
 
 void ot_terrain_contact_common::process_triangle_cache(const coid::dynarray<bt::triangle>& triangle_cache)
 {
-	triangle_cache.for_each([&](const bt::triangle & t) {
+    btPersistentManifold * p_man = _manifold->getPersistentManifold();
+
+    triangle_cache.for_each([&](const bt::triangle & t) {
+        const uint32 t_idx = t.tri_idx;
+        
+        for (int i = 0; i < p_man->getNumContacts(); i++) {
+            const btManifoldPoint& mp = p_man->getContactPoint(i);
+            if (mp.m_partId1 == t_idx) {
+                return;
+            }
+        }
+
 		set_terrain_mesh_offset(*t.parent_offset_p);
 		(this->*_curr_algo)(t);
 	});
@@ -131,7 +142,9 @@ void ot_terrain_contact_common::process_collision_points()
 		btVector3 n(cp.normal.x, cp.normal.y, cp.normal.z);
 		if(_curr_collider == ctSphere){
 			_manifold->addContactPoint(n,p, cp.depth - _sphere_radius - _collider_collision_margin - _triangle_collision_margin);
-		}
+            btManifoldPoint& mp = _manifold->getPersistentManifold()->getContactPoint(_manifold->getPersistentManifold()->getNumContacts() - 1);
+            mp.m_partId1 = cp.t_idx;
+        }
 		else if (_curr_collider == ctCapsule) {
 			_manifold->addContactPoint(n, p, cp.depth - _capsule_radius - _collider_collision_margin - _triangle_collision_margin);
 		}
@@ -176,7 +189,7 @@ void ot_terrain_contact_common::collide_sphere_triangle(const bt::triangle & tri
 		}
 
 		if (!patch_found) {
-			*_contact_point_cache.add(1) = contact_point(glm::dvec3(contact) + _mesh_offset, normal, penetration_depth);
+			*_contact_point_cache.add(1) = contact_point(glm::dvec3(contact) + _mesh_offset, normal, penetration_depth,triangle.tri_idx);
 		}
 	}
 }
@@ -342,32 +355,36 @@ void ot_terrain_contact_common::collide_hull_triangle(const bt::triangle & trian
 #endif
 void ot_terrain_contact_common::collide_convex_triangle(const bt::triangle & triangle)
 {
-	btCollisionObject colObj;
-	btTriangleShape tm(btVector3(triangle.a.x, triangle.a.y , triangle.a.z ),
-		btVector3(triangle.b.x , triangle.b.y , triangle.b.z ),
-		btVector3(triangle.c.x , triangle.c.y , triangle.c.z ));
+	btTriangleShape tm(btVector3(triangle.a.x + _mesh_offset.x, triangle.a.y + _mesh_offset.y, triangle.a.z + _mesh_offset.z),
+		btVector3(triangle.b.x + _mesh_offset.x, triangle.b.y + _mesh_offset.y, triangle.b.z + _mesh_offset.z),
+		btVector3(triangle.c.x + _mesh_offset.x, triangle.c.y + _mesh_offset.y, triangle.c.z + _mesh_offset.z));
 	
 	tm.setMargin(0.00000000);
 
-	colObj.setCollisionShape(&tm);
-
-	btTransform tri_trans = btTransform::getIdentity();
-	tri_trans.setOrigin(btVector3(_mesh_offset.x, _mesh_offset.y, _mesh_offset.z));
-
-	btCollisionObjectWrapper triObWrap(_manifold->getBody0Wrap(), &tm, _manifold->getBody0Wrap()->getCollisionObject(), tri_trans, -1, -1);
+	btCollisionObjectWrapper triObWrap(0, &tm, _manifold->getBody1Wrap()->getCollisionObject(), btTransform::getIdentity(), triangle.tri_idx, -1);
 	//btCollisionObjectWrapper convexObWrap(0, _convex_object->getCollisionShape(), _convex_object->getCollisionObject(), _convex_object->getWorldTransform(), -1, -1);
 
-    const btCollisionObjectWrapper * temp = _manifold->getBody1Wrap();
-    _manifold->setBody1Wrap(_convex_object);
+    const btCollisionObjectWrapper * obj0 = _manifold->getBody0Wrap();
+    const btCollisionObjectWrapper * obj1 = _manifold->getBody1Wrap();
+
+    _manifold->setBody0Wrap(_convex_object);
+    _manifold->setShapeIdentifiersA(_convex_object->m_partId, _convex_object->m_index);
+
+    _manifold->setBody1Wrap(&triObWrap);
+    _manifold->setShapeIdentifiersB(triangle.tri_idx, -1);
+
 
 	if (!_bt_ca) {
 		btDispatcher * dispatcher = _collision_world->getDispatcher();
 		_bt_ca = dispatcher->findAlgorithm(&triObWrap, _internal_object, _manifold->getPersistentManifold());
 	}
-	
+
 	_bt_ca->processCollision(_internal_object, &triObWrap, _collision_world->getDispatchInfo(), _manifold);
 
-    _manifold->setBody1Wrap(temp);
+    _manifold->setBody0Wrap(obj0);
+    _manifold->setShapeIdentifiersA(obj0->m_partId, obj0->m_index);
+    _manifold->setBody1Wrap(obj1);
+    _manifold->setShapeIdentifiersB(obj1->m_partId, obj1->m_index);
 }
 
 void ot_terrain_contact_common::generateContacts(const glm::vec3 & a, const glm::vec3 & b,
@@ -411,7 +428,7 @@ void ot_terrain_contact_common::generateContacts(const glm::vec3 & a, const glm:
 
 	if (coal::is_valid_triangle_barycentric_coord(v0, w0) && inflatedRadius > dist3)
 	{
-		contact_point cp(glm::dvec3(closestP31) + _mesh_offset, normal, -ipt);
+		contact_point cp(glm::dvec3(closestP31) + _mesh_offset, normal, -ipt,0);
 		*_contact_point_cache.add(1) = cp;
 	}
 
@@ -434,7 +451,7 @@ void ot_terrain_contact_common::generateContacts(const glm::vec3 & a, const glm:
 
 	if (coal::is_valid_triangle_barycentric_coord(v1, w1) && inflatedRadius > dist4)
 	{
-		contact_point cp(glm::dvec3(closestP41) + _mesh_offset, normal, -iqt);
+		contact_point cp(glm::dvec3(closestP41) + _mesh_offset, normal, -iqt,0);
 		*_contact_point_cache.add(1) = cp;
 	}
 }
@@ -496,7 +513,7 @@ void ot_terrain_contact_common::generateEE(const glm::vec3 & p,
 
 		const glm::vec3 localPointB = localPointA - v;
 		const float signedDist = glm::dot(v, normal);
-		contact_point cp(glm::dvec3(localPointB) + _mesh_offset, normal, signedDist);
+		contact_point cp(glm::dvec3(localPointB) + _mesh_offset, normal, signedDist,0);
 		 *_contact_point_cache.add(1) = cp;
 	}
 }

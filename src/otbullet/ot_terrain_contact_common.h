@@ -72,14 +72,17 @@ struct contact_point
     double3 point;
     float3 normal;
     float depth;
+    uint32 t_idx;
 
     contact_point() {}
     contact_point(const double3 & p,
         const float3 & n,
-        float d) 
+        float d,
+        uint32 idx)
         : point(p)
         , normal(n)
         , depth(d)
+        , t_idx(idx)
     {}
 };
 

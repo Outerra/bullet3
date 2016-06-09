@@ -78,7 +78,7 @@ protected:
 
 	btRigidBody * _planet_body;
 	btCollisionObjectWrapper * _pb_wrap;
-	coid::dynarray<btPersistentManifold *> _manifolds;
+	coid::slotalloc<btPersistentManifold *> _manifolds;
 	//coid::slotalloc<tree_batch> _tree_cache;
 	coid::dynarray<tree_collision_pair> _tree_collision_pairs;
 	coid::dynarray<btCollisionObjectWrapperCtorArgs> _cow_internal;

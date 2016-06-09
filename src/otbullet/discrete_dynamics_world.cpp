@@ -102,12 +102,24 @@ namespace ot {
 				continue;
 			}
 
-			btCollisionObjectWrapper planet_wrapper(0, _planet_body->getCollisionShape(), _planet_body, btTransform(), -1, -1);
+			btCollisionObjectWrapper planet_wrapper(0, _planet_body->getCollisionShape(), _planet_body, btTransform::getIdentity(), -1, -1);
 			btCollisionObjectWrapper collider_wrapper(0, obj->getCollisionShape(), obj, obj->getWorldTransform(), -1, -1);
-			btManifoldResult res(&planet_wrapper, &collider_wrapper);
+			btManifoldResult res(&collider_wrapper, &planet_wrapper);
 			btPersistentManifold * manifold;
-			manifold = getDispatcher()->getNewManifold(obj, _planet_body);
-			manifold->clearManifold();
+            if (rb->getTerrainManifoldHandle() == 0xffffffff) {
+                manifold = getDispatcher()->getNewManifold(obj, _planet_body);
+                btPersistentManifold ** manifold_h_ptr = _manifolds.add();
+                *manifold_h_ptr = manifold;
+                uints manifold_handle = _manifolds.get_item_id(manifold_h_ptr);
+                rb->setTerrainManifoldHandle(manifold_handle);
+                manifold->clearManifold();
+            }
+            else {
+                manifold = *_manifolds.get_item(rb->getTerrainManifoldHandle());
+                manifold->refreshContactPoints(obj->getWorldTransform(), btTransform::getIdentity());
+            }
+
+            int cached_points = manifold->getNumContacts();
 
 			if (obj->getCollisionShape()->getShapeType() == COMPOUND_SHAPE_PROXYTYPE) {
 				btCompoundShape * cs = reinterpret_cast<btCompoundShape *>(obj->getCollisionShape());
@@ -131,13 +143,12 @@ namespace ot {
 			}
 
             res.setPersistentManifold(manifold);
-            *_manifolds.add(1) = manifold;
 
 			for (uints j = 0; j < _cow_internal.size(); j++) {
 
 				btCollisionObjectWrapper internal_obj_wrapper(_cow_internal[j]._parent,
 					_cow_internal[j]._shape,
-					_cow_internal[j]._collisionObject,
+					obj,
 					_cow_internal[j]._worldTransform,
 					_cow_internal[j]._partId,
 					_cow_internal[j]._index);
@@ -207,9 +218,13 @@ namespace ot {
 				common_data.process_collision_points();
 			}
 
+            manifold->refreshContactPoints(obj->getWorldTransform(), btTransform::getIdentity());
+
             if (manifold->getNumContacts() == 0) {
                 getDispatcher()->releaseManifold(manifold);
-                _manifolds.del(_manifolds.size() - 1, 1);
+                _manifolds.get_item(rb->getTerrainManifoldHandle());
+                _manifolds.del(_manifolds.get_item(rb->getTerrainManifoldHandle()));
+                rb->setTerrainManifoldHandle(0xffffffff);
             }
 		}
 
@@ -218,12 +233,12 @@ namespace ot {
 
 	void discrete_dynamics_world::ot_terrain_collision_step_cleanup()
 	{
-		//zatial takto natvrdo
+	/*	//zatial takto natvrdo
 		_manifolds.for_each([&](btPersistentManifold * m) {
 			getDispatcher()->releaseManifold(m);
 		});
 
-		_manifolds.clear();
+		_manifolds.clear();*/
 	}
 
     void discrete_dynamics_world::process_trees_cache(btCollisionObject * cur_obj, const coid::dynarray<bt::tree_batch*>& trees_cache, uint32 frame)
