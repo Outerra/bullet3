@@ -1627,9 +1627,9 @@ void ot_terrain_contact_common::addManifoldPointToPatch(const glm::vec3 currentP
 }
 #endif
 
-void ot_terrain_contact_common::add_triangle(const glm::vec3 & a, const glm::vec3 & b, const glm::vec3 & c, uint32 ia, uint32 ib, uint32 ic, uint8 flags, const double3 * mesh_offset)
+void ot_terrain_contact_common::add_triangle(const glm::vec3 & a, const glm::vec3 & b, const glm::vec3 & c, uint32 ia, uint32 ib, uint32 ic, uint8 flags, const double3 * mesh_offset, uint32 tri_idx)
 {
-	*_triangle_cache.add(1) = bt::triangle(a, b, c, ia, ib, ic, flags, mesh_offset);
+	*_triangle_cache.add(1) = bt::triangle(a, b, c, ia, ib, ic, flags, mesh_offset,tri_idx);
 }
 
 void ot_terrain_contact_common::add_additional_col_obj(btCollisionObject * col_obj)

@@ -37,6 +37,7 @@ struct triangle
     uint32 idx_b;
     uint32 idx_c;
 	const double3 * parent_offset_p;
+    uint32 tri_idx;
 
     triangle(){}
     triangle(const float3 & va,
@@ -46,7 +47,8 @@ struct triangle
         uint32 ib,
         uint32 ic,
         uint8 flags,
-		const double3 * offsetp)
+		const double3 * offsetp,
+        uint32 tri_idx)
         : a(va)
         , b(vb)
         , c(vc)
@@ -55,6 +57,7 @@ struct triangle
         , idx_c(ic)
         , t_flags(flags)
 		, parent_offset_p(offsetp)
+        , tri_idx(tri_idx)
     {}
 };
 

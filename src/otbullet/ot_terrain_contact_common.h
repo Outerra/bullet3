@@ -200,7 +200,7 @@ public:
 	void collide_hull_triangle(const bt::triangle & triangle);
 	void collide_convex_triangle(const bt::triangle & triangle);
 
-	void add_triangle(const glm::vec3 & a, const glm::vec3 & b, const glm::vec3 & c, uint32 ia, uint32 ib, uint32 ic, uint8 flags, const double3 * mesh_offset);
+	void add_triangle(const glm::vec3 & a, const glm::vec3 & b, const glm::vec3 & c, uint32 ia, uint32 ib, uint32 ic, uint8 flags, const double3 * mesh_offset, uint32 tri_idx);
 	void add_additional_col_obj(btCollisionObject * col_obj);
 
     void set_internal_obj_wrapper(btCollisionObjectWrapper * internal_wrap) { _internal_object = internal_wrap;}
