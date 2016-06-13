@@ -123,12 +123,12 @@ void ot_terrain_contact_common::process_triangle_cache(const coid::dynarray<bt::
     triangle_cache.for_each([&](const bt::triangle & t) {
         const uint32 t_idx = t.tri_idx;
         
-        for (int i = 0; i < p_man->getNumContacts(); i++) {
+      /*  for (int i = 0; i < p_man->getNumContacts(); i++) {
             const btManifoldPoint& mp = p_man->getContactPoint(i);
             if (mp.m_partId1 == t_idx) {
                 return;
             }
-        }
+        }*/
 
 		set_terrain_mesh_offset(*t.parent_offset_p);
 		(this->*_curr_algo)(t);
@@ -361,7 +361,7 @@ void ot_terrain_contact_common::collide_convex_triangle(const bt::triangle & tri
 	
 	tm.setMargin(0.00000000);
 
-	btCollisionObjectWrapper triObWrap(0, &tm, _manifold->getBody1Wrap()->getCollisionObject(), btTransform::getIdentity(), triangle.tri_idx, -1);
+	btCollisionObjectWrapper triObWrap(0, &tm, _manifold->getBody1Wrap()->getCollisionObject(), btTransform::getIdentity(), triangle.tri_idx ,-1);
 	//btCollisionObjectWrapper convexObWrap(0, _convex_object->getCollisionShape(), _convex_object->getCollisionObject(), _convex_object->getWorldTransform(), -1, -1);
 
     const btCollisionObjectWrapper * obj0 = _manifold->getBody0Wrap();
@@ -371,7 +371,7 @@ void ot_terrain_contact_common::collide_convex_triangle(const bt::triangle & tri
     _manifold->setShapeIdentifiersA(_convex_object->m_partId, _convex_object->m_index);
 
     _manifold->setBody1Wrap(&triObWrap);
-    _manifold->setShapeIdentifiersB(triangle.tri_idx, -1);
+    _manifold->setShapeIdentifiersB(triangle.tri_idx ,-1);
 
 
 	if (!_bt_ca) {

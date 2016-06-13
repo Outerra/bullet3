@@ -49,7 +49,7 @@ namespace ot {
 
 		//perform outerra terrain collision detecion
 
-		ot_terrain_collision_step_cleanup();
+//		ot_terrain_collision_step_cleanup();
 		ot_terrain_collision_step();
 		process_tree_collisions();
 
@@ -79,6 +79,18 @@ namespace ot {
 		}
 	}
 
+    void discrete_dynamics_world::removeRigidBody(btRigidBody * body)
+    {
+        const uint32 m_id = body->getTerrainManifoldHandle();
+        if ( m_id != 0xffffffff) {
+            btPersistentManifold ** m_ptr = _manifolds.get_item(m_id);
+            _manifolds.del(m_ptr);
+            m_dispatcher1->releaseManifold(*m_ptr);
+        }
+
+        btDiscreteDynamicsWorld::removeRigidBody(body);
+    }
+
 	void discrete_dynamics_world::ot_terrain_collision_step()
 	{
         static uint32 frame_count;
@@ -93,8 +105,7 @@ namespace ot {
             }
 
 
-			if ((!rb || rb->wantsSleeping()) ||
-				(obj->getCollisionShape()->getShapeType() != SPHERE_SHAPE_PROXYTYPE &&
+			if (!rb || (obj->getCollisionShape()->getShapeType() != SPHERE_SHAPE_PROXYTYPE &&
 					obj->getCollisionShape()->getShapeType() != CAPSULE_SHAPE_PROXYTYPE &&
 					!obj->getCollisionShape()->isConvex() &&
 					obj->getCollisionShape()->getShapeType() != COMPOUND_SHAPE_PROXYTYPE))
@@ -102,22 +113,27 @@ namespace ot {
 				continue;
 			}
 
-			btCollisionObjectWrapper planet_wrapper(0, _planet_body->getCollisionShape(), _planet_body, btTransform::getIdentity(), -1, -1);
-			btCollisionObjectWrapper collider_wrapper(0, obj->getCollisionShape(), obj, obj->getWorldTransform(), -1, -1);
-			btManifoldResult res(&collider_wrapper, &planet_wrapper);
-			btPersistentManifold * manifold;
+            btPersistentManifold * manifold;
             if (rb->getTerrainManifoldHandle() == 0xffffffff) {
                 manifold = getDispatcher()->getNewManifold(obj, _planet_body);
                 btPersistentManifold ** manifold_h_ptr = _manifolds.add();
                 *manifold_h_ptr = manifold;
                 uints manifold_handle = _manifolds.get_item_id(manifold_h_ptr);
                 rb->setTerrainManifoldHandle(manifold_handle);
-                manifold->clearManifold();
+                manifold->setContactBreakingThreshold(obj->getCollisionShape()->getContactBreakingThreshold(gContactBreakingThreshold));
             }
             else {
                 manifold = *_manifolds.get_item(rb->getTerrainManifoldHandle());
-                manifold->refreshContactPoints(obj->getWorldTransform(), btTransform::getIdentity());
             }
+
+            if (rb->getActivationState() == ISLAND_SLEEPING) {
+                continue;
+            }
+
+			btCollisionObjectWrapper planet_wrapper(0, _planet_body->getCollisionShape(), _planet_body, btTransform::getIdentity(), -1, -1);
+			btCollisionObjectWrapper collider_wrapper(0, obj->getCollisionShape(), obj, obj->getWorldTransform(), -1, -1);
+			btManifoldResult res(&collider_wrapper, &planet_wrapper);
+			
 
             int cached_points = manifold->getNumContacts();
 
@@ -213,12 +229,12 @@ namespace ot {
                     process_trees_cache(obj, _trees, frame_count);
                 }
 
-				int num_contacts = manifold->getNumContacts();
-
 				common_data.process_collision_points();
 			}
 
-            manifold->refreshContactPoints(obj->getWorldTransform(), btTransform::getIdentity());
+            int num_contacts = manifold->getNumContacts();
+
+            res.refreshContactPoints();
 
             if (manifold->getNumContacts() == 0) {
                 getDispatcher()->releaseManifold(manifold);

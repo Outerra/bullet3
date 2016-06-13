@@ -114,6 +114,7 @@ public:
 protected:
 
 	virtual void internalSingleStepSimulation(btScalar timeStep) override;
+    virtual void removeRigidBody(btRigidBody* body) override;
 
 	void ot_terrain_collision_step();
 	void ot_terrain_collision_step_cleanup();

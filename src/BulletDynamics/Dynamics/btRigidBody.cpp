@@ -95,6 +95,9 @@ void	btRigidBody::setupRigidBody(const btRigidBody::btRigidBodyConstructionInfo&
 	m_invMass = m_inverseMass*m_linearFactor;
 	m_pushVelocity.setZero();
 	m_turnVelocity.setZero();
+
+    m_terrainManifoldHandle= 0xffffffff;
+
 }
 
 void btRigidBody::predictIntegratedTransform(btScalar timeStep,btTransform& predictedTransform) 
@@ -388,14 +391,14 @@ void btRigidBody::integrateVelocities(btScalar step)
 	clampVelocity(m_angularVelocity);
 	#endif
 }
-	
+
 btQuaternion btRigidBody::getOrientation() const
 {
 	btQuaternion orn;
 	m_worldTransform.getBasis().getRotation(orn);
 	return orn;
 }
-
+	
 void btRigidBody::setCenterOfMassTransform(const btTransform& xform)
 {
 	if (isKinematicObject())
