@@ -123,9 +123,9 @@ void ot_terrain_contact_common::process_triangle_cache(const coid::dynarray<bt::
     triangle_cache.for_each([&](const bt::triangle & t) {
         const uint32 t_idx = t.tri_idx;
         
-      /*  for (int i = 0; i < p_man->getNumContacts(); i++) {
+        /*for (int i = 0; i < p_man->getNumContacts(); i++) {
             const btManifoldPoint& mp = p_man->getContactPoint(i);
-            if (mp.m_partId1 == t_idx) {
+            if (mp.m_index1 == t_idx) {
                 return;
             }
         }*/
@@ -356,35 +356,27 @@ void ot_terrain_contact_common::collide_hull_triangle(const bt::triangle & trian
 void ot_terrain_contact_common::collide_convex_triangle(const bt::triangle & triangle)
 {
 	btTriangleShape tm(btVector3(triangle.a.x + _mesh_offset.x, triangle.a.y + _mesh_offset.y, triangle.a.z + _mesh_offset.z),
-		btVector3(triangle.b.x + _mesh_offset.x, triangle.b.y + _mesh_offset.y, triangle.b.z + _mesh_offset.z),
-		btVector3(triangle.c.x + _mesh_offset.x, triangle.c.y + _mesh_offset.y, triangle.c.z + _mesh_offset.z));
-	
-	tm.setMargin(0.00000000);
+        btVector3(triangle.b.x + _mesh_offset.x, triangle.b.y + _mesh_offset.y, triangle.b.z + _mesh_offset.z),
+        btVector3(triangle.c.x + _mesh_offset.x, triangle.c.y + _mesh_offset.y, triangle.c.z + _mesh_offset.z));
+    tm.setMargin(0.);
 
-	btCollisionObjectWrapper triObWrap(0, &tm, _manifold->getBody1Wrap()->getCollisionObject(), btTransform::getIdentity(), triangle.tri_idx ,-1);
-	//btCollisionObjectWrapper convexObWrap(0, _convex_object->getCollisionShape(), _convex_object->getCollisionObject(), _convex_object->getWorldTransform(), -1, -1);
 
-    const btCollisionObjectWrapper * obj0 = _manifold->getBody0Wrap();
-    const btCollisionObjectWrapper * obj1 = _manifold->getBody1Wrap();
+    btCollisionObjectWrapper triObWrap(_manifold->getBody1Wrap(), &tm, _manifold->getBody1Wrap()->getCollisionObject(), _manifold->getBody1Wrap()->getWorldTransform(), 0, triangle.tri_idx);//correct transform?
+    btCollisionAlgorithm* colAlgo = _collision_world->getDispatcher()->findAlgorithm(_manifold->getBody0Wrap(), &triObWrap, _manifold->getPersistentManifold());
 
-    _manifold->setBody0Wrap(_convex_object);
-    _manifold->setShapeIdentifiersA(_convex_object->m_partId, _convex_object->m_index);
+    const btCollisionObjectWrapper* tmpWrap = 0;
 
+    tmpWrap = _manifold->getBody1Wrap();
     _manifold->setBody1Wrap(&triObWrap);
-    _manifold->setShapeIdentifiersB(triangle.tri_idx ,-1);
+    _manifold->setShapeIdentifiersB(0, triangle.tri_idx);
 
 
-	if (!_bt_ca) {
-		btDispatcher * dispatcher = _collision_world->getDispatcher();
-		_bt_ca = dispatcher->findAlgorithm(&triObWrap, _internal_object, _manifold->getPersistentManifold());
-	}
+    colAlgo->processCollision(_manifold->getBody0Wrap(), &triObWrap, _collision_world->getDispatchInfo(), _manifold);
 
-	_bt_ca->processCollision(_internal_object, &triObWrap, _collision_world->getDispatchInfo(), _manifold);
-
-    _manifold->setBody0Wrap(obj0);
-    _manifold->setShapeIdentifiersA(obj0->m_partId, obj0->m_index);
-    _manifold->setBody1Wrap(obj1);
-    _manifold->setShapeIdentifiersB(obj1->m_partId, obj1->m_index);
+    _manifold->setBody1Wrap(tmpWrap);
+    
+    colAlgo->~btCollisionAlgorithm();
+    _collision_world->getDispatcher()->freeCollisionAlgorithm(colAlgo);
 }
 
 void ot_terrain_contact_common::generateContacts(const glm::vec3 & a, const glm::vec3 & b,

@@ -8,6 +8,7 @@
 
 #include <BulletCollision/CollisionShapes/btTriangleMesh.h>
 #include <BulletCollision/CollisionShapes/btTriangleMeshShape.h>
+#include <BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h>
 #include <BulletCollision/CollisionShapes/btCompoundShape.h>
 #include <BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h>
 
@@ -112,6 +113,7 @@ namespace ot {
 			{
 				continue;
 			}
+
 
             btPersistentManifold * manifold;
             if (rb->getTerrainManifoldHandle() == 0xffffffff) {
@@ -331,9 +333,11 @@ namespace ot {
 	{
 		btTriangleShape * ts = new btTriangleShape();
 		ts->setMargin(0.0f);
-		_planet_body = new btRigidBody(0,0,ts);
-		_planet_body->setCollisionFlags(0);
-		_planet_body->setRestitution(1.0f);
+        btRigidBody::btRigidBodyConstructionInfo info(0, 0, ts);
+
+		_planet_body = new btRigidBody(info);
+		_planet_body->setRestitution(0.0f);
+
 		//_tree_cache.reserve(1024);
 		//ptree_cache = &_tree_cache;
 		_cow_internal.reserve(128,false);
