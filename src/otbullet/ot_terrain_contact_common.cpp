@@ -122,14 +122,6 @@ void ot_terrain_contact_common::process_triangle_cache(const coid::dynarray<bt::
 
     triangle_cache.for_each([&](const bt::triangle & t) {
         const uint32 t_idx = t.tri_idx;
-        
-        /*for (int i = 0; i < p_man->getNumContacts(); i++) {
-            const btManifoldPoint& mp = p_man->getContactPoint(i);
-            if (mp.m_index1 == t_idx) {
-                return;
-            }
-        }*/
-
 		set_terrain_mesh_offset(*t.parent_offset_p);
 		(this->*_curr_algo)(t);
 	});

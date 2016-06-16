@@ -21,6 +21,9 @@
 #include <comm/dynarray.h>
 
 #include <ot/glm/glm_ext.h>
+#ifdef _LIB
+extern coid::dynarray<bt::triangle> trijangle;
+#endif
 
 static const float g_temp_tree_rad = .2f;
 
@@ -188,6 +191,7 @@ namespace ot {
 				if (internal_obj_wrapper.getCollisionShape()->getShapeType() == SPHERE_SHAPE_PROXYTYPE) {
 					const btSphereShape * sph = reinterpret_cast<const btSphereShape*>(internal_obj_wrapper.getCollisionShape());
 					_rad = float(sph->getRadius() + 0.02);
+                    _lod_dim = _rad;
 					common_data.prepare_sphere_collision(&res, _from, float(sph->getRadius()), 0.02f);
 				}
 				else if (internal_obj_wrapper.getCollisionShape()->getShapeType() == CAPSULE_SHAPE_PROXYTYPE) {
@@ -195,6 +199,7 @@ namespace ot {
 					float cap_rad = float(caps->getRadius());
 					float cap_hheight = float(caps->getHalfHeight());
 					_rad = cap_rad + cap_hheight + 0.04f;
+                    _lod_dim = cap_rad;
 
 					btVector3 main_axis = internal_obj_wrapper.getWorldTransform().getBasis().getColumn(caps->getUpAxis());
 					btVector3 p0 = sc + (main_axis * cap_hheight);
@@ -206,11 +211,16 @@ namespace ot {
 					btTransform t = internal_obj_wrapper.getWorldTransform();
 					btQuaternion q = t.getRotation();
 					btVector3 p = t.getOrigin();
-					btVector3 dummy;
+                    btVector3 min;
+                    btVector3 max;
 					btScalar rad;
-					internal_obj_wrapper.getCollisionShape()->getBoundingSphere(dummy, rad);
-					_rad = (float)rad;
+					internal_obj_wrapper.getCollisionShape()->getBoundingSphere(min, rad);
+                    internal_obj_wrapper.getCollisionShape()->getAabb(t, min, max);
 
+                    _rad = (float)rad;
+
+                    min = (max - min) / 2.0;
+                    _lod_dim = min[min.minAxis()];
 					common_data.prepare_bt_convex_collision(&res, &internal_obj_wrapper);
 				}
 				else {
@@ -220,11 +230,16 @@ namespace ot {
 				_triangles.clear();
                 _trees.clear();
 
-                if(!_sphere_intersect(_context, _from, _rad, _triangles, _trees))
+                if(!_sphere_intersect(_context, _from, _rad, _lod_dim, _triangles, _trees))
                     continue;
 
 				if (_triangles.size() > 0) {
-					common_data.process_triangle_cache(_triangles);
+#ifdef _LIB
+                    _triangles.for_each([&](const bt::triangle & t) {
+                        trijangle.push(t);
+                    });
+#endif
+                    common_data.process_triangle_cache(_triangles);
 				}
 
                 if (_trees.size() > 0) {

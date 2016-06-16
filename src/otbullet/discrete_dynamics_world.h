@@ -92,6 +92,7 @@ protected:
     double3 _from;
     float3 _ray;
     float _rad;
+    float _lod_dim;
     //bt::ECollisionShape _col_shape;
 
 public:
@@ -100,6 +101,7 @@ public:
         const void* context,
         const double3& center,
         float radius,
+        float lod_dimension,
         coid::dynarray<bt::triangle>& data,
         coid::dynarray<bt::tree_batch*>& trees );
 
