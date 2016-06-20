@@ -174,9 +174,6 @@ namespace ot {
 					_cow_internal[j]._partId,
 					_cow_internal[j]._index);
 
-                if (_cow_internal[j]._shape->getShapeType() == CYLINDER_SHAPE_PROXYTYPE) {
-                    continue;
-                }
 
                 common_data.set_internal_obj_wrapper(&internal_obj_wrapper);
 
