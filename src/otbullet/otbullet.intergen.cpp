@@ -202,12 +202,12 @@ void* force_register_physics() {
 // events
 
 
-bool physics::terrain_collisions( const void* context, const double3& center, float radius, coid::dynarray<bt::triangle>& data, coid::dynarray<bt::tree_batch*>& trees )
+bool physics::terrain_collisions( const void* context, const double3& center, float radius, float lod_dimension, coid::dynarray<bt::triangle>& data, coid::dynarray<bt::tree_batch*>& trees )
 {
 	if(!_ifc_host) 
         throw coid::exception() << "terrain_collisions" << " handler not implemented";
     else
-        return _ifc_host->iface<bt::physics>()->terrain_collisions(context, center, radius, data, trees);
+        return _ifc_host->iface<bt::physics>()->terrain_collisions(context, center, radius, lod_dimension, data, trees);
 }
 
 

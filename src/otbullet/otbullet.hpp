@@ -70,6 +70,7 @@ public:
         const void* context,
         const double3& center,
         float radius,
+        float lod_dimension,
         coid::dynarray<bt::triangle>& data,
         coid::dynarray<bt::tree_batch*>& trees);
 

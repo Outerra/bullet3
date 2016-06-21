@@ -217,7 +217,7 @@ namespace ot {
                     _rad = (float)rad;
 
                     min = (max - min) / 2.0;
-                    _lod_dim = min[min.minAxis()];
+                    _lod_dim = (float)min[min.minAxis()];
 					common_data.prepare_bt_convex_collision(&res, &internal_obj_wrapper);
 				}
 				else {

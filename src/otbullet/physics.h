@@ -99,7 +99,7 @@ protected:
 
     friend class ::physics;
 
-    virtual bool terrain_collisions( const void* context, const double3& center, float radius, coid::dynarray<bt::triangle>& data, coid::dynarray<bt::tree_batch*>& trees ){ throw coid::exception("handler not implemented"); }
+    virtual bool terrain_collisions( const void* context, const double3& center, float radius, float lod_dimension, coid::dynarray<bt::triangle>& data, coid::dynarray<bt::tree_batch*>& trees ){ throw coid::exception("handler not implemented"); }
 
     virtual void force_bind_script_events() {}
 

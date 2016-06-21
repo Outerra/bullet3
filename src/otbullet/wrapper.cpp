@@ -46,7 +46,7 @@ static bool _ext_collider(
     coid::dynarray<bt::triangle>& data,
     coid::dynarray<bt::tree_batch*>& trees)
 {
-    return _physics->terrain_collisions(planet, center, radius, data, trees);
+    return _physics->terrain_collisions(planet, center, radius, lod_dimension, data, trees);
 }
 
 #endif
