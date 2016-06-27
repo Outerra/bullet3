@@ -91,6 +91,8 @@ namespace ot {
             _manifolds.del(m_ptr);
             m_dispatcher1->releaseManifold(*m_ptr);
         }
+		
+		body->setTerrainManifoldHandle(0xffffffff);
 
         btDiscreteDynamicsWorld::removeRigidBody(body);
     }
