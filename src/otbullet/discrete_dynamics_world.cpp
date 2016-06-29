@@ -91,7 +91,7 @@ namespace ot {
             _manifolds.del(m_ptr);
             m_dispatcher1->releaseManifold(*m_ptr);
         }
-		
+
 		body->setTerrainManifoldHandle(0xffffffff);
 
         btDiscreteDynamicsWorld::removeRigidBody(body);
@@ -100,8 +100,9 @@ namespace ot {
 	void discrete_dynamics_world::ot_terrain_collision_step()
 	{
         static uint32 frame_count;
-        LOCAL_SINGLETON(ot_terrain_contact_common) common_data = new ot_terrain_contact_common(0.00f,this,_pb_wrap);
-        
+        LOCAL_SINGLETON(ot_terrain_contact_common) common_data = new ot_terrain_contact_common (0.00f, this, _pb_wrap);
+        common_data->clear_common_data();
+
 		for (int i = 0; i < m_collisionObjects.size(); i++) {
 			_cow_internal.clear();
             _compound_processing_stack.clear();
@@ -220,7 +221,7 @@ namespace ot {
                     _rad = (float)rad;
 
                     min = (max - min) / 2.0;
-                    _lod_dim = (float)min[min.minAxis()];
+                    _lod_dim = min[min.minAxis()];
 					common_data->prepare_bt_convex_collision(&res, &internal_obj_wrapper);
 				}
 				else {
@@ -282,23 +283,15 @@ namespace ot {
                 float3 p = float3(glm::normalize(tb->trees[j].pos)) * tb->trees[j].height;
                 float3 cen_rel(_from - tb->trees[j].pos);
                 if (coal::distance_point_segment_sqr(cen_rel, float3(0, 0, 0), p) < glm::pow(g_temp_tree_rad + _rad,2.f)) {
-                    tree_collision_pair tcp(cur_obj, tb->info(j));
-                    tree_collision_pair * cached_tcp = _tree_collision_pairs.find_if([&](tree_collision_pair _tcp) {
-                        return tcp == _tcp;
-                    });
-
-                    if (!cached_tcp) {
-                        cached_tcp = _tree_collision_pairs.add();
-                        cached_tcp->obj = tcp.obj;
-                        cached_tcp->tree = tcp.tree;
-                        cached_tcp->manifold = getDispatcher()->getNewManifold(cur_obj, &tcp.tree->obj);
-                        cached_tcp->tree_identifier = tb->trees[j].identifier;
-                    }
+                    add_tree_collision_pair(cur_obj,
+                        tb->info(j),
+                        tb->tm);
+                }
                     
                     cached_tcp->reused = true;
-                }
             }
         }
+    }
     }
 
     void discrete_dynamics_world::build_tb_collision_info(bt::tree_batch * tb)
@@ -319,17 +312,85 @@ namespace ot {
             t.spring_force_uv[0] = 0;
             t.spring_force_uv[1] = 0;
             tci->spring_force_uv = t.spring_force_uv;
-            tci->jy = 0.8f * g_temp_tree_rad*g_temp_tree_rad*g_temp_tree_rad*g_temp_tree_rad;
-            tci->E = 330000000;
         }
+    }
+
+    void discrete_dynamics_world::add_tree_collision_pair(btCollisionObject * obj, bt::tree_collision_info * tree, const terrain_mesh * tm)
+    {
+        tree_collision_pair tcp(obj, tree, tm);
+        bool found = _tree_collision_pairs.find_if([&](const tree_collision_pair & t) {
+            return t == tcp;
+        });
+
+        if (!found) {
+            tree_collision_pair * new_tcp = _tree_collision_pairs.add();
+            new_tcp->active = true;
+            new_tcp->obj = tcp.obj;
+            new_tcp->tm = tcp.tm;
+            new_tcp->tree = tcp.tree;
+        }
+    }
+
+    void discrete_dynamics_world::prepare_tree_collisions()
+    {
+        _tree_collision_pairs.for_each([&](tree_collision_pair&  tcp) {
+            if (!tcp.active) {
+                tcp.tree->spring_force_uv[0] = 0;
+                tcp.tree->spring_force_uv[1] = 0;
+                _tree_collision_pairs.del(&tcp);
+                return;
+            }
+            
+            if (tcp.tree->spring_force_uv[0] != 0 || tcp.tree->spring_force_uv[1] != 0) {
+                return;
+            }
+
+            btCollisionObjectWrapper obj1_wrapper(0, tcp.obj->getCollisionShape(), tcp.obj, tcp.obj->getWorldTransform(), -1, -1);
+            btCollisionObjectWrapper obj2_wrapper(0, &tcp.tree->shape, &tcp.tree->obj, tcp.tree->obj.getWorldTransform(), -1, -1);
+            btPersistentManifold * manifold = getDispatcher()->getNewManifold(obj1_wrapper.getCollisionObject(), obj2_wrapper.getCollisionObject());
+            manifold->clearManifold();
+            btManifoldResult res(&obj1_wrapper, &obj2_wrapper);
+
+            btCollisionAlgorithm * algo = getDispatcher()->findAlgorithm(&obj1_wrapper, &obj2_wrapper, manifold);
+
+            if (algo) {
+                algo->processCollision(&obj1_wrapper, &obj2_wrapper, getDispatchInfo(), &res);
+            }
+            else {
+                getDispatcher()->releaseManifold(manifold);
+                return;
+            }
+
+            manifold->refreshContactPoints(tcp.obj->getWorldTransform(), tcp.tree->obj.getWorldTransform());
+
+            if (manifold->getNumContacts() > 0) {
+                btRigidBody * rb = reinterpret_cast<btRigidBody*>(tcp.obj);
+                
+                btManifoldPoint * min_p = nullptr;
+                for (int i = 0; i < manifold->getNumContacts(); i++) {
+                    if (!min_p || min_p->getDistance() > manifold->getContactPoint(i).getDistance()) {
+                        min_p = &manifold->getContactPoint(i);
+                    }
+                }
+
+                if (min_p) {
+                   
+                }
+            }
+
+            getDispatcher()->releaseManifold(manifold);
+        });
     }
 
     void discrete_dynamics_world::process_tree_collisions()
     {
         _tree_collision_pairs.for_each([&](tree_collision_pair&  tcp) {
-            btDispatcher * dispatcher = getDispatcher();
-            btPersistentManifold * manifold = tcp.manifold;
-            DASSERT(manifold);
+            if (!tcp.active) {
+                tcp.tree->spring_force_uv[0] = 0;
+                tcp.tree->spring_force_uv[1] = 0;
+                _tree_collision_pairs.del(&tcp);
+                return;
+            }
 
             if (!tcp.reused) {
                 dispatcher->releaseManifold(manifold);
@@ -351,62 +412,41 @@ namespace ot {
                 algo->~btCollisionAlgorithm();
                 dispatcher->freeCollisionAlgorithm(algo);
             }
+    }
 
-            res.refreshContactPoints();
-            
-            btManifoldPoint * min_cp = 0;
-            for (int i = 0; i < manifold->getNumContacts(); i++) {
-                btManifoldPoint& tmp_cp = manifold->getContactPoint(i);
-                if ( (!min_cp || min_cp->getDistance() > tmp_cp.getDistance()) && tmp_cp.getDistance() < 0.f ) {
-                    min_cp = &tmp_cp;
+            manifold->refreshContactPoints(tcp.obj->getWorldTransform(), tcp.tree->obj.getWorldTransform());
+
+            if (manifold->getNumContacts() > 0) {
+                btRigidBody * rb = reinterpret_cast<btRigidBody*>(tcp.obj);
+                float obj_mass = 1.0 / rb->getInvMass();
+                btVector3 obj_force();
+                
+                btManifoldPoint * min_p = nullptr;
+                for (int i = 0; i < manifold->getNumContacts(); i++) {
+                    if (!min_p || min_p->getDistance() > manifold->getContactPoint(i).getDistance()) {
+                        min_p = &manifold->getContactPoint(i);
+                    }
+                }
+                if (min_p->getDistance() < 0) {
+                    btVector3 rel_v = rb->getLinearVelocity();
+                    btScalar damping_compression_p = 0.9 * 2 * sqrt(10);
+                    btScalar damping_compression_n = -0.9 * 2 * sqrt(1000000);
+                    const btScalar tree_stiffness = 10000; // 10kN/m
+                    const btVector3 & contact_normal = min_p->m_normalWorldOnB;
+                    const btScalar penetration_depth = -min_p->getDistance();
+                    btScalar len_v = contact_normal.dot(rel_v);
+                    const btScalar damping_factor = ((len_v < 0) ? damping_compression_p : damping_compression_n);
+                    btVector3 damping_force = len_v * contact_normal * damping_factor;
+                    btVector3 spring_force = contact_normal * tree_stiffness * penetration_depth  +  damping_force;
+
+                    rb->applyCentralImpulse(spring_force) ;
                 }
             }
-            
-            if (min_cp) {
-                //_tree_collision(reinterpret_cast<btRigidBody*>(tcp.obj),min_cp,tcp.tree_identifier);
-               /* float dot = glm::dot(float3(0, 1, 0), float3(min_cp->m_localPointB[0], min_cp->m_localPointB[1], min_cp->m_localPointB[2]));
-                float l = tcp.tree->shape.getHalfHeight()+dot;
-                float F = (-min_cp->getDistance()*3*tcp.tree->E* 3 * tcp.tree->jy) /(l*l*l);
-                const btVector3 & cp_norm = min_cp->m_normalWorldOnB;
-                rb_obj->applyCentralImpulse(cp_norm*F);*/
-                btVector3 f = -rb_obj->getLinearVelocity() / (rb_obj->getInvMass()*0.016666);
-                rb_obj->applyCentralForce(f);
 
-            }
+            getDispatcher()->releaseManifold(manifold);
 
-            int num_cp = manifold->getNumContacts();
-
-            tcp.reused = false;
-            manifold->clearManifold();
-            res.refreshContactPoints();
         });
-    }
-
-    void discrete_dynamics_world::get_obb(const btCollisionShape * cs,const btTransform& t, double3& cen, float3x3& basis)
-    {
-        btVector3 min, max;
-        cs->getAabb(btTransform::getIdentity(), min, max);
-        btVector3 bt_cen = (min + max) * btScalar(0.5);
-        btVector3 half = max - bt_cen;
-        bt_cen += t.getOrigin();
-        btMatrix3x3 bt_basis;
-        bt_basis[0] = t.getBasis() * btVector3(half[0], 0, 0);
-        bt_basis[1] = t.getBasis() * btVector3(0, half[1], 0);
-        bt_basis[2] = t.getBasis() * btVector3(0, 0, half[2]);
-
-        cen = double3( bt_cen[0], bt_cen[1], bt_cen[2] );
-        basis[0] = float3(bt_basis[0][0], bt_basis[0][1], bt_basis[0][2]);
-        basis[1] = float3(bt_basis[1][0], bt_basis[1][1], bt_basis[1][2]);
-        basis[2] = float3(bt_basis[2][0], bt_basis[2][1], bt_basis[2][2]);
-    }
-
-    void discrete_dynamics_world::oob_to_aabb(const btVector3 & src_cen, const btMatrix3x3 & src_basis, const btVector3 & dst_cen, const btMatrix3x3 & dst_basis, btVector3 & aabb_cen, btVector3 & aabb_half)
-    {
-        aabb_cen = src_cen - dst_cen;
-        aabb_half[0] = dst_basis[0].dot(src_basis[0]) + dst_basis[0].dot(src_basis[1]) + dst_basis[0].dot(src_basis[2]);
-        aabb_half[1] = dst_basis[1].dot(src_basis[0]) + dst_basis[0].dot(src_basis[1]) + dst_basis[0].dot(src_basis[2]);
-        aabb_half[2] = dst_basis[2].dot(src_basis[0]) + dst_basis[0].dot(src_basis[1]) + dst_basis[0].dot(src_basis[2]);
-    }
+	}
 
 	discrete_dynamics_world::discrete_dynamics_world(btDispatcher * dispatcher, 
 		btBroadphaseInterface * pairCache, 

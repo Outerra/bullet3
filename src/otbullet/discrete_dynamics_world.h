@@ -27,29 +27,26 @@ struct tree_collision_pair
 {
     btCollisionObject* obj;
     bt::tree_collision_info* tree;
-    bool reused;
-    btPersistentManifold * manifold;
-    uint32 tree_identifier;
+    const terrain_mesh * tm;
+    bool active;
 
-
-    bool operator==(const tree_collision_pair & tcp) const {
+    const bool operator== (const tree_collision_pair & tcp) const {
         return obj == tcp.obj && tree == tcp.tree;
     }
 
-    tree_collision_pair()
+    tree_collision_pair() 
         : obj(0)
         , tree(0)
-        , reused(false)
-        , manifold(0)
-        , tree_identifier(0){}
+        , tm(0)
+        , active(false)
+    {}
 
-    tree_collision_pair(btCollisionObject* obj, bt::tree_collision_info* tree)
-        :obj(obj)
-        , tree(tree) 
-        , reused(false)
-        , manifold(0)
-        , tree_identifier(0){}
-
+    tree_collision_pair(btCollisionObject* obj, bt::tree_collision_info* tree, const terrain_mesh * tm)
+        : obj(obj)
+        , tree(tree)
+        , tm(tm)
+        , active(false)
+    {}
 };
 
 
@@ -102,6 +99,7 @@ protected:
 	btRigidBody * _planet_body;
 	btCollisionObjectWrapper * _pb_wrap;
 	coid::slotalloc<btPersistentManifold *> _manifolds;
+	//coid::slotalloc<tree_batch> _tree_cache;
 	coid::slotalloc<tree_collision_pair> _tree_collision_pairs;
 	coid::dynarray<btCollisionObjectWrapperCtorArgs> _cow_internal;
 	coid::dynarray<compound_processing_entry> _compound_processing_stack;
@@ -154,13 +152,18 @@ protected:
 
 	void ot_terrain_collision_step();
 
-    void process_trees_cache(btCollisionObject * cur_obj, const coid::dynarray<bt::tree_batch*>& trees_cache, uint32 frame);
+    void process_trees_cache(btCollisionObject * cur_obj,const coid::dynarray<bt::tree_batch*>& trees_cache, uint32 frame);
     void build_tb_collision_info(bt::tree_batch * tb);
+
+    void add_tree_collision_pair(btCollisionObject * obj, bt::tree_collision_info* tree, const terrain_mesh * tm);
 
     fn_ext_collision _sphere_intersect;
     fn_process_tree_collision _tree_collision;
 
-    void process_tree_collisions();
+    void prepare_tree_collisions();
+	void process_tree_collisions();
+	//bool sphere_skewbox_test(const double3 & center, float r, const skewbox* sb, float * dist);
+	bool point_skewbox_test(const double3 & point, const skewbox* sb, float * dist);
 
     void get_obb(const btCollisionShape * cs, const btTransform& t, double3& cen, float3x3& basis);
     void oob_to_aabb(const btVector3& src_cen,
