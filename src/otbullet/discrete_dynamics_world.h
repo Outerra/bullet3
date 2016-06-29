@@ -102,7 +102,7 @@ protected:
 	coid::slotalloc<tree_collision_pair> _tree_collision_pairs;
 	coid::dynarray<btCollisionObjectWrapperCtorArgs> _cow_internal;
 	coid::dynarray<compound_processing_entry> _compound_processing_stack;
-	//iref<ot::logger> _logger;
+    //iref<ot::logger> _logger;
 	//iref<ot::sketch> _sketch;
 
     coid::dynarray<bt::triangle> _triangles;
@@ -145,7 +145,6 @@ protected:
 
     fn_ext_collision _sphere_intersect;
 
-	virtual void process_tree_collisions();
 	//bool sphere_skewbox_test(const double3 & center, float r, const skewbox* sb, float * dist);
 	bool point_skewbox_test(const double3 & point, const skewbox* sb, float * dist);
 

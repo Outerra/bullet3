@@ -1637,6 +1637,21 @@ void ot_terrain_contact_common::add_additional_col_obj(btCollisionObject * col_o
 	*_additional_col_objs.add(1) = col_obj;
 }
 
+void ot_terrain_contact_common::clear_common_data()
+{
+    _curr_collider = ctCount;
+    _curr_algo = 0;
+    _mesh_offset = double3(0);
+    _hull_center_g = double3(0);
+    _hull_polydata = 0;
+    _convex_object = 0;
+    _internal_object = 0;
+    _bt_ca = 0;
+    _triangle_cache.clear();
+    _contact_point_cache.clear();
+    _additional_col_objs.clear();
+}
+
 void ot_terrain_contact_common::prepare(btManifoldResult * result)
 {
 	_manifold = result;

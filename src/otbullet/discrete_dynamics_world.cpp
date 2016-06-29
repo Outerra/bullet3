@@ -321,10 +321,29 @@ namespace ot {
             btCollisionObject * t_col = new (&tci->obj) btCollisionObject();
             t_col->setCollisionShape(t_cap);
             t_col->setWorldTransform(t_trans);
+            t.spring_force_uv[0] = 0;
+            t.spring_force_uv[1] = 0;
+            tci->spring_force_uv = t.spring_force_uv;
         }
     }
 
-	void discrete_dynamics_world::process_tree_collisions()
+    void discrete_dynamics_world::add_tree_collision_pair(btCollisionObject * obj, bt::tree_collision_info * tree, const terrain_mesh * tm)
+    {
+        tree_collision_pair tcp(obj, tree, tm);
+        bool found = _tree_collision_pairs.find_if([&](const tree_collision_pair & t) {
+            return t == tcp;
+        });
+
+        if (!found) {
+            tree_collision_pair * new_tcp = _tree_collision_pairs.add();
+            new_tcp->active = true;
+            new_tcp->obj = tcp.obj;
+            new_tcp->tm = tcp.tm;
+            new_tcp->tree = tcp.tree;
+        }
+    }
+
+    void discrete_dynamics_world::prepare_tree_collisions()
     {
         _tree_collision_pairs.for_each([&](tree_collision_pair&  tcp) {
             btDispatcher * dispatcher = getDispatcher();
@@ -353,6 +372,39 @@ namespace ot {
 
             res.refreshContactPoints();
             tcp.reused = false;
+        });
+
+            manifold->refreshContactPoints(tcp.obj->getWorldTransform(), tcp.tree->obj.getWorldTransform());
+
+            if (manifold->getNumContacts() > 0) {
+                btRigidBody * rb = reinterpret_cast<btRigidBody*>(tcp.obj);
+                float obj_mass = 1.0 / rb->getInvMass();
+                btVector3 obj_force();
+                
+                btManifoldPoint * min_p = nullptr;
+                for (int i = 0; i < manifold->getNumContacts(); i++) {
+                    if (!min_p || min_p->getDistance() > manifold->getContactPoint(i).getDistance()) {
+                        min_p = &manifold->getContactPoint(i);
+                    }
+                }
+                if (min_p->getDistance() < 0) {
+                    btVector3 rel_v = rb->getLinearVelocity();
+                    btScalar damping_compression_p = 0.9 * 2 * sqrt(10);
+                    btScalar damping_compression_n = -0.9 * 2 * sqrt(1000000);
+                    const btScalar tree_stiffness = 10000; // 10kN/m
+                    const btVector3 & contact_normal = min_p->m_normalWorldOnB;
+                    const btScalar penetration_depth = -min_p->getDistance();
+                    btScalar len_v = contact_normal.dot(rel_v);
+                    const btScalar damping_factor = ((len_v < 0) ? damping_compression_p : damping_compression_n);
+                    btVector3 damping_force = len_v * contact_normal * damping_factor;
+                    btVector3 spring_force = contact_normal * tree_stiffness * penetration_depth  +  damping_force;
+
+                    rb->applyCentralImpulse(spring_force) ;
+                }
+            }
+
+            getDispatcher()->releaseManifold(manifold);
+
         });
 	}
 

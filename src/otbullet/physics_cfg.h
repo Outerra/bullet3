@@ -7,6 +7,8 @@
 class rigid_body_constraint;
 class terrain_mesh;
 
+class btRigidBody;
+
 namespace bt {
 
 enum EShape {
@@ -67,17 +69,20 @@ struct tree
     double3 pos;
     //quat rot;
     float height;
-
+    int8 * spring_force_uv;
     //uint8 objbuf[sizeof(btCollisionObject)];
     //uint8 shapebuf[sizeof(btCapsuleShape)];
 };
 
+//
 struct tree_collision_info
 {
     btCollisionObject obj;
     btCapsuleShape shape;
+    int8 * spring_force_uv;
 };
 
+//
 struct tree_batch
 {
     const terrain_mesh* tm;
@@ -91,6 +96,14 @@ struct tree_batch
     ~tree_batch() {
         tree_count = 0;
     }
+};
+
+//
+struct tree_resolving_data {
+    void * btRigidBody;
+    float penetration_depth;
+    float3 tree_spring_direction;
+    uint16 tree_identifier;
 };
 
 //
