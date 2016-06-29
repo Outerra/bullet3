@@ -100,7 +100,8 @@ namespace ot {
 	void discrete_dynamics_world::ot_terrain_collision_step()
 	{
         static uint32 frame_count;
-        ot_terrain_contact_common common_data(0.00f,this,_pb_wrap);
+        LOCAL_SINGLETON(ot_terrain_contact_common) common_data = new ot_terrain_contact_common(0.00f,this,_pb_wrap);
+        
 		for (int i = 0; i < m_collisionObjects.size(); i++) {
 			_cow_internal.clear();
             _compound_processing_stack.clear();
@@ -177,7 +178,7 @@ namespace ot {
 					_cow_internal[j]._index);
 
 
-                common_data.set_internal_obj_wrapper(&internal_obj_wrapper);
+                common_data->set_internal_obj_wrapper(&internal_obj_wrapper);
 
 				btVector3 sc = internal_obj_wrapper.getWorldTransform().getOrigin();
 				//int face = ot::xyz_to_cubeface(&sc.m_floats[0]);
@@ -191,7 +192,7 @@ namespace ot {
 					const btSphereShape * sph = reinterpret_cast<const btSphereShape*>(internal_obj_wrapper.getCollisionShape());
 					_rad = float(sph->getRadius() + 0.02);
                     _lod_dim = _rad;
-					common_data.prepare_sphere_collision(&res, _from, float(sph->getRadius()), 0.02f);
+					common_data->prepare_sphere_collision(&res, _from, float(sph->getRadius()), 0.02f);
 				}
 				else if (internal_obj_wrapper.getCollisionShape()->getShapeType() == CAPSULE_SHAPE_PROXYTYPE) {
 					const btCapsuleShape * caps = reinterpret_cast<const btCapsuleShape*>(internal_obj_wrapper.getCollisionShape());
@@ -204,7 +205,7 @@ namespace ot {
 					btVector3 p0 = sc + (main_axis * cap_hheight);
 					btVector3 p1 = sc - (main_axis * cap_hheight);
 
-					common_data.prepare_capsule_collision(&res, glm::dvec3(p0.x(), p0.y(), p0.z()), glm::dvec3(p1.x(), p1.y(), p1.z()), cap_rad, float(caps->getMargin()));
+					common_data->prepare_capsule_collision(&res, glm::dvec3(p0.x(), p0.y(), p0.z()), glm::dvec3(p1.x(), p1.y(), p1.z()), cap_rad, float(caps->getMargin()));
 				}
 				else if (internal_obj_wrapper.getCollisionShape()->isConvex()) {
 					btTransform t = internal_obj_wrapper.getWorldTransform();
@@ -220,7 +221,7 @@ namespace ot {
 
                     min = (max - min) / 2.0;
                     _lod_dim = (float)min[min.minAxis()];
-					common_data.prepare_bt_convex_collision(&res, &internal_obj_wrapper);
+					common_data->prepare_bt_convex_collision(&res, &internal_obj_wrapper);
 				}
 				else {
 					continue;
@@ -238,14 +239,14 @@ namespace ot {
                         trijangle.push(t);
                     });
 #endif
-                    common_data.process_triangle_cache(_triangles);
+                    common_data->process_triangle_cache(_triangles);
 				}
 
                 if (_trees.size() > 0) {
                     process_trees_cache(obj, _trees, frame_count);
                 }
 
-				common_data.process_collision_points();
+				common_data->process_collision_points();
 			}
 
             int num_contacts = manifold->getNumContacts();
@@ -287,9 +288,19 @@ namespace ot {
                 float3 p = float3(glm::normalize(tb->trees[j].pos)) * tb->trees[j].height;
                 float3 cen_rel(_from - tb->trees[j].pos);
                 if (coal::distance_point_segment_sqr(cen_rel, float3(0, 0, 0), p) < glm::pow(g_temp_tree_rad + _rad,2.f)) {
-                    tree_collision_pair * tcp = _tree_collision_pairs.add();
-                    tcp->obj = cur_obj;
-                    tcp->tree = tb->info(j);
+                    tree_collision_pair tcp(cur_obj, tb->info(j));
+                    tree_collision_pair * cached_tcp = _tree_collision_pairs.find_if([&](tree_collision_pair _tcp) {
+                        return tcp == _tcp;
+                    });
+
+                    if (!cached_tcp) {
+                        cached_tcp = _tree_collision_pairs.add();
+                        cached_tcp->obj = tcp.obj;
+                        cached_tcp->tree = tcp.tree;
+                        cached_tcp->manifold = getDispatcher()->getNewManifold(cur_obj, &tcp.tree->obj);
+                    }
+                    
+                    cached_tcp->reused = true;
                 }
             }
         }
@@ -316,23 +327,33 @@ namespace ot {
 	void discrete_dynamics_world::process_tree_collisions()
     {
         _tree_collision_pairs.for_each([&](tree_collision_pair&  tcp) {
+            btDispatcher * dispatcher = getDispatcher();
+            btPersistentManifold * manifold = tcp.manifold;
+            DASSERT(manifold);
 
+            if (!tcp.reused) {
+                dispatcher->releaseManifold(manifold);
+                _tree_collision_pairs.del(&tcp);
+                return;
+            }
+            
             btCollisionObjectWrapper obj1_wrapper(0, tcp.obj->getCollisionShape(), tcp.obj, tcp.obj->getWorldTransform(), -1, -1);
             btCollisionObjectWrapper obj2_wrapper(0, &tcp.tree->shape, &tcp.tree->obj, tcp.tree->obj.getWorldTransform(), -1, -1);
-            btPersistentManifold * manifold = getDispatcher()->getNewManifold(obj1_wrapper.getCollisionObject(), obj2_wrapper.getCollisionObject());
-            manifold->clearManifold();
-            *_manifolds.add() = manifold;
-            btManifoldResult res(&obj1_wrapper, &obj2_wrapper);
 
-            btCollisionAlgorithm * algo = getDispatcher()->findAlgorithm(&obj1_wrapper, &obj2_wrapper,manifold);
+            btManifoldResult res(&obj1_wrapper, &obj2_wrapper);
+            res.setPersistentManifold(manifold);
+
+            btCollisionAlgorithm * algo = dispatcher->findAlgorithm(&obj1_wrapper, &obj2_wrapper,manifold);
 
             if (algo) {
                 algo->processCollision(&obj1_wrapper, &obj2_wrapper, getDispatchInfo(), &res);
+                algo->~btCollisionAlgorithm();
+                dispatcher->freeCollisionAlgorithm(algo);
             }
+
+            res.refreshContactPoints();
+            tcp.reused = false;
         });
-
-
-		_tree_collision_pairs.clear();
 	}
 
 	discrete_dynamics_world::discrete_dynamics_world(btDispatcher * dispatcher, 

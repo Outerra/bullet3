@@ -27,6 +27,25 @@ struct tree_collision_pair
 {
     btCollisionObject* obj;
     bt::tree_collision_info* tree;
+    bool reused;
+    btPersistentManifold * manifold;
+
+    bool operator==(const tree_collision_pair & tcp) const {
+        return obj == tcp.obj && tree == tcp.tree;
+    }
+
+    tree_collision_pair()
+        : obj(0)
+        , tree(0)
+        , reused(false)
+        , manifold(0) {}
+
+    tree_collision_pair(btCollisionObject* obj, bt::tree_collision_info* tree)
+        :obj(obj)
+        , tree(tree) 
+        , reused(false)
+        , manifold(0){}
+
 };
 
 
@@ -80,7 +99,7 @@ protected:
 	btCollisionObjectWrapper * _pb_wrap;
 	coid::slotalloc<btPersistentManifold *> _manifolds;
 	//coid::slotalloc<tree_batch> _tree_cache;
-	coid::dynarray<tree_collision_pair> _tree_collision_pairs;
+	coid::slotalloc<tree_collision_pair> _tree_collision_pairs;
 	coid::dynarray<btCollisionObjectWrapperCtorArgs> _cow_internal;
 	coid::dynarray<compound_processing_entry> _compound_processing_stack;
 	//iref<ot::logger> _logger;

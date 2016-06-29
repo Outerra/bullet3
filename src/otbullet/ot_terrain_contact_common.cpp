@@ -33,7 +33,6 @@ ot_terrain_contact_common::ot_terrain_contact_common(float triangle_collision_ma
 	_contact_point_cache.reserve(256, true);
 }
 
-
 ot_terrain_contact_common::~ot_terrain_contact_common()
 {
 }
@@ -1641,8 +1640,12 @@ void ot_terrain_contact_common::add_additional_col_obj(btCollisionObject * col_o
 void ot_terrain_contact_common::prepare(btManifoldResult * result)
 {
 	_manifold = result;
-	_triangle_cache.clear();
-	_contact_point_cache.clear();
-	_additional_col_objs.clear();
+    clear_caches();
 	_convex_object = 0;
+}
+
+void ot_terrain_contact_common::clear_caches() {
+    _triangle_cache.clear();
+    _contact_point_cache.clear();
+    _additional_col_objs.clear();
 }

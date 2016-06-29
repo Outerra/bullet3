@@ -186,12 +186,14 @@ private:
 #endif
 public:
 	ot_terrain_contact_common(float triangle_collision_margin, btCollisionWorld * world, btCollisionObjectWrapper * planet_body_wrap);
-	~ot_terrain_contact_common();
+    ~ot_terrain_contact_common();
+
 	void set_terrain_mesh_offset(const glm::dvec3 & offset);
 	void prepare_sphere_collision(btManifoldResult * result, const glm::dvec3 & center, float radius, float collision_margin);
 	void prepare_capsule_collision(btManifoldResult * result, const glm::dvec3 & p0, const glm::dvec3 & p1,float radius,float collision_margin);
 	void prepare_hull_collision(btManifoldResult * result, const glm::quat  & hull_rot, const glm::dvec3 & hull_pos, const btConvexPolyhedron & hull_polydata);
 	void prepare_bt_convex_collision(btManifoldResult * result, btCollisionObjectWrapper * convex_object);
+    void clear_caches();
 
 	void process_triangle_cache();
 	void process_triangle_cache(const coid::dynarray<bt::triangle>& triangle_cache);
