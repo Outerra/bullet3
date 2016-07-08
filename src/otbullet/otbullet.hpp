@@ -13,6 +13,7 @@ class btRigidBody;
 class btActionInterface;
 class btTransform;
 class btIDebugDraw;
+class btManifoldPoint;
 
 namespace bt {
     class constraint_info;
@@ -73,6 +74,8 @@ public:
         float lod_dimension,
         coid::dynarray<bt::triangle>& data,
         coid::dynarray<bt::tree_batch*>& trees);
+
+    ifc_event void tree_collisions(btRigidBody * obj, const btManifoldPoint * cp, uint32 tree_ident);
 
     void set_debug_draw(btIDebugDraw * debug_draw);
 	void debug_draw_world();

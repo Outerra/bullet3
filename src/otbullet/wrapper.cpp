@@ -36,6 +36,19 @@ extern bool _ext_collider(const void* context,
 	coid::dynarray<bt::triangle>& data,
 	coid::dynarray<bt::tree_batch*>& trees);
 
+extern bool _ext_collider_obb(
+    const void * context,
+    const double3& center,
+    const float3x3& basis,
+    float lod_dimension,
+    coid::dynarray<bt::triangle>& data,
+    coid::dynarray<bt::tree_batch*>& trees);
+
+
+extern void _ext_tree_col(btRigidBody * obj, 
+        const btManifoldPoint * cp, 
+        uint32 tree_ident);
+
 #else
 
 static bool _ext_collider(
@@ -78,14 +91,17 @@ iref<physics> physics::create(double r, void* context)
     _overlappingPairCache = new bt32BitAxisSweep3(worldMin, worldMax);
     _constraintSolver = new btSequentialImpulseConstraintSolver();
 
-	ot::discrete_dynamics_world * wrld = new ot::discrete_dynamics_world(
-		_dispatcher,
-		_overlappingPairCache,
-		_constraintSolver,
-		_collisionConfiguration,
+    ot::discrete_dynamics_world * wrld = new ot::discrete_dynamics_world(
+        _dispatcher,
+        _overlappingPairCache,
+        _constraintSolver,
+        _collisionConfiguration,
         &_ext_collider,
+        &_ext_tree_col,
 		context
         );
+
+    wrld->_aabb_intersect = &_ext_collider_obb;
 
     _physics->_world = wrld;
 

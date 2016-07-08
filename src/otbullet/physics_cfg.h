@@ -70,6 +70,7 @@ struct tree
     //quat rot;
     float height;
     int8 * spring_force_uv;
+    uint16 identifier;
     //uint8 objbuf[sizeof(btCollisionObject)];
     //uint8 shapebuf[sizeof(btCapsuleShape)];
 };
@@ -79,6 +80,8 @@ struct tree_collision_info
 {
     btCollisionObject obj;
     btCapsuleShape shape;
+    float jy;
+    float E;
     int8 * spring_force_uv;
 };
 
@@ -125,4 +128,4 @@ public:
 };
 
 
-} //namespace bt
+}; //namespace bt

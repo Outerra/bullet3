@@ -17,6 +17,7 @@ class btRigidBody;
 class btActionInterface;
 class btTransform;
 class btIDebugDraw;
+class btManifoldPoint;
 
 namespace bt {
     class constraint_info;
@@ -101,6 +102,8 @@ protected:
 
     virtual bool terrain_collisions( const void* context, const double3& center, float radius, float lod_dimension, coid::dynarray<bt::triangle>& data, coid::dynarray<bt::tree_batch*>& trees ){ throw coid::exception("handler not implemented"); }
 
+    virtual void tree_collisions( btRigidBody* obj, const btManifoldPoint* cp, uint32 tree_ident ) {}
+
     virtual void force_bind_script_events() {}
 
 public:
@@ -174,6 +177,7 @@ public:
     // --- host helpers to check presence of handlers in scripts ---
 
     virtual bool is_bound_terrain_collisions() { return true; }
+    virtual bool is_bound_tree_collisions() { return true; }
 
 protected:
 
