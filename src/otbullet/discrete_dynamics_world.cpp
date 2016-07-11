@@ -21,8 +21,10 @@
 #include <comm/dynarray.h>
 
 #include <ot/glm/glm_ext.h>
-#ifdef _LIB
+#if defined(_LIB) && defined(_DEBUG) 
 extern coid::dynarray<bt::triangle> trijangle;
+extern bool e_broad_triss;
+extern coid::dynarray<double3> e_skw_pts;
 #endif
 
 static const float g_temp_tree_rad = .2f;
@@ -31,8 +33,9 @@ namespace ot {
 
 	void discrete_dynamics_world::internalSingleStepSimulation(btScalar timeStep)
 	{
-
-		if (0 != m_internalPreTickCallback) {
+        reset_stats();
+		
+        if (0 != m_internalPreTickCallback) {
 			(*m_internalPreTickCallback)(this, timeStep);
 		}
 
@@ -100,6 +103,7 @@ namespace ot {
 	void discrete_dynamics_world::ot_terrain_collision_step()
 	{
         static uint32 frame_count;
+        static coid::nsec_timer timer;
         LOCAL_SINGLETON(ot_terrain_contact_common) common_data = new ot_terrain_contact_common(0.00f,this,_pb_wrap);
 		for (int i = 0; i < m_collisionObjects.size(); i++) {
 			_cow_internal.clear();
@@ -229,20 +233,32 @@ namespace ot {
 				_triangles.clear();
                 _trees.clear();
 
-                double3 cen;
-                float3x3 basis;
-                get_obb(internal_obj_wrapper.getCollisionShape(), internal_obj_wrapper.getWorldTransform(), cen, basis);
+                get_obb(internal_obj_wrapper.getCollisionShape(), internal_obj_wrapper.getWorldTransform(), _from, _basis);
 
-                if(!_sphere_intersect(_context, _from , _rad , _lod_dim, _triangles, _trees))
+#if defined(_LIB) && defined(_DEBUG)
+                e_skw_pts.clear();
+                trijangle.clear();
+#endif
+                timer.reset();
+                //if(!_sphere_intersect(_context, _from , _rad , _lod_dim, _triangles, _trees))
+                if (!_aabb_intersect(_context, _from, _basis, _lod_dim, _triangles, _trees)) {
+                    _stats.broad_phase_time_ms += timer.time_ns() * 0.000001f;
                     continue;
+                }
+                _stats.broad_phase_time_ms += timer.time_ns() * 0.000001f;
 
 				if (_triangles.size() > 0) {
-#ifdef _LIB
-                    _triangles.for_each([&](const bt::triangle & t) {
-                        trijangle.push(t);
-                    });
+#if defined(_LIB) && defined(_DEBUG)
+                    if(e_broad_triss){
+                        _triangles.for_each([&](const bt::triangle & t) {
+                            trijangle.push(t);
+                        });
+                    }
 #endif
+                    timer.reset();
                     common_data->process_triangle_cache(_triangles);
+                    _stats.triangles_processed_count += _triangles.size();
+                    _stats.triangle_processing_time_ms += timer.time_ns() * 0.000001f;
 				}
 
                 if (_trees.size() > 0) {

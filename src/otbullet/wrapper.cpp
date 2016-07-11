@@ -265,3 +265,9 @@ void physics::ray_test( const double from[3], const double to[3], void* cb)
     _world->rayTest(*(const btVector3*)from, *(const btVector3*)to,
         *(btCollisionWorld::RayResultCallback*)cb);
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+bt::ot_world_physics_stats physics::get_stats() {
+    return ((ot::discrete_dynamics_world*)(_world))->get_stats();
+}

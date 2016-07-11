@@ -18,6 +18,7 @@ class btManifoldPoint;
 namespace bt {
     class constraint_info;
     class physics;
+    struct ot_world_physics_stats;
 }
 extern bt::physics* BT;
 //}ifc
@@ -66,6 +67,10 @@ public:
     ifc_fn void add_convex_point( btCollisionShape* shape, const float point[3] );
     ifc_fn void close_convex_shape( btCollisionShape* shape );
     ifc_fn void destroy_shape( ifc_inout btCollisionShape*& shape );
+
+    ifc_fn bt::ot_world_physics_stats get_stats();
+    ifc_fn void set_debug_draw_enabled(bool state);
+    ifc_fn void set_debug_drawer_mode(int debug_mode);
 
     ifc_event bool terrain_collisions(
         const void* context,

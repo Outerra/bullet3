@@ -107,6 +107,16 @@ struct tree_resolving_data {
 };
 
 //
+struct ot_world_physics_stats {
+    uint32 triangles_processed_count;
+    uint32 trees_processed_count;
+    float total_time_ms;
+    float broad_phase_time_ms;
+    float triangle_processing_time_ms;
+    float tree_processing_time_ms;
+};
+
+//
 class constraint_info
 {
 public:

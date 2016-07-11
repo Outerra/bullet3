@@ -49,7 +49,6 @@ struct tree_collision_pair
         , tree_identifier(0){}
 };
 
-
 ///
 struct raw_collision_pair {
 	btCollisionObject * _obj1;
@@ -112,8 +111,11 @@ protected:
     double3 _from;
     float3 _ray;
     float _rad;
+    float3x3 _basis;
     float _lod_dim;
     //bt::ECollisionShape _col_shape;
+
+    bt::ot_world_physics_stats _stats;
 
 public:
 
@@ -145,6 +147,10 @@ public:
         fn_process_tree_collision ext_tree_col,
 		const void* context = 0);
 
+    const bt::ot_world_physics_stats & get_stats() const {
+        return _stats;
+    }
+
 protected:
 
 	virtual void internalSingleStepSimulation(btScalar timeStep) override;
@@ -169,6 +175,15 @@ protected:
         const btMatrix3x3& dst_basis,
         btVector3& aabb_cen,
         btVector3& aabb_half);
+
+    void reset_stats() {
+        _stats.broad_phase_time_ms = 0.f;
+        _stats.total_time_ms = 0.f;
+        _stats.tree_processing_time_ms = 0.f;
+        _stats.triangle_processing_time_ms = 0.f;
+        _stats.triangles_processed_count = 0;
+        _stats.trees_processed_count = 0;
+    };
 };
 
 } // namespace ot
