@@ -34,7 +34,7 @@ struct tree_collision_pair
         return obj == tcp.obj && tree == tcp.tree;
     }
 
-    tree_collision_pair() 
+    tree_collision_pair()
         : obj(0)
         , tree(0)
         , tm(0)
@@ -42,11 +42,11 @@ struct tree_collision_pair
     {}
 
     tree_collision_pair(btCollisionObject* obj, bt::tree_collision_info* tree, const terrain_mesh * tm)
-        : obj(obj)
-        , tree(tree)
-        , tm(tm)
-        , active(false)
-    {}
+        :obj(obj)
+        , tree(tree) 
+        , reused(false)
+        , manifold(0)
+        , tree_identifier(0){}
 };
 
 
@@ -152,7 +152,7 @@ protected:
 
 	void ot_terrain_collision_step();
 
-    void process_trees_cache(btCollisionObject * cur_obj,const coid::dynarray<bt::tree_batch*>& trees_cache, uint32 frame);
+    void process_trees_cache(btCollisionObject * cur_obj, const coid::dynarray<bt::tree_batch*>& trees_cache, uint32 frame);
     void build_tb_collision_info(bt::tree_batch * tb);
 
     void add_tree_collision_pair(btCollisionObject * obj, bt::tree_collision_info* tree, const terrain_mesh * tm);
@@ -161,10 +161,7 @@ protected:
     fn_process_tree_collision _tree_collision;
 
     void prepare_tree_collisions();
-	void process_tree_collisions();
-	//bool sphere_skewbox_test(const double3 & center, float r, const skewbox* sb, float * dist);
-	bool point_skewbox_test(const double3 & point, const skewbox* sb, float * dist);
-
+    void process_tree_collisions();
     void get_obb(const btCollisionShape * cs, const btTransform& t, double3& cen, float3x3& basis);
     void oob_to_aabb(const btVector3& src_cen,
         const btMatrix3x3& src_basis,
