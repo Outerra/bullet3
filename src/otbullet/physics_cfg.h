@@ -114,6 +114,8 @@ struct ot_world_physics_stats {
     float broad_phase_time_ms;
     float triangle_processing_time_ms;
     float tree_processing_time_ms;
+    float after_ot_phase_time_ms;
+    float before_ot_phase_time_ms;
 };
 
 //

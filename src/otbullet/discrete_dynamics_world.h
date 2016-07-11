@@ -183,6 +183,8 @@ protected:
         _stats.triangle_processing_time_ms = 0.f;
         _stats.triangles_processed_count = 0;
         _stats.trees_processed_count = 0;
+        _stats.after_ot_phase_time_ms = 0;
+        _stats.before_ot_phase_time_ms = 0;
     };
 };
 

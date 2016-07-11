@@ -33,6 +33,10 @@ namespace ot {
 
 	void discrete_dynamics_world::internalSingleStepSimulation(btScalar timeStep)
 	{
+        static coid::nsec_timer timer;
+        static coid::nsec_timer timer1;
+        timer.reset();
+        timer1.reset();
         reset_stats();
 		
         if (0 != m_internalPreTickCallback) {
@@ -54,11 +58,15 @@ namespace ot {
 		///perform collision detection
 		performDiscreteCollisionDetection();
 
+        _stats.before_ot_phase_time_ms = timer.time_ns() * 1e-6f;
+
 		//perform outerra terrain collision detecion
 
 //		ot_terrain_collision_step_cleanup();
 		ot_terrain_collision_step();
 		process_tree_collisions();
+
+        timer.reset();
 
 		calculateSimulationIslands();
 
@@ -84,6 +92,9 @@ namespace ot {
 		if (0 != m_internalTickCallback) {
 			(*m_internalTickCallback)(this, timeStep);
 		}
+
+        _stats.after_ot_phase_time_ms = timer.time_ns() * 1e-6f;
+        _stats.total_time_ms = timer1.time_ns() * 1e-6f;
 	}
 
     void discrete_dynamics_world::removeRigidBody(btRigidBody * body)
