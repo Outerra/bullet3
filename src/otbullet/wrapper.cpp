@@ -271,3 +271,15 @@ void physics::ray_test( const double from[3], const double to[3], void* cb)
 bt::ot_world_physics_stats physics::get_stats() {
     return ((ot::discrete_dynamics_world*)(_world))->get_stats();
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+void physics::set_debug_draw_enabled(bool state) {
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void physics::set_debug_drawer_mode(int debug_mode) {
+
+}
