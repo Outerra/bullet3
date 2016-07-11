@@ -240,8 +240,8 @@ namespace ot {
                 trijangle.clear();
 #endif
                 timer.reset();
-                //if(!_sphere_intersect(_context, _from , _rad , _lod_dim, _triangles, _trees))
-                if (!_aabb_intersect(_context, _from, _basis, _lod_dim, _triangles, _trees)) {
+                if(!_sphere_intersect(_context, _from , _rad , _lod_dim, _triangles, _trees)) {
+                //if (!_aabb_intersect(_context, _from, _basis, _lod_dim, _triangles, _trees)) {
                     _stats.broad_phase_time_ms += timer.time_ns() * 0.000001f;
                     continue;
                 }
