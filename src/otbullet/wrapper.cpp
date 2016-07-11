@@ -62,6 +62,23 @@ static bool _ext_collider(
     return _physics->terrain_collisions(planet, center, radius, lod_dimension, data, trees);
 }
 
+static bool _ext_collider_obb(
+    const void * planet,
+    const double3& center,
+    const float3x3& basis,
+    float lod_dimension,
+    coid::dynarray<bt::triangle>& data,
+    coid::dynarray<bt::tree_batch*>& trees) 
+{
+    return _physics->terrain_collisions_aabb(planet, center, basis, lod_dimension, data, trees);
+}
+
+static void _ext_tree_col(btRigidBody * obj,
+    const btManifoldPoint * cp,
+    uint32 tree_ident) {
+
+}
+
 #endif
 
 

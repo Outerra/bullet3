@@ -80,6 +80,15 @@ public:
         coid::dynarray<bt::triangle>& data,
         coid::dynarray<bt::tree_batch*>& trees);
 
+    ifc_event bool terrain_collisions_aabb(
+        const void* context,
+        const double3& center,
+        float3x3 basis,
+        float lod_dimension,
+        coid::dynarray<bt::triangle>& data,
+        coid::dynarray<bt::tree_batch*>& trees);
+
+
     ifc_event void tree_collisions(btRigidBody * obj, const btManifoldPoint * cp, uint32 tree_ident);
 
     void set_debug_draw(btIDebugDraw * debug_draw);
