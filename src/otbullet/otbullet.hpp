@@ -69,6 +69,7 @@ public:
     ifc_fn void destroy_shape( ifc_inout btCollisionShape*& shape );
 
     ifc_fn bt::ot_world_physics_stats get_stats();
+    ifc_fn bt::ot_world_physics_stats* get_stats_ptr();
     ifc_fn void set_debug_draw_enabled(bool state);
     ifc_fn void set_debug_drawer_mode(int debug_mode);
 

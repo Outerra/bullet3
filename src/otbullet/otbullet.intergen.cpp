@@ -32,7 +32,7 @@ private:
     {
         if(_vtable1) return _vtable1;
 
-        _vtable1 = new ifn_t[30];
+        _vtable1 = new ifn_t[31];
         _vtable1[0] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(double)>(&::physics::step_simulation));
         _vtable1[1] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(const double[3],const double[3],void*)>(&::physics::ray_test));
         _vtable1[2] = reinterpret_cast<ifn_t>(static_cast<btRigidBody*(policy_intrusive_base::*)()>(&::physics::fixed_object));
@@ -61,8 +61,9 @@ private:
         _vtable1[25] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionShape*)>(&::physics::close_convex_shape));
         _vtable1[26] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionShape*&)>(&::physics::destroy_shape));
         _vtable1[27] = reinterpret_cast<ifn_t>(static_cast<bt::ot_world_physics_stats(policy_intrusive_base::*)()>(&::physics::get_stats));
-        _vtable1[28] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(bool)>(&::physics::set_debug_draw_enabled));
-        _vtable1[29] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(int)>(&::physics::set_debug_drawer_mode));
+        _vtable1[28] = reinterpret_cast<ifn_t>(static_cast<bt::ot_world_physics_stats*(policy_intrusive_base::*)()>(&::physics::get_stats_ptr));
+        _vtable1[29] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(bool)>(&::physics::set_debug_draw_enabled));
+        _vtable1[30] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(int)>(&::physics::set_debug_drawer_mode));
         return _vtable1;
     }
 
@@ -74,7 +75,7 @@ private:
         if(_vtable2) return _vtable2;
         ifn_t* vtable1 = get_vtable();
 
-        _vtable2 = new ifn_t[30];
+        _vtable2 = new ifn_t[31];
         _vtable2[0] = vtable1[0];
         _vtable2[1] = vtable1[1];
         _vtable2[2] = vtable1[2];
@@ -105,6 +106,7 @@ private:
         _vtable2[27] = vtable1[27];
         _vtable2[28] = vtable1[28];
         _vtable2[29] = vtable1[29];
+        _vtable2[30] = vtable1[30];
         return _vtable2;
     }
 
@@ -182,9 +184,9 @@ public:
             "bt::physics@wrapper", (void*)&_generic_interface_creator);
 
         interface_register::register_interface_creator(
-            "bt::physics.create@521497734", (void*)&create);
+            "bt::physics.create@3492200795", (void*)&create);
         interface_register::register_interface_creator(
-            "bt::physics.get@521497734", (void*)&get);
+            "bt::physics.get@3492200795", (void*)&get);
 
         return (void*)&register_interfaces;
     }

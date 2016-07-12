@@ -33,12 +33,15 @@ namespace ot {
 
 	void discrete_dynamics_world::internalSingleStepSimulation(btScalar timeStep)
 	{
+#ifdef _PROFILING_ENABLED
         static coid::nsec_timer timer;
         static coid::nsec_timer timer1;
         timer.reset();
         timer1.reset();
         reset_stats();
-		
+
+#endif // _PROFILING_ENABLED
+
         if (0 != m_internalPreTickCallback) {
 			(*m_internalPreTickCallback)(this, timeStep);
 		}
@@ -58,7 +61,10 @@ namespace ot {
 		///perform collision detection
 		performDiscreteCollisionDetection();
 
+#ifdef _PROFILING_ENABLED
         _stats.before_ot_phase_time_ms = timer.time_ns() * 1e-6f;
+
+#endif // _PROFILING_ENABLED
 
 		//perform outerra terrain collision detecion
 
@@ -66,7 +72,9 @@ namespace ot {
 		ot_terrain_collision_step();
 		process_tree_collisions();
 
+#ifdef _PROFILING_ENABLED
         timer.reset();
+#endif // _PROFILING_ENABLED
 
 		calculateSimulationIslands();
 
@@ -93,8 +101,11 @@ namespace ot {
 			(*m_internalTickCallback)(this, timeStep);
 		}
 
+#ifdef _PROFILING_ENABLED
         _stats.after_ot_phase_time_ms = timer.time_ns() * 1e-6f;
         _stats.total_time_ms = timer1.time_ns() * 1e-6f;
+#endif // _PROFILING_ENABLED
+
 	}
 
     void discrete_dynamics_world::removeRigidBody(btRigidBody * body)
@@ -114,7 +125,12 @@ namespace ot {
 	void discrete_dynamics_world::ot_terrain_collision_step()
 	{
         static uint32 frame_count;
+
+#ifdef _PROFILING_ENABLED
         static coid::nsec_timer timer;
+#endif // _PROFILING_ENABLED
+
+        
         LOCAL_SINGLETON(ot_terrain_contact_common) common_data = new ot_terrain_contact_common(0.00f,this,_pb_wrap);
 		for (int i = 0; i < m_collisionObjects.size(); i++) {
 			_cow_internal.clear();
@@ -250,13 +266,11 @@ namespace ot {
                 e_skw_pts.clear();
                 trijangle.clear();
 #endif
-                timer.reset();
+
                 if(!_sphere_intersect(_context, _from , _rad , _lod_dim, _triangles, _trees)) {
                 //if (!_aabb_intersect(_context, _from, _basis, _lod_dim, _triangles, _trees)) {
-                    _stats.broad_phase_time_ms += timer.time_ns() * 0.000001f;
                     continue;
                 }
-                _stats.broad_phase_time_ms += timer.time_ns() * 0.000001f;
 
 				if (_triangles.size() > 0) {
 #if defined(_LIB) && defined(_DEBUG)
@@ -266,10 +280,16 @@ namespace ot {
                         });
                     }
 #endif
+#ifdef _PROFILING_ENABLED
                     timer.reset();
+
+#endif // _PROFILING_ENABLED
                     common_data->process_triangle_cache(_triangles);
+#ifdef _PROFILING_ENABLED
                     _stats.triangles_processed_count += _triangles.size();
                     _stats.triangle_processing_time_ms += timer.time_ns() * 0.000001f;
+#endif // _PROFILING_ENABLED
+
 				}
 
                 if (_trees.size() > 0) {

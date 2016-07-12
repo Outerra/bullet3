@@ -96,6 +96,8 @@ public:
 
     bt::ot_world_physics_stats get_stats();
 
+    bt::ot_world_physics_stats* get_stats_ptr();
+
     void set_debug_draw_enabled( bool state );
 
     void set_debug_drawer_mode( int debug_mode );
@@ -137,7 +139,7 @@ public:
         if(_cleaner) _cleaner(this,0);
     }
 
-    static const int HASHID = 521497734;
+    static const int HASHID = 3492200795;
 
     int intergen_hash_id() const override { return HASHID; }
 
@@ -147,7 +149,7 @@ public:
     }
 
     static const coid::token& intergen_default_creator_static( EBackend bck ) {
-        static const coid::token _dc("bt::physics.get@521497734");
+        static const coid::token _dc("bt::physics.get@3492200795");
         static const coid::token _djs("bt::js::physics@wrapper");
         static const coid::token _dnone;
 
@@ -205,7 +207,7 @@ inline iref<T> physics::create( T* _subclass_, double r, void* context )
     typedef iref<T> (*fn_creator)(physics*, double, void*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.create@521497734";
+    static const coid::token ifckey = "bt::physics.create@3492200795";
 
     if(!create)
         create = reinterpret_cast<fn_creator>(
@@ -223,7 +225,7 @@ inline iref<T> physics::get( T* _subclass_ )
     typedef iref<T> (*fn_creator)(physics*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.get@521497734";
+    static const coid::token ifckey = "bt::physics.get@3492200795";
 
     if(!create)
         create = reinterpret_cast<fn_creator>(
@@ -320,11 +322,14 @@ inline void physics::destroy_shape( btCollisionShape*& shape )
 inline bt::ot_world_physics_stats physics::get_stats()
 { return VT_CALL(bt::ot_world_physics_stats,(),27)(); }
 
+inline bt::ot_world_physics_stats* physics::get_stats_ptr()
+{ return VT_CALL(bt::ot_world_physics_stats*,(),28)(); }
+
 inline void physics::set_debug_draw_enabled( bool state )
-{ return VT_CALL(void,(bool),28)(state); }
+{ return VT_CALL(void,(bool),29)(state); }
 
 inline void physics::set_debug_drawer_mode( int debug_mode )
-{ return VT_CALL(void,(int),29)(debug_mode); }
+{ return VT_CALL(void,(int),30)(debug_mode); }
 
 } //namespace
 
