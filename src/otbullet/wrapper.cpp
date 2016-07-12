@@ -48,9 +48,6 @@ extern bool _ext_collider_obb(
 extern void _ext_tree_col(btRigidBody * obj, 
         const btManifoldPoint * cp, 
         uint32 tree_ident);
-
-bt::ot_world_physics_stats * stats_ptr;
-
 #else
 
 static bool _ext_collider(
@@ -121,11 +118,6 @@ iref<physics> physics::create(double r, void* context)
         );
 
     wrld->_aabb_intersect = &_ext_collider_obb;
-    
-#ifdef _LIB
-    stats_ptr = const_cast<bt::ot_world_physics_stats*>(&wrld->get_stats());
-#endif // _LIB
-
 
     _physics->_world = wrld;
 
