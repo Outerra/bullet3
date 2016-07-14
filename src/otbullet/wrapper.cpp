@@ -153,7 +153,7 @@ btCollisionShape* physics::create_shape( bt::EShape sh, const float hvec[3] )
     case bt::SHAPE_SPHERE:  return new btSphereShape(hvec[0]);
     case bt::SHAPE_BOX:     return new btBoxShape(btVector3(hvec[0], hvec[1], hvec[2]));
     case bt::SHAPE_CYLINDER:return new btCylinderShapeZ(btVector3(hvec[0], hvec[1], hvec[2]));
-    case bt::SHAPE_CAPSULE: return new btCapsuleShapeZ(hvec[0], hvec[2]);
+    case bt::SHAPE_CAPSULE: return new btCapsuleShape(hvec[0], hvec[2]);
     case bt::SHAPE_CONE:    return new btConeShapeZ(hvec[0], hvec[2]);
     }
 

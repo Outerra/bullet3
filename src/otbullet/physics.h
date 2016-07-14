@@ -22,6 +22,7 @@ class btManifoldPoint;
 namespace bt {
     class constraint_info;
     class physics;
+    class sketch_debug_draw;
     struct ot_world_physics_stats;
 }
 extern bt::physics* BT;
@@ -102,6 +103,8 @@ public:
 
     void set_debug_drawer_mode( int debug_mode );
 
+    void debug_draw_world( double3 cam_pos );
+
 
 protected:
     // --- interface events (callbacks from host to client) ---
@@ -139,7 +142,7 @@ public:
         if(_cleaner) _cleaner(this,0);
     }
 
-    static const int HASHID = 3492200795;
+    static const int HASHID = 3355794747;
 
     int intergen_hash_id() const override { return HASHID; }
 
@@ -149,7 +152,7 @@ public:
     }
 
     static const coid::token& intergen_default_creator_static( EBackend bck ) {
-        static const coid::token _dc("bt::physics.get@3492200795");
+        static const coid::token _dc("bt::physics.get@3355794747");
         static const coid::token _djs("bt::js::physics@wrapper");
         static const coid::token _dnone;
 
@@ -207,7 +210,7 @@ inline iref<T> physics::create( T* _subclass_, double r, void* context )
     typedef iref<T> (*fn_creator)(physics*, double, void*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.create@3492200795";
+    static const coid::token ifckey = "bt::physics.create@3355794747";
 
     if(!create)
         create = reinterpret_cast<fn_creator>(
@@ -225,7 +228,7 @@ inline iref<T> physics::get( T* _subclass_ )
     typedef iref<T> (*fn_creator)(physics*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.get@3492200795";
+    static const coid::token ifckey = "bt::physics.get@3355794747";
 
     if(!create)
         create = reinterpret_cast<fn_creator>(
@@ -330,6 +333,9 @@ inline void physics::set_debug_draw_enabled( bool state )
 
 inline void physics::set_debug_drawer_mode( int debug_mode )
 { return VT_CALL(void,(int),30)(debug_mode); }
+
+inline void physics::debug_draw_world( double3 cam_pos )
+{ return VT_CALL(void,(double3),31)(cam_pos); }
 
 } //namespace
 

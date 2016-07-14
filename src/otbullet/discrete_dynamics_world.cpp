@@ -267,8 +267,8 @@ namespace ot {
                 trijangle.clear();
 #endif
 
-                if(!_sphere_intersect(_context, _from , _rad , _lod_dim, _triangles, _trees)) {
-                //if (!_aabb_intersect(_context, _from, _basis, _lod_dim, _triangles, _trees)) {
+                //if(!_sphere_intersect(_context, _from , _rad , _lod_dim, _triangles, _trees)) {
+                if (!_aabb_intersect(_context, _from, _basis, _lod_dim, _triangles, _trees)) {
                     continue;
                 }
 
