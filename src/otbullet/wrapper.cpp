@@ -15,6 +15,7 @@
 
 #include "otbullet.hpp"
 #include "physics_cfg.h"
+#include "sketch_debug_draw.h"
 
 #include <comm/ref_i.h>
 #include <comm/commexception.h>
@@ -81,16 +82,9 @@ static void _ext_tree_col(btRigidBody * obj,
 #endif
 
 
-
-void set_debug_drawer(btIDebugDraw * debug_draw) {
+void debug_draw_world(double3 cam_pos) {
     if (_physics) {
-        _physics->set_debug_draw(debug_draw);
-    }
-}
-
-void debug_draw_world() {
-    if (_physics) {
-        _physics->debug_draw_world();
+        _physics->debug_draw_world(cam_pos);
     }
 }
 
@@ -123,6 +117,14 @@ iref<physics> physics::create(double r, void* context)
 
     _physics->_world->setForceUpdateAllAabbs(false);
 
+    _physics->_dbg_drawer = new bt::sketch_debug_draw();
+    wrld->setDebugDrawer(_physics->_dbg_drawer);
+    
+    // default mode
+    _physics->set_debug_drawer_mode(btIDebugDraw::DBG_DrawContactPoints | btIDebugDraw::DBG_DrawWireframe);
+    _physics->_dbg_draw_enabled = false;
+    
+
     return _physics;
 }
 
@@ -135,14 +137,11 @@ iref<physics> physics::get()
 	return _physics;
 }
 
-void physics::set_debug_draw(btIDebugDraw * debug_draw) {
-	if (_physics->_world) {
-		_physics->_world->setDebugDrawer(debug_draw);
-	}
-}
-
-void physics::debug_draw_world() {
-    _physics->_world->debugDrawWorld();
+void physics::debug_draw_world(double3 cam_pos) {
+    if (_dbg_drawer && _dbg_draw_enabled) {
+        _dbg_drawer->set_cur_camera_pos(cam_pos);
+        _world->debugDrawWorld();
+    }
 }
 
 
@@ -297,11 +296,13 @@ bt::ot_world_physics_stats* physics::get_stats_ptr() {
 ////////////////////////////////////////////////////////////////////////////////
 
 void physics::set_debug_draw_enabled(bool state) {
-
+    _dbg_draw_enabled = state;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void physics::set_debug_drawer_mode(int debug_mode) {
-
+    if (_dbg_drawer) {
+        _dbg_drawer->setDebugMode(debug_mode);
+    }
 }

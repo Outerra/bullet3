@@ -18,6 +18,7 @@ class btManifoldPoint;
 namespace bt {
     class constraint_info;
     class physics;
+    class sketch_debug_draw;
     struct ot_world_physics_stats;
 }
 extern bt::physics* BT;
@@ -72,6 +73,7 @@ public:
     ifc_fn bt::ot_world_physics_stats* get_stats_ptr();
     ifc_fn void set_debug_draw_enabled(bool state);
     ifc_fn void set_debug_drawer_mode(int debug_mode);
+    ifc_fn void debug_draw_world(double3 cam_pos);
 
     ifc_event bool terrain_collisions(
         const void* context,
@@ -92,10 +94,10 @@ public:
 
     ifc_event void tree_collisions(btRigidBody * obj, const btManifoldPoint * cp, uint32 tree_ident);
 
-    void set_debug_draw(btIDebugDraw * debug_draw);
-	void debug_draw_world();
-
 private:
 
     btDynamicsWorld* _world;
+    bt::sketch_debug_draw* _dbg_drawer;
+    bool _dbg_draw_enabled;
+    
 };
