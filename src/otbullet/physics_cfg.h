@@ -117,6 +117,8 @@ struct ot_world_physics_stats {
     float after_ot_phase_time_ms;
     float before_ot_phase_time_ms;
     float tri_list_construction_time_ms;
+    float broad_aabb_intersections_time_ms;
+    uint32 broad_aabb_intersections_count;
 };
 
 //
