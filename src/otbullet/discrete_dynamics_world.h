@@ -14,6 +14,8 @@
 //#include <ot/logger.h>
 //#include <ot/sketch.h>
 
+#define TREE_COLLISION_TIME   0.15 // 150ms
+
 class btDispatcher;
 class btBroadphaseInterface;
 class btManifoldResult;
@@ -26,27 +28,37 @@ namespace ot {
 struct tree_collision_pair
 {
     btCollisionObject* obj;
-    bt::tree_collision_info* tree;
-    const terrain_mesh * tm;
-    bool active;
+    bt::tree_collision_info* tree_col_info;
+    
+    bool reused;
+    btPersistentManifold * manifold;
+
+    bt::tree_collision_contex tc_ctx;
 
     bool operator==(const tree_collision_pair & tcp) const {
-        return obj == tcp.obj && tree == tcp.tree;
+        return obj == tcp.obj && tree_col_info == tcp.tree_col_info;
     }
 
     tree_collision_pair()
         : obj(0)
-        , tree(0)
-        , tm(0)
-        , active(false)
-    {}
-
-    tree_collision_pair(btCollisionObject* obj, bt::tree_collision_info* tree, const terrain_mesh * tm)
-        :obj(obj)
-        , tree(tree) 
+        , tree_col_info(0)
+        
         , reused(false)
         , manifold(0)
-        , tree_identifier(0){}
+    {}
+
+    tree_collision_pair(btCollisionObject* col_obj, bt::tree_collision_info* tree)
+        :tree_collision_pair(){
+        obj = col_obj;
+        tree_col_info = tree;
+    }
+
+    void init_with (btCollisionObject* col_obj, bt::tree_collision_info* tree_col_inf,const bt::tree& tree_props) {
+        obj = col_obj;
+        tree_col_info = tree_col_inf;
+        tc_ctx.tree_identifier = tree_props.identifier; 
+        tc_ctx.remaining_collision_time = TREE_COLLISION_TIME;
+    }
 };
 
 ///
@@ -106,7 +118,7 @@ protected:
 	//iref<ot::sketch> _sketch;
 
     coid::dynarray<bt::triangle> _triangles;
-    coid::dynarray<bt::tree_batch*> _trees;
+    coid::dynarray<bt::tree_batch*> _tree_batches;
 
     double3 _from;
     float3 _ray;
@@ -135,7 +147,7 @@ public:
         coid::dynarray<bt::triangle>& data,
         coid::dynarray<bt::tree_batch*>& trees);
 
-    typedef void(*fn_process_tree_collision)(btRigidBody * obj, const btManifoldPoint * cp, uint32 tree_ident);
+    typedef void(*fn_process_tree_collision)(btRigidBody * obj, bt::tree_collision_contex & ctx, float time_step);
 
     fn_ext_collision_2 _aabb_intersect;
 
@@ -158,7 +170,7 @@ protected:
 
 	void ot_terrain_collision_step();
 
-    void process_trees_cache(btCollisionObject * cur_obj, const coid::dynarray<bt::tree_batch*>& trees_cache, uint32 frame);
+    void prepare_tree_collision_pairs(btCollisionObject * cur_obj, const coid::dynarray<bt::tree_batch*>& trees_cache, uint32 frame);
     void build_tb_collision_info(bt::tree_batch * tb);
 
     void add_tree_collision_pair(btCollisionObject * obj, bt::tree_collision_info* tree, const terrain_mesh * tm);
@@ -166,8 +178,7 @@ protected:
     fn_ext_collision _sphere_intersect;
     fn_process_tree_collision _tree_collision;
 
-    void prepare_tree_collisions();
-    void process_tree_collisions();
+    void process_tree_collisions(btScalar time_step);
     void get_obb(const btCollisionShape * cs, const btTransform& t, double3& cen, float3x3& basis);
     void oob_to_aabb(const btVector3& src_cen,
         const btMatrix3x3& src_basis,

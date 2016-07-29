@@ -79,6 +79,8 @@ struct tree_collision_info
 {
     btCollisionObject obj;
     btCapsuleShape shape;
+    float sig_max;
+    float radius;
     int8 * spring_force_uv;
 };
 
@@ -104,6 +106,27 @@ struct tree_resolving_data {
     float penetration_depth;
     float3 tree_spring_direction;
     uint16 tree_identifier;
+};
+
+//
+struct tree_collision_contex {
+    uint32 tree_identifier;
+    float force_to_apply;
+    float remaining_collision_time;
+    bool collision_started;
+    bool custom_handling;
+    btVector3 force_apply_pt;
+    btVector3 force_dir;
+    
+    tree_collision_contex() 
+        : tree_identifier(0xffffffff)
+    , force_to_apply(0)
+    , remaining_collision_time(0)
+    , collision_started(false)
+    , custom_handling(false)
+    , force_apply_pt(0,0,0)
+    , force_dir(0,0,0)
+    {}
 };
 
 //
