@@ -111,21 +111,38 @@ struct tree_resolving_data {
 //
 struct tree_collision_contex {
     uint32 tree_identifier;
-    float force_to_apply;
-    float remaining_collision_time;
+    float l;
+    float E;
+    float I;
+    float pre_flex;
+    float braking_force;
+    float force_applied;
+    float collision_duration;
+    float max_flexure_cos;
     bool collision_started;
     bool custom_handling;
     btVector3 force_apply_pt;
     btVector3 force_dir;
-    
+    btVector3 orig_tree_dir;
+
+    const float max_collision_duration = 0.15f;
+    const float max_collision_duration_inv = 1.0f / 0.15f;
+
+    float just_temp_r;
+    float just_temp_h;
+
     tree_collision_contex() 
         : tree_identifier(0xffffffff)
-    , force_to_apply(0)
-    , remaining_collision_time(0)
+    , pre_flex(0)
+    , braking_force(0)
+    , force_applied(0)
+    , collision_duration(0)
+    , max_flexure_cos(0)
     , collision_started(false)
     , custom_handling(false)
     , force_apply_pt(0,0,0)
     , force_dir(0,0,0)
+    , orig_tree_dir(0,0,0)
     {}
 };
 
@@ -161,6 +178,5 @@ public:
 
     rigid_body_constraint* _constraint;
 };
-
 
 }; //namespace bt

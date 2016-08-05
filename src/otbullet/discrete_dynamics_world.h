@@ -57,7 +57,6 @@ struct tree_collision_pair
         obj = col_obj;
         tree_col_info = tree_col_inf;
         tc_ctx.tree_identifier = tree_props.identifier; 
-        tc_ctx.remaining_collision_time = TREE_COLLISION_TIME;
     }
 };
 

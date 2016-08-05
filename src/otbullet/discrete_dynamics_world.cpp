@@ -363,9 +363,9 @@ namespace ot {
             t.spring_force_uv[1] = 0;
             tci->spring_force_uv = t.spring_force_uv;
             tci->radius = t.height * 0.01;
-            tci->jy = 0.8f * tci->radius*tci->radius*tci->radius*tci->radius;
-            tci->E = 12000000;
-            tci->sig_max = 80000000;
+            tci->jy = M_PI * tci->radius*tci->radius*tci->radius*tci->radius * 0.015625f;
+            tci->E = 13100000000;
+            tci->sig_max = 104000000;
 
             btCapsuleShape * t_cap = new (&tci->shape) btCapsuleShape(tci->radius, t.height);
             btCollisionObject * t_col = new (&tci->obj) btCollisionObject();
@@ -376,6 +376,7 @@ namespace ot {
 
     void discrete_dynamics_world::process_tree_collisions(btScalar time_step)
     {
+        static const float two_sqrt = glm::sqrt(2);
         _tree_collision_pairs.for_each([&](tree_collision_pair&  tcp) {
             if (!tcp.active) {
                 tcp.tree->spring_force_uv[0] = 0;
@@ -418,21 +419,32 @@ namespace ot {
                             min_cp = tmp_cp;
                     }
                     
-                    const float f = rb_obj->getLinearVelocity().length() / (tcp.tc_ctx.remaining_collision_time*rb_obj->getInvMass());
                     const float l = tcp.tree_col_info->shape.getHalfHeight() + min_cp.m_localPointB[tcp.tree_col_info->shape.getUpAxis()];
-                    const float sigma = (f*l*tcp.tree_col_info->radius) / tcp.tree_col_info->jy;
+                    const float dp = rb_obj->getLinearVelocity().length() / (tcp.tc_ctx.max_collision_duration*rb_obj->getInvMass());
+                    float max_dp = (0.5f * tcp.tree_col_info->sig_max * tcp.tree_col_info->jy * tcp.tc_ctx.max_collision_duration) / (l * tcp.tree_col_info->radius);
+                    
+                    float f = dp / 0.15f;
+                    float sig = (f*l*tcp.tree_col_info->radius) / tcp.tree_col_info->jy;
 
-                    if (sigma > tcp.tree_col_info->sig_max) {
+                    if (max_dp <= dp) {
                         tcp.tc_ctx.custom_handling = true;
-                        tcp.tc_ctx.force_to_apply = (tcp.tree_col_info->sig_max * tcp.tree_col_info->jy) / (l*tcp.tree_col_info->radius);
+                       // tcp.tc_ctx.pre_flex = l*l*l/(3*tcp.tree_col_info->E * tcp.tree_col_info->jy);
+                        tcp.tc_ctx.braking_force = (tcp.tree_col_info->sig_max * tcp.tree_col_info->jy) / (l*tcp.tree_col_info->radius);
                         tcp.tc_ctx.force_apply_pt = min_cp.m_localPointA;
-                        tcp.tc_ctx.force_dir = min_cp.m_normalWorldOnB;
-                    }
+                        tcp.tc_ctx.force_dir = -rb_obj->getLinearVelocity().normalized();  
+                        //tcp.tc_ctx.max_flexure_cos = 1 - glm::pow2(tcp.tree_col_info->sig_max*l / (two_sqrt * 3 * tcp.tree_col_info->E * tcp.tree_col_info->radius));
+                        tcp.tc_ctx.orig_tree_dir = rb_obj->getWorldTransform().getOrigin().normalized();
+                        tcp.tc_ctx.l = l;
+                        tcp.tc_ctx.E = tcp.tree_col_info->E;
+                        tcp.tc_ctx.I = tcp.tree_col_info->jy;
+                        tcp.tc_ctx.just_temp_r = tcp.tree_col_info->radius;
+                        tcp.tc_ctx.just_temp_h = tcp.tree_col_info->shape.getHalfHeight() * 2;
+                     }
                 }
             }
 
             if (tcp.tc_ctx.custom_handling) {
-                if (tcp.tc_ctx.remaining_collision_time > 0) {
+                if (tcp.tc_ctx.collision_duration < tcp.tc_ctx.max_collision_duration) {
                     _tree_collision(rb_obj, tcp.tc_ctx,time_step);
                 }
 
