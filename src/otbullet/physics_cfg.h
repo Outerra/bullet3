@@ -79,8 +79,12 @@ struct tree_collision_info
 {
     btCollisionObject obj;
     btCapsuleShape shape;
+    float I;
+    float E;
     float sig_max;
     float radius;
+    float height;
+    float max_flex;
     int8 * spring_force_uv;
 };
 
@@ -112,13 +116,12 @@ struct tree_resolving_data {
 struct tree_collision_contex {
     uint32 tree_identifier;
     float l;
-    float E;
-    float I;
-    float pre_flex;
+ //   float h;
+//    float E;
+//    float I;
     float braking_force;
-    float force_applied;
     float collision_duration;
-    float max_flexure_cos;
+ //   float max_flexure;
     bool collision_started;
     bool custom_handling;
     btVector3 force_apply_pt;
@@ -129,15 +132,12 @@ struct tree_collision_contex {
     const float max_collision_duration_inv = 1.0f / 0.15f;
 
     float just_temp_r;
-    float just_temp_h;
 
     tree_collision_contex() 
         : tree_identifier(0xffffffff)
-    , pre_flex(0)
     , braking_force(0)
-    , force_applied(0)
     , collision_duration(0)
-    , max_flexure_cos(0)
+//    , max_flexure(0)
     , collision_started(false)
     , custom_handling(false)
     , force_apply_pt(0,0,0)
