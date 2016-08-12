@@ -94,6 +94,8 @@ public:
 
     ifc_event void tree_collisions(btRigidBody * obj, const btManifoldPoint * cp, uint32 tree_ident);
 
+    ifc_event void set_debug_data_containers(coid::dynarray<double3>& terrain_triangles, coid::dynarray<bt::tree>& trees );
+
 private:
 
     btDynamicsWorld* _world;

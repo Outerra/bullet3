@@ -21,11 +21,6 @@
 #include <comm/dynarray.h>
 
 #include <ot/glm/glm_ext.h>
-#if defined(_LIB) && defined(_DEBUG) 
-extern coid::dynarray<bt::triangle> trijangle;
-extern bool e_broad_triss;
-extern coid::dynarray<double3> e_skw_pts;
-#endif
 
 //static const float g_temp_tree_rad = .20f;
 
@@ -371,7 +366,6 @@ namespace ot {
 
     void discrete_dynamics_world::process_tree_collisions(btScalar time_step)
     {
-        static const float two_sqrt = glm::sqrt(2);
         _tree_collision_pairs.for_each([&](tree_collision_pair&  tcp) {
             if (!tcp.active) {
                 tcp.tree->spring_force_uv[0] = 0;
@@ -420,7 +414,7 @@ namespace ot {
                     }
                     
                     const float l = tcp.tree_col_info->shape.getHalfHeight() + min_cp.m_localPointB[tcp.tree_col_info->shape.getUpAxis()];
-                    const float dp = rb_obj->getLinearVelocity().length() / (rb_obj->getInvMass());
+                    const float dp = float(rb_obj->getLinearVelocity().length() / (rb_obj->getInvMass()));
 
                     float f = dp * tcp.tc_ctx.max_collision_duration_inv;
                     float sig = (f*l*tcp.tree_col_info->tree_inf->radius) / tcp.tree_col_info->tree_inf->I;

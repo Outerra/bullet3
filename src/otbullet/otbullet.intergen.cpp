@@ -236,4 +236,12 @@ void physics::tree_collisions( btRigidBody* obj, const btManifoldPoint* cp, uint
         return _ifc_host->iface<bt::physics>()->tree_collisions(obj, cp, tree_ident);
 }
 
+void physics::set_debug_data_containers( coid::dynarray<double3>& terrain_triangles, coid::dynarray<bt::tree>& trees )
+{
+	if(!_ifc_host) 
+        throw coid::exception() << "set_debug_data_containers" << " handler not implemented";
+    else
+        return _ifc_host->iface<bt::physics>()->set_debug_data_containers(terrain_triangles, trees);
+}
+
 

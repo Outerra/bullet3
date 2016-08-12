@@ -118,6 +118,8 @@ protected:
 
     virtual void tree_collisions( btRigidBody* obj, const btManifoldPoint* cp, uint32 tree_ident ) {}
 
+    virtual void set_debug_data_containers( coid::dynarray<double3>& terrain_triangles, coid::dynarray<bt::tree>& trees ) {}
+
     virtual void force_bind_script_events() {}
 
 public:
@@ -193,6 +195,7 @@ public:
     virtual bool is_bound_terrain_collisions() { return true; }
     virtual bool is_bound_terrain_collisions_aabb() { return true; }
     virtual bool is_bound_tree_collisions() { return true; }
+    virtual bool is_bound_set_debug_data_containers() { return true; }
 
 protected:
 

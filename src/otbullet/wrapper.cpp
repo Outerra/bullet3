@@ -74,8 +74,8 @@ static bool _ext_collider_obb(
 }
 
 static void _ext_tree_col(btRigidBody * obj,
-    const btManifoldPoint * cp,
-    uint32 tree_ident) {
+    bt::tree_collision_contex & ctx,
+    float time_step) {
 
 }
 
