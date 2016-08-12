@@ -93,6 +93,12 @@ void debug_draw_world() {
     }
 }
 
+void set_debug_drawer_enabled(btIDebugDraw * debug_draw) {
+    if (_physics) {
+        _physics->set_debug_draw_enabled(debug_draw);
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 iref<physics> physics::create(double r, void* context)
 {

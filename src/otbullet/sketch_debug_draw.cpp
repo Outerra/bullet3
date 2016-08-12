@@ -17,11 +17,21 @@ namespace bt {
 
 	void sketch_debug_draw::drawLine(const btVector3 & from, const btVector3 & to, const btVector3 & color)
 	{
-        const float3 f = float3(double3(from.x(), from.y(), from.z()) - _camera_pos);
-        const float3 t = float3(double3(to.x(), to.y(), to.z()) - _camera_pos);
+        double3 camera_pos = _sketch->camera_pos();
+        const float3 f = float3(double3(from.x(), from.y(), from.z()) - camera_pos);
+        const float3 t = float3(double3(to.x(), to.y(), to.z()) - camera_pos);
         _sketch->set_color((uint(color.x() * 255)) | (uint(color.y() * 255)) << 8 | (uint(color.z() * 255)) << 16 | 0xff000000);
-		_sketch->draw_line(f, true);
-		_sketch->draw_line(t, false);
+		_sketch->add_line(f, 
+            (uint(color.x() * 255)) | (uint(color.y() * 255)) << 8 | (uint(color.z() * 255)) << 16 | 0xff000000,
+            true,
+            _sketch->is_xray_mode(),
+            (uint(color.x() * 255)) | (uint(color.y() * 255)) << 8 | (uint(color.z() * 255)) << 16 | 0xff000000);
+
+        _sketch->add_line(t,
+            (uint(color.x() * 255)) | (uint(color.y() * 255)) << 8 | (uint(color.z() * 255)) << 16 | 0xff000000,
+            false,
+            _sketch->is_xray_mode(),
+            (uint(color.x() * 255)) | (uint(color.y() * 255)) << 8 | (uint(color.z() * 255)) << 16 | 0xff000000);
 	}
 
 	void sketch_debug_draw::setDebugMode(int debugMode)
