@@ -259,8 +259,6 @@ namespace ot {
                 get_obb(internal_obj_wrapper.getCollisionShape(), internal_obj_wrapper.getWorldTransform(), _from, _basis);
 
 #if defined(_LIB) && defined(_DEBUG)
-                e_skw_pts.clear();
-                trijangle.clear();
 #endif
 
                 //if(!_sphere_intersect(_context, _from , _rad , _lod_dim, _triangles, _trees)) {
@@ -270,11 +268,7 @@ namespace ot {
 
 				if (_triangles.size() > 0) {
 #if defined(_LIB) && defined(_DEBUG)
-                    if(e_broad_triss){
-                        _triangles.for_each([&](const bt::triangle & t) {
-                            trijangle.push(t);
-                        });
-                    }
+
 #endif
 #ifdef _PROFILING_ENABLED
                     timer.reset();
