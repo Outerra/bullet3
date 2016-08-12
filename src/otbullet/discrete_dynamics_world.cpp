@@ -332,7 +332,7 @@ namespace ot {
 
                 float3 p = float3(glm::normalize(tb->trees[j].pos)) * tb->trees[j].height;
                 float3 cen_rel(_from - tb->trees[j].pos);
-                if (coal::distance_point_segment_sqr(cen_rel, float3(0, 0, 0), p) < glm::pow(tb->info(j)->radius + _rad,2.f)) {
+                if (coal::distance_point_segment_sqr(cen_rel, float3(0, 0, 0), p) < glm::pow(tb->info(j)->tree_inf->radius + _rad,2.f)) {
                     tree_collision_pair tcp(cur_obj, tb->info(j));
                     tree_collision_pair * cached_tcp = _tree_collision_pairs.find_if([&](const tree_collision_pair& _tcp) {
                         return tcp == _tcp;
@@ -361,17 +361,8 @@ namespace ot {
             btTransform t_trans;
             t_trans.setOrigin(btVector3(pos.x,pos.y,pos.z));
             t_trans.setRotation(btQuaternion(rot.x,rot.y,rot.z,rot.w));
-            t.spring_force_uv[0] = -128;
-            t.spring_force_uv[1] = -128;
-            tci->spring_force_uv = t.spring_force_uv;
-            tci->radius = t.height * 0.01;
-            tci->height = t.height;
-            tci->I = M_PI * tci->radius*tci->radius*tci->radius*tci->radius * 0.25;
-            tci->E = 9600e6;
-            tci->sig_max = g_sigma_coef * 67e6;
-            tci->max_flex = (tci->sig_max * tci->height * tci->height) / (3 * tci->E * tci->radius);
-
-            btCapsuleShape * t_cap = new (&tci->shape) btCapsuleShape(tci->radius, t.height);
+            tci->tree_inf = &t;
+            btCapsuleShape * t_cap = new (&tci->shape) btCapsuleShape(t.radius, t.height);
             btCollisionObject * t_col = new (&tci->obj) btCollisionObject();
             t_col->setCollisionShape(t_cap);
             t_col->setWorldTransform(t_trans);
@@ -430,27 +421,17 @@ namespace ot {
                     
                     const float l = tcp.tree_col_info->shape.getHalfHeight() + min_cp.m_localPointB[tcp.tree_col_info->shape.getUpAxis()];
                     const float dp = rb_obj->getLinearVelocity().length() / (rb_obj->getInvMass());
-                    //float max_dp = (tcp.tree_col_info->sig_max * tcp.tree_col_info->I * tcp.tc_ctx.max_collision_duration) / (l * tcp.tree_col_info->radius);
-                    float vel_kmh = rb_obj->getLinearVelocity().length() * 3.6;
 
-                  //  float a = rb_obj->getLinearVelocity().length() / tcp.tc_ctx.max_collision_duration;
-                    float f = dp / 0.15f;
-                  //  float f1 = a / rb_obj->getInvMass();
-                    float sig = (f*l*tcp.tree_col_info->radius) / tcp.tree_col_info->I;
-                    float min_vel = ((tcp.tree_col_info->sig_max * tcp.tree_col_info->I) / (l*tcp.tree_col_info->radius)) * rb_obj->getInvMass() * tcp.tc_ctx.max_collision_duration * 3.6;
+                    float f = dp * tcp.tc_ctx.max_collision_duration_inv;
+                    float sig = (f*l*tcp.tree_col_info->tree_inf->radius) / tcp.tree_col_info->tree_inf->I;
 
-                    if (tcp.tree_col_info->sig_max <= sig) {
+                    if (tcp.tree_col_info->tree_inf->sig_max <= sig) {
                         tcp.tc_ctx.custom_handling = true;
-                        tcp.tc_ctx.braking_force = (tcp.tree_col_info->sig_max * tcp.tree_col_info->I) / (l*tcp.tree_col_info->radius);
+                        tcp.tc_ctx.braking_force = (tcp.tree_col_info->tree_inf->sig_max * tcp.tree_col_info->tree_inf->I) / (l*tcp.tree_col_info->tree_inf->radius);
                         tcp.tc_ctx.force_apply_pt = min_cp.m_localPointA;
                         tcp.tc_ctx.force_dir = -rb_obj->getLinearVelocity().normalized();  
                         tcp.tc_ctx.orig_tree_dir = rb_obj->getWorldTransform().getOrigin().normalized();
                         tcp.tc_ctx.l = l;
-                //        tcp.tc_ctx.E = tcp.tree_col_info->E;
-                 //       tcp.tc_ctx.I = tcp.tree_col_info->I;
-                 //       tcp.tc_ctx.just_temp_r = tcp.tree_col_info->radius;
-                //        tcp.tc_ctx.h = tcp.tree_col_info->shape.getHalfHeight() * 2;
-                       // tcp.tc_ctx.max_flexure = (tcp.tree_col_info->sig_max * tcp.tc_ctx.h * tcp.tc_ctx.h) / (3 * tcp.tc_ctx.E * tcp.tree_col_info->radius);
                      }
 
                     tcp.tc_ctx.collision_started = true;
