@@ -62,9 +62,9 @@ private:
         _vtable1[26] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionShape*&)>(&::physics::destroy_shape));
         _vtable1[27] = reinterpret_cast<ifn_t>(static_cast<bt::ot_world_physics_stats(policy_intrusive_base::*)()>(&::physics::get_stats));
         _vtable1[28] = reinterpret_cast<ifn_t>(static_cast<bt::ot_world_physics_stats*(policy_intrusive_base::*)()>(&::physics::get_stats_ptr));
-        _vtable1[29] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(bool)>(&::physics::set_debug_draw_enabled));
+        _vtable1[29] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btIDebugDraw*)>(&::physics::set_debug_draw_enabled));
         _vtable1[30] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(int)>(&::physics::set_debug_drawer_mode));
-        _vtable1[31] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(double3)>(&::physics::debug_draw_world));
+        _vtable1[31] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)()>(&::physics::debug_draw_world));
         return _vtable1;
     }
 
@@ -186,9 +186,9 @@ public:
             "bt::physics@wrapper", (void*)&_generic_interface_creator);
 
         interface_register::register_interface_creator(
-            "bt::physics.create@3355794747", (void*)&create);
+            "bt::physics.create@3954098276", (void*)&create);
         interface_register::register_interface_creator(
-            "bt::physics.get@3355794747", (void*)&get);
+            "bt::physics.get@3954098276", (void*)&get);
 
         return (void*)&register_interfaces;
     }
@@ -236,12 +236,12 @@ void physics::tree_collisions( btRigidBody* obj, const btManifoldPoint* cp, uint
         return _ifc_host->iface<bt::physics>()->tree_collisions(obj, cp, tree_ident);
 }
 
-void physics::set_debug_data_containers( coid::dynarray<double3>& terrain_triangles, coid::dynarray<bt::tree>& trees )
+void physics::log( const coid::token& text )
 {
 	if(!_ifc_host) 
-        throw coid::exception() << "set_debug_data_containers" << " handler not implemented";
+        throw coid::exception() << "log" << " handler not implemented";
     else
-        return _ifc_host->iface<bt::physics>()->set_debug_data_containers(terrain_triangles, trees);
+        return _ifc_host->iface<bt::physics>()->log(text);
 }
 
 

@@ -79,12 +79,17 @@ static void _ext_tree_col(btRigidBody * obj,
 
 }
 
+static void _ext_debug_draw_terraing(const coid::dynarray<double3>& debug_triangles,
+    const coid::dynarray<bt::tree>& debug_tree) {
+
+}
+
 #endif
 
 
-void debug_draw_world(double3 cam_pos) {
+void debug_draw_world() {
     if (_physics) {
-        _physics->debug_draw_world(cam_pos);
+        _physics->debug_draw_world();
     }
 }
 
@@ -117,13 +122,10 @@ iref<physics> physics::create(double r, void* context)
 
     _physics->_world->setForceUpdateAllAabbs(false);
 
-    _physics->_dbg_drawer = new bt::sketch_debug_draw();
-    wrld->setDebugDrawer(_physics->_dbg_drawer);
-    
+    _physics->_dbg_drawer = nullptr;
+   
     // default mode
-    _physics->set_debug_drawer_mode(btIDebugDraw::DBG_DrawContactPoints | btIDebugDraw::DBG_DrawWireframe);
-    _physics->_dbg_draw_enabled = false;
-    
+    _physics->_dbg_draw_mode = btIDebugDraw::DBG_DrawContactPoints | btIDebugDraw::DBG_DrawWireframe;    
 
     return _physics;
 }
@@ -137,9 +139,8 @@ iref<physics> physics::get()
 	return _physics;
 }
 
-void physics::debug_draw_world(double3 cam_pos) {
-    if (_dbg_drawer && _dbg_draw_enabled) {
-        _dbg_drawer->set_cur_camera_pos(cam_pos);
+void physics::debug_draw_world() {
+    if (_dbg_drawer) {
         _world->debugDrawWorld();
     }
 }
@@ -295,13 +296,20 @@ bt::ot_world_physics_stats* physics::get_stats_ptr() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void physics::set_debug_draw_enabled(bool state) {
-    _dbg_draw_enabled = state;
+void physics::set_debug_draw_enabled(btIDebugDraw * debug_drawer) {
+    _dbg_drawer = debug_drawer;
+    ((ot::discrete_dynamics_world*)_world)->setDebugDrawer(debug_drawer);
+
+    if (debug_drawer) {
+        debug_drawer->setDebugMode(_dbg_draw_mode);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void physics::set_debug_drawer_mode(int debug_mode) {
+    _dbg_draw_mode = debug_mode;
+
     if (_dbg_drawer) {
         _dbg_drawer->setDebugMode(debug_mode);
     }

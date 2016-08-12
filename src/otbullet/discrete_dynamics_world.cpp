@@ -258,8 +258,10 @@ namespace ot {
 
                 get_obb(internal_obj_wrapper.getCollisionShape(), internal_obj_wrapper.getWorldTransform(), _from, _basis);
 
-#if defined(_LIB) && defined(_DEBUG)
-#endif
+                if (_debug_draw_terrain && _debug_terraing_trees && _debug_terrain_triangles) {
+                    _debug_terraing_trees->clear();
+                    _debug_terrain_triangles->clear();
+                }
 
                 //if(!_sphere_intersect(_context, _from , _rad , _lod_dim, _triangles, _trees)) {
                 if (!_aabb_intersect(_context, _from, _basis, _lod_dim, _triangles, _tree_batches)) {
@@ -267,9 +269,15 @@ namespace ot {
                 }
 
 				if (_triangles.size() > 0) {
-#if defined(_LIB) && defined(_DEBUG)
 
-#endif
+                    if (_debug_draw_terrain && _debug_terrain_triangles) {
+                        _triangles.for_each([&](const bt::triangle& t) {
+                            *_debug_terrain_triangles->push() = double3(t.a) + *t.parent_offset_p;
+                            *_debug_terrain_triangles->push() = double3(t.b) + *t.parent_offset_p;
+                            *_debug_terrain_triangles->push() = double3(t.c) + *t.parent_offset_p;
+                        });
+                    }
+
 #ifdef _PROFILING_ENABLED
                     timer.reset();
 
@@ -316,6 +324,10 @@ namespace ot {
 
             for (uint8 j = 0; j < tb->tree_count; j++) {
                 
+                if (_debug_draw_terrain && _debug_terraing_trees) {
+                    *_debug_terraing_trees->push() = tb->trees[j];
+                }
+
                 if (tb->trees[j].spring_force_uv[0] == -128 && tb->trees[j].spring_force_uv[1] != -128) // broken tree
                     continue;
 
@@ -407,7 +419,7 @@ namespace ot {
                         return;
                     }
                     
-                    const float l = tcp.tree_col_info->shape.getHalfHeight() + min_cp.m_localPointB[tcp.tree_col_info->shape.getUpAxis()];
+                    const float l = float(tcp.tree_col_info->shape.getHalfHeight() + min_cp.m_localPointB[tcp.tree_col_info->shape.getUpAxis()]);
                     const float dp = float(rb_obj->getLinearVelocity().length() / (rb_obj->getInvMass()));
 
                     float f = dp * tcp.tc_ctx.max_collision_duration_inv;
@@ -428,7 +440,7 @@ namespace ot {
 
             if (tcp.tc_ctx.custom_handling) {
                 if (tcp.tc_ctx.collision_duration < tcp.tc_ctx.max_collision_duration) {
-                    _tree_collision(rb_obj, tcp.tc_ctx,time_step);
+                    _tree_collision(rb_obj, tcp.tc_ctx,float(time_step));
                 }
 
                 manifold->clearManifold();
@@ -447,6 +459,10 @@ namespace ot {
         , _sphere_intersect(ext_collider)
         , _tree_collision(ext_tree_col)
 		, _context(context)
+
+        , _debug_draw_terrain(false)
+        , _debug_terrain_triangles(0)
+        , _debug_terraing_trees(0)
 	{
 		btTriangleShape * ts = new btTriangleShape();
 		ts->setMargin(0.0f);

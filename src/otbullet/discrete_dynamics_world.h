@@ -128,6 +128,10 @@ protected:
 
     bt::ot_world_physics_stats _stats;
 
+    bool _debug_draw_terrain;
+    coid::dynarray<double3>* _debug_terrain_triangles;
+    coid::dynarray<bt::tree>* _debug_terraing_trees;
+
 public:
 
     typedef bool (*fn_ext_collision)(
