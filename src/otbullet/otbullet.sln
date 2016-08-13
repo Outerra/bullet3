@@ -3,19 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConvexDecomposition", "ConvexDecomposition.vcxproj", "{E5B049B7-E96A-924A-93FB-F342ACA133D1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConvexDecomposition", "..\..\build3\vs2015\ConvexDecomposition.vcxproj", "{E5B049B7-E96A-924A-93FB-F342ACA133D1}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BulletInverseDynamicsUtils", "BulletInverseDynamicsUtils.vcxproj", "{7BC5FF8F-66BD-2B47-9707-452800AA7F0F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BulletInverseDynamicsUtils", "..\..\build3\vs2015\BulletInverseDynamicsUtils.vcxproj", "{7BC5FF8F-66BD-2B47-9707-452800AA7F0F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BulletInverseDynamics", "BulletInverseDynamics.vcxproj", "{A964F395-8D8D-A145-9EF2-77A8E84C79D2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BulletInverseDynamics", "..\..\build3\vs2015\BulletInverseDynamics.vcxproj", "{A964F395-8D8D-A145-9EF2-77A8E84C79D2}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BulletSoftBody", "BulletSoftBody.vcxproj", "{81636386-F8DF-6043-BDD7-D6ABEF3E54A8}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BulletSoftBody", "..\..\build3\vs2015\BulletSoftBody.vcxproj", "{81636386-F8DF-6043-BDD7-D6ABEF3E54A8}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BulletDynamics", "BulletDynamics.vcxproj", "{EF063298-D95C-4B42-921E-FF0A5CD71FB9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BulletDynamics", "..\..\build3\vs2015\BulletDynamics.vcxproj", "{EF063298-D95C-4B42-921E-FF0A5CD71FB9}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BulletCollision", "BulletCollision.vcxproj", "{48D329F0-5C66-0C40-9996-018D5A41543C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BulletCollision", "..\..\build3\vs2015\BulletCollision.vcxproj", "{48D329F0-5C66-0C40-9996-018D5A41543C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LinearMath", "LinearMath.vcxproj", "{192F2B1C-166A-674F-820C-4578019A3C0C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LinearMath", "..\..\build3\vs2015\LinearMath.vcxproj", "{192F2B1C-166A-674F-820C-4578019A3C0C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "otbullet", "otbullet.vcxproj", "{F8AF72CF-CC69-457D-BCAE-FE5A458029C1}"
 EndProject
