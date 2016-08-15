@@ -18,7 +18,7 @@
 #endif
 class btConvexPolyhedron;
 class btBoxShape;
-class btFace;
+struct btFace;
 class btCollisionWorld;
 class btRigidBody;
 class btCollisionAlgorithm;

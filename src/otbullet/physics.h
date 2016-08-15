@@ -115,7 +115,7 @@ protected:
 
     virtual bool terrain_collisions_aabb( const void* context, const double3& center, float3x3 basis, float lod_dimension, coid::dynarray<bt::triangle>& data, coid::dynarray<bt::tree_batch*>& trees ){ throw coid::exception("handler not implemented"); }
 
-    virtual void tree_collisions( btRigidBody* obj, const btManifoldPoint* cp, uint32 tree_ident ) {}
+    virtual float3 tree_collisions( btRigidBody* obj, bt::tree_collision_contex& ctx, float time_step ){ throw coid::exception("handler not implemented"); }
 
     virtual void log( const coid::token& text ) {}
 

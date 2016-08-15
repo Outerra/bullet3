@@ -104,14 +104,6 @@ struct tree_batch
 };
 
 //
-struct tree_resolving_data {
-    void * btRigidBody;
-    float penetration_depth;
-    float3 tree_spring_direction;
-    uint16 tree_identifier;
-};
-
-//
 struct tree_collision_contex {
     uint32 tree_identifier;
     float l;

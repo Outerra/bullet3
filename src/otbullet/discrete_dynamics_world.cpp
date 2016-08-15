@@ -12,13 +12,13 @@
 #include <BulletCollision/CollisionShapes/btCompoundShape.h>
 #include <BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h>
 
+#include <LinearMath/btIDebugDraw.h>
 
 #include <ot/glm/coal.h>
 
 #include "ot_terrain_contact_common.h"
 
 #include <comm/timer.h>
-#include <comm/dynarray.h>
 
 #include <ot/glm/glm_ext.h>
 
@@ -127,6 +127,12 @@ namespace ot {
 #endif // _PROFILING_ENABLED
 
         
+        if (m_debugDrawer) {
+            _debug_terrain_triangles.clear();
+            _debug_terrain_trees.reset();
+            _debug_terrain_trees_active.reset();
+        }
+
         LOCAL_SINGLETON(ot_terrain_contact_common) common_data = new ot_terrain_contact_common(0.00f,this,_pb_wrap);
 		for (int i = 0; i < m_collisionObjects.size(); i++) {
 			_cow_internal.clear();
@@ -258,11 +264,6 @@ namespace ot {
 
                 get_obb(internal_obj_wrapper.getCollisionShape(), internal_obj_wrapper.getWorldTransform(), _from, _basis);
 
-                if (_debug_draw_terrain && _debug_terraing_trees && _debug_terrain_triangles) {
-                    _debug_terraing_trees->clear();
-                    _debug_terrain_triangles->clear();
-                }
-
                 //if(!_sphere_intersect(_context, _from , _rad , _lod_dim, _triangles, _trees)) {
                 if (!_aabb_intersect(_context, _from, _basis, _lod_dim, _triangles, _tree_batches)) {
                     continue;
@@ -270,11 +271,9 @@ namespace ot {
 
 				if (_triangles.size() > 0) {
 
-                    if (_debug_draw_terrain && _debug_terrain_triangles) {
+                    if (m_debugDrawer) {
                         _triangles.for_each([&](const bt::triangle& t) {
-                            *_debug_terrain_triangles->push() = double3(t.a) + *t.parent_offset_p;
-                            *_debug_terrain_triangles->push() = double3(t.b) + *t.parent_offset_p;
-                            *_debug_terrain_triangles->push() = double3(t.c) + *t.parent_offset_p;
+                            *_debug_terrain_triangles.push() = t;
                         });
                     }
 
@@ -316,6 +315,7 @@ namespace ot {
     {
         for (uints i = 0; i < tree_batches_cache.size(); i++) {
             bt::tree_batch * tb = tree_batches_cache[i];
+
             if (tb->last_frame_used == 0xffffffff) {
                 build_tb_collision_info(tb);
             }
@@ -323,13 +323,13 @@ namespace ot {
             tb->last_frame_used = frame;
 
             for (uint8 j = 0; j < tb->tree_count; j++) {
-                
-                if (_debug_draw_terrain && _debug_terraing_trees) {
-                    *_debug_terraing_trees->push() = tb->trees[j];
-                }
-
                 if (tb->trees[j].spring_force_uv[0] == -128 && tb->trees[j].spring_force_uv[1] != -128) // broken tree
                     continue;
+
+                if (m_debugDrawer) {
+                    bt::tree ** slot = _debug_terrain_trees.find_or_insert_value_slot(tb->trees[j].identifier, 0);
+                    *slot = &tb->trees[j];
+                }
 
                 float3 p = float3(glm::normalize(tb->trees[j].pos)) * tb->trees[j].height;
                 float3 cen_rel(_from - tb->trees[j].pos);
@@ -440,7 +440,13 @@ namespace ot {
 
             if (tcp.tc_ctx.custom_handling) {
                 if (tcp.tc_ctx.collision_duration < tcp.tc_ctx.max_collision_duration) {
-                    _tree_collision(rb_obj, tcp.tc_ctx,float(time_step));
+                    float3 displacement = _tree_collision(rb_obj, tcp.tc_ctx,float(time_step));
+                    if (m_debugDrawer) {
+                        bool is_new = false;
+                        uint16 tree_iden = tcp.tree_col_info->tree_inf->identifier;
+                        tree_flex_inf * slot = _debug_terrain_trees_active.find_or_insert_value_slot_uninit(tree_iden, &is_new);
+                        new(slot) tree_flex_inf(displacement, tree_iden);
+                    }
                 }
 
                 manifold->clearManifold();
@@ -448,7 +454,58 @@ namespace ot {
         });
     }
 
-	discrete_dynamics_world::discrete_dynamics_world(btDispatcher * dispatcher, 
+    void discrete_dynamics_world::debugDrawWorld()
+    {
+        if (!m_debugDrawer) {
+            return;
+        }
+
+        btDiscreteDynamicsWorld::debugDrawWorld();
+
+        btVector3 cl_white(1, 1, 1);
+
+        for (uints i = 0; i < _debug_terrain_triangles.size(); i++) {
+            btVector3 parent_offset(_debug_terrain_triangles[i].parent_offset_p->x, 
+                _debug_terrain_triangles[i].parent_offset_p->y, 
+                _debug_terrain_triangles[i].parent_offset_p->z);
+            
+            btVector3 a(_debug_terrain_triangles[i].a.x ,
+                _debug_terrain_triangles[i].a.y, 
+                _debug_terrain_triangles[i].a.z);
+            
+            btVector3 b(_debug_terrain_triangles[i].b.x, 
+                _debug_terrain_triangles[i].b.y, 
+                _debug_terrain_triangles[i].b.z);
+            
+            btVector3 c(_debug_terrain_triangles[i].c.x, 
+                _debug_terrain_triangles[i].c.y,
+                _debug_terrain_triangles[i].c.z);
+
+            a += parent_offset;
+            b += parent_offset;
+            c += parent_offset;
+
+            m_debugDrawer->drawLine(a, b,cl_white);
+            m_debugDrawer->drawLine(b, c, cl_white);
+            m_debugDrawer->drawLine(c, a, cl_white);
+        }
+
+        _debug_terrain_trees.for_each([&](const bt::tree * t) {
+
+                
+                
+                const tree_flex_inf* tfi = _debug_terrain_trees_active.find_value(t->identifier);
+                float3 displacement = (tfi) ? tfi->_flex : float3(0);
+
+                btVector3 bt_p1(t->pos.x, t->pos.y, t->pos.z);
+                btVector3 bt_norm(bt_p1.normalized());
+                btVector3 bt_p2 = bt_p1 + bt_norm * t->height + btVector3(displacement.x,displacement.y,displacement.z);
+
+                m_debugDrawer->drawLine(bt_p1, bt_p2, cl_white);
+        });
+    }
+
+    discrete_dynamics_world::discrete_dynamics_world(btDispatcher * dispatcher,
 		btBroadphaseInterface * pairCache, 
 		btConstraintSolver * constraintSolver, 
 		btCollisionConfiguration * collisionConfiguration,
@@ -461,8 +518,8 @@ namespace ot {
 		, _context(context)
 
         , _debug_draw_terrain(false)
-        , _debug_terrain_triangles(0)
-        , _debug_terraing_trees(0)
+        , _debug_terrain_triangles(1024)
+        , _debug_terrain_trees(1024)
 	{
 		btTriangleShape * ts = new btTriangleShape();
 		ts->setMargin(0.0f);

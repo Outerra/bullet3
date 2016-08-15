@@ -9,6 +9,7 @@
 #include <ot/glm/glm_types.h>
 
 #include <comm/dynarray.h>
+#include <comm/alloc/slotalloc_hash.h>
 #include <comm/alloc/slotalloc.h>
 
 //#include <ot/logger.h>
@@ -24,6 +25,16 @@ class ot_terrain_contact_common;
 class planet_qtree;
 
 namespace ot {
+///
+struct tree_flex_inf {
+    float3 _flex;
+    uint16 _tree_iden;
+    tree_flex_inf(float3 flex, uint16 iden) 
+        :_flex(flex)
+        , _tree_iden(iden)
+    {}
+};
+
 ///
 struct tree_collision_pair
 {
@@ -82,6 +93,33 @@ struct compound_processing_entry {
 	}
 };
 
+struct p_treebatch_key_extractor {
+    typedef uints ret_type;
+    uints operator()(const bt::tree_batch* tb) const{
+        return (uints)tb;
+    }
+};
+
+struct tree_key_extractor {
+    typedef uint16 ret_type;
+   
+    ret_type operator()(const bt::tree* t) const {
+        return t->identifier;
+    }
+
+    ret_type operator()(const bt::tree& t) const {
+        return t.identifier;
+    }
+    
+    ret_type operator()(const tree_flex_inf* t) const {
+        return t->_tree_iden;
+    }
+
+    ret_type operator()(const tree_flex_inf& t) const {
+        return t._tree_iden;
+    }
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 class discrete_dynamics_world : public btDiscreteDynamicsWorld
 {
@@ -129,10 +167,13 @@ protected:
     bt::ot_world_physics_stats _stats;
 
     bool _debug_draw_terrain;
-    coid::dynarray<double3>* _debug_terrain_triangles;
-    coid::dynarray<bt::tree>* _debug_terraing_trees;
+    coid::dynarray<bt::triangle> _debug_terrain_triangles;
+    coid::slotalloc_hash<bt::tree*, uint16, tree_key_extractor> _debug_terrain_trees;
+    coid::slotalloc_hash<tree_flex_inf, uint16, tree_key_extractor> _debug_terrain_trees_active;
 
 public:
+    
+    virtual void debugDrawWorld() override;
 
     typedef bool (*fn_ext_collision)(
         const void* context,
@@ -150,7 +191,7 @@ public:
         coid::dynarray<bt::triangle>& data,
         coid::dynarray<bt::tree_batch*>& trees);
 
-    typedef void(*fn_process_tree_collision)(btRigidBody * obj, bt::tree_collision_contex & ctx, float time_step);
+    typedef float3(*fn_process_tree_collision)(btRigidBody * obj, bt::tree_collision_contex & ctx, float time_step);
 
     fn_ext_collision_2 _aabb_intersect;
 

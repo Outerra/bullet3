@@ -228,12 +228,12 @@ bool physics::terrain_collisions_aabb( const void* context, const double3& cente
         return _ifc_host->iface<bt::physics>()->terrain_collisions_aabb(context, center, basis, lod_dimension, data, trees);
 }
 
-void physics::tree_collisions( btRigidBody* obj, const btManifoldPoint* cp, uint32 tree_ident )
+float3 physics::tree_collisions( btRigidBody* obj, bt::tree_collision_contex& ctx, float time_step )
 {
 	if(!_ifc_host) 
         throw coid::exception() << "tree_collisions" << " handler not implemented";
     else
-        return _ifc_host->iface<bt::physics>()->tree_collisions(obj, cp, tree_ident);
+        return _ifc_host->iface<bt::physics>()->tree_collisions(obj, ctx, time_step);
 }
 
 void physics::log( const coid::token& text )

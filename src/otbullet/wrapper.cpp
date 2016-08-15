@@ -13,9 +13,10 @@
 #include <BulletCollision/BroadphaseCollision/btAxisSweep3.h>
 #include <BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.h>
 
+#include <LinearMath/btIDebugDraw.h>
+
 #include "otbullet.hpp"
 #include "physics_cfg.h"
-#include "sketch_debug_draw.h"
 
 #include <comm/ref_i.h>
 #include <comm/commexception.h>
@@ -46,7 +47,7 @@ extern bool _ext_collider_obb(
     coid::dynarray<bt::tree_batch*>& trees);
 
 
-extern void _ext_tree_col(btRigidBody * obj, 
+extern float3 _ext_tree_col(btRigidBody * obj, 
         bt::tree_collision_contex & ctx,
     float time_step);
 #else
@@ -73,17 +74,13 @@ static bool _ext_collider_obb(
     return _physics->terrain_collisions_aabb(planet, center, basis, lod_dimension, data, trees);
 }
 
-static void _ext_tree_col(btRigidBody * obj,
+static float3 _ext_tree_col(btRigidBody * obj,
     bt::tree_collision_contex & ctx,
     float time_step) {
 
-}
-
-static void _ext_debug_draw_terraing(const coid::dynarray<double3>& debug_triangles,
-    const coid::dynarray<bt::tree>& debug_tree) {
+    return _physics->tree_collisions(obj, ctx, time_step);
 
 }
-
 #endif
 
 

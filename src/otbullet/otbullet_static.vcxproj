@@ -276,17 +276,6 @@
   <ItemGroup>
     <None Include="..\..\src\otbullet\otbullet.inl" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\build3\vs2015\BulletCollision.vcxproj">
-      <Project>{48d329f0-5c66-0c40-9996-018d5a41543c}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\build3\vs2015\BulletDynamics.vcxproj">
-      <Project>{ef063298-d95c-4b42-921e-ff0a5cd71fb9}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\build3\vs2015\LinearMath.vcxproj">
-      <Project>{192f2b1c-166a-674f-820c-4578019a3c0c}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\..\comm\intergen\intergen.targets" />

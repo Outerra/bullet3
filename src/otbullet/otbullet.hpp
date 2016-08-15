@@ -90,8 +90,9 @@ public:
         coid::dynarray<bt::triangle>& data,
         coid::dynarray<bt::tree_batch*>& trees);
 
-
-    ifc_event void tree_collisions(btRigidBody * obj, const btManifoldPoint * cp, uint32 tree_ident);
+    ifc_event float3 tree_collisions(btRigidBody * obj,
+        bt::tree_collision_contex & ctx,
+        float time_step);
 
     ifc_event void log(const coid::token& text);
 
