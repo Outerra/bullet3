@@ -499,7 +499,7 @@ namespace ot {
 
                 btVector3 bt_p1(t->pos.x, t->pos.y, t->pos.z);
                 btVector3 bt_norm(bt_p1.normalized());
-                btVector3 bt_p2 = bt_p1 + bt_norm * t->height + btVector3(displacement.x,displacement.y,displacement.z);
+                btVector3 bt_p2 = bt_p1 + bt_norm * t->height + btVector3(displacement.x,displacement.y,displacement.z)*t->max_flex;
 
                 m_debugDrawer->drawLine(bt_p1, bt_p2, cl_white);
         });
