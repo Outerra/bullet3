@@ -151,8 +151,6 @@ protected:
 	coid::slotalloc<tree_collision_pair> _tree_collision_pairs;
 	coid::dynarray<btCollisionObjectWrapperCtorArgs> _cow_internal;
 	coid::dynarray<compound_processing_entry> _compound_processing_stack;
-    //iref<ot::logger> _logger;
-	//iref<ot::sketch> _sketch;
 
     coid::dynarray<bt::triangle> _triangles;
     coid::dynarray<bt::tree_batch*> _tree_batches;
@@ -162,11 +160,9 @@ protected:
     float _rad;
     float3x3 _basis;
     float _lod_dim;
-    //bt::ECollisionShape _col_shape;
 
     bt::ot_world_physics_stats _stats;
 
-    bool _debug_draw_terrain;
     coid::dynarray<bt::triangle> _debug_terrain_triangles;
     coid::slotalloc_hash<bt::tree*, uint16, tree_key_extractor> _debug_terrain_trees;
     coid::slotalloc_hash<tree_flex_inf, uint16, tree_key_extractor> _debug_terrain_trees_active;
@@ -216,8 +212,6 @@ protected:
 
     void prepare_tree_collision_pairs(btCollisionObject * cur_obj, const coid::dynarray<bt::tree_batch*>& trees_cache, uint32 frame);
     void build_tb_collision_info(bt::tree_batch * tb);
-
-    void add_tree_collision_pair(btCollisionObject * obj, bt::tree_collision_info* tree, const terrain_mesh * tm);
 
     fn_ext_collision _sphere_intersect;
     fn_process_tree_collision _tree_collision;

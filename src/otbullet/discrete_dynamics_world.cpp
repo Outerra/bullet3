@@ -517,7 +517,6 @@ namespace ot {
         , _tree_collision(ext_tree_col)
 		, _context(context)
 
-        , _debug_draw_terrain(false)
         , _debug_terrain_triangles(1024)
         , _debug_terrain_trees(1024)
 	{
@@ -528,11 +527,8 @@ namespace ot {
 		_planet_body = new btRigidBody(info);
 		_planet_body->setRestitution(0.0f);
 
-		//_tree_cache.reserve(1024);
-		//ptree_cache = &_tree_cache;
 		_cow_internal.reserve(128,false);
 		_compound_processing_stack.reserve(128, false);
-		//_pb_wrap = new btCollisionObjectWrapper(0,ts, _planet_body,btTransform(),-1,-1);
 	}
 
 
