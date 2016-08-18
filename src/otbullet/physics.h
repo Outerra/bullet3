@@ -143,7 +143,7 @@ public:
         if(_cleaner) _cleaner(this,0);
     }
 
-    static const int HASHID = 3954098276;
+    static const int HASHID = 1393564259;
 
     int intergen_hash_id() const override { return HASHID; }
 
@@ -153,7 +153,7 @@ public:
     }
 
     static const coid::token& intergen_default_creator_static( EBackend bck ) {
-        static const coid::token _dc("bt::physics.get@3954098276");
+        static const coid::token _dc("bt::physics.get@1393564259");
         static const coid::token _djs("bt::js::physics@wrapper");
         static const coid::token _dnone;
 
@@ -212,7 +212,7 @@ inline iref<T> physics::create( T* _subclass_, double r, void* context )
     typedef iref<T> (*fn_creator)(physics*, double, void*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.create@3954098276";
+    static const coid::token ifckey = "bt::physics.create@1393564259";
 
     if(!create)
         create = reinterpret_cast<fn_creator>(
@@ -230,7 +230,7 @@ inline iref<T> physics::get( T* _subclass_ )
     typedef iref<T> (*fn_creator)(physics*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.get@3954098276";
+    static const coid::token ifckey = "bt::physics.get@1393564259";
 
     if(!create)
         create = reinterpret_cast<fn_creator>(

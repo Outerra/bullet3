@@ -186,9 +186,9 @@ public:
             "bt::physics@wrapper", (void*)&_generic_interface_creator);
 
         interface_register::register_interface_creator(
-            "bt::physics.create@3954098276", (void*)&create);
+            "bt::physics.create@1393564259", (void*)&create);
         interface_register::register_interface_creator(
-            "bt::physics.get@3954098276", (void*)&get);
+            "bt::physics.get@1393564259", (void*)&get);
 
         return (void*)&register_interfaces;
     }
