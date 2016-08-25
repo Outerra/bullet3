@@ -315,7 +315,11 @@ public:
 
 	SIMD_FORCE_INLINE	int	getActivationState() const { return m_activationState1;}
 	
-	void setActivationState(int newState) const;
+	void setActivationState(int newState) const
+    { 
+        if ( (m_activationState1 != DISABLE_DEACTIVATION) && (m_activationState1 != DISABLE_SIMULATION))
+            m_activationState1 = newState;
+    }
 
 	void	setDeactivationTime(btScalar time)
 	{
@@ -328,7 +332,14 @@ public:
 
 	void forceActivationState(int newState) const;
 
-	void	activate(bool forceActivation = false) const;
+	void activate(bool forceActivation = false) const
+    {
+        if (forceActivation || !(m_collisionFlags & (CF_STATIC_OBJECT|CF_KINEMATIC_OBJECT)))
+        {
+            setActivationState(ACTIVE_TAG);
+            m_deactivationTime = btScalar(0.);
+        }
+    }
 
 	SIMD_FORCE_INLINE bool isActive() const
 	{
