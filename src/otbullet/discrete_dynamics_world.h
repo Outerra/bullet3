@@ -9,7 +9,7 @@
 #include <ot/glm/glm_types.h>
 
 #include <comm/dynarray.h>
-#include <comm/alloc/slotalloc_hash.h>
+#include <comm/hash/slothash.h>
 #include <comm/alloc/slotalloc.h>
 
 //#include <ot/logger.h>
@@ -164,8 +164,8 @@ protected:
     bt::ot_world_physics_stats _stats;
 
     coid::dynarray<bt::triangle> _debug_terrain_triangles;
-    coid::slotalloc_hash<bt::tree*, uint16, tree_key_extractor> _debug_terrain_trees;
-    coid::slotalloc_hash<tree_flex_inf, uint16, tree_key_extractor> _debug_terrain_trees_active;
+    coid::slothash<bt::tree*, uint16, tree_key_extractor> _debug_terrain_trees;
+    coid::slothash<tree_flex_inf, uint16, tree_key_extractor> _debug_terrain_trees_active;
 
 public:
     
