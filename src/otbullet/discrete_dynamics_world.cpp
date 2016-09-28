@@ -151,10 +151,13 @@ namespace ot {
 			{
 				continue;
 			}
-
+           
+            if (rb->getActivationState() == ISLAND_SLEEPING) {
+                continue;
+            }
 
             btPersistentManifold * manifold;
-            if (rb->getTerrainManifoldHandle() == 0xffffffff) {
+            if (rb->getTerrainManifoldHandle() == UINT32_MAX) {
                 manifold = getDispatcher()->getNewManifold(obj, _planet_body);
                 btPersistentManifold ** manifold_h_ptr = _manifolds.add();
                 *manifold_h_ptr = manifold;
@@ -165,18 +168,12 @@ namespace ot {
             else {
                 manifold = *_manifolds.get_item(rb->getTerrainManifoldHandle());
             }
-
-            if (rb->getActivationState() == ISLAND_SLEEPING) {
-                continue;
-            }
+ 
 
 			btCollisionObjectWrapper planet_wrapper(0, _planet_body->getCollisionShape(), _planet_body, btTransform::getIdentity(), -1, -1);
 			btCollisionObjectWrapper collider_wrapper(0, obj->getCollisionShape(), obj, obj->getWorldTransform(), -1, -1);
 			btManifoldResult res(&collider_wrapper, &planet_wrapper);
 			
-
-            int cached_points = manifold->getNumContacts();
-
 			if (obj->getCollisionShape()->getShapeType() == COMPOUND_SHAPE_PROXYTYPE) {
 				btCompoundShape * cs = reinterpret_cast<btCompoundShape *>(obj->getCollisionShape());
 				new (_compound_processing_stack.add_uninit(1)) compound_processing_entry(cs, obj->getWorldTransform());
@@ -198,7 +195,10 @@ namespace ot {
 
 			}
 
+
             res.setPersistentManifold(manifold);
+
+            manifold->clearManifold();
 
 			for (uints j = 0; j < _cow_internal.size(); j++) {
 
@@ -251,7 +251,7 @@ namespace ot {
 
                     _rad = (float)rad;
 
-                    min = (max - min) / 2.0;
+                    min = (max - min) * 0.5;
                     _lod_dim = min[min.minAxis()];
 					common_data->prepare_bt_convex_collision(&res, &internal_obj_wrapper);
 				}
@@ -296,15 +296,11 @@ namespace ot {
 				common_data->process_collision_points();
 			}
 
-            int num_contacts = manifold->getNumContacts();
-
-            res.refreshContactPoints();
-
             if (manifold->getNumContacts() == 0) {
                 getDispatcher()->releaseManifold(manifold);
                 _manifolds.get_item(rb->getTerrainManifoldHandle());
                 _manifolds.del(_manifolds.get_item(rb->getTerrainManifoldHandle()));
-                rb->setTerrainManifoldHandle(0xffffffff);
+                rb->setTerrainManifoldHandle(UINT32_MAX);
             }
 		}
 
@@ -316,7 +312,7 @@ namespace ot {
         for (uints i = 0; i < tree_batches_cache.size(); i++) {
             bt::tree_batch * tb = tree_batches_cache[i];
 
-            if (tb->last_frame_used == 0xffffffff) {
+            if (tb->last_frame_used == UINT32_MAX) {
                 build_tb_collision_info(tb);
             }
 
