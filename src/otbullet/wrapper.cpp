@@ -28,6 +28,8 @@ static btDefaultCollisionConfiguration* _collisionConfiguration = 0;
 
 static physics * _physics = nullptr;
 
+btDynamicsWorld * g_wrld;
+
 ////////////////////////////////////////////////////////////////////////////////
 #ifdef _LIB
 
@@ -120,6 +122,8 @@ iref<physics> physics::create(double r, void* context)
         );
 
     wrld->_aabb_intersect = &_ext_collider_obb;
+    
+    g_wrld = wrld;
 
     _physics->_world = wrld;
 

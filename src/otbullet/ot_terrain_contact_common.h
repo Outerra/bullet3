@@ -86,6 +86,8 @@ struct contact_point
     {}
 };
 
+bool GJK_contact_added(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1);
+
 class ot_terrain_contact_common
 {
 private:
@@ -107,7 +109,6 @@ private:
 		const glm::vec3 & normal,
 		const glm::vec3 & a,
 		const glm::vec3 & b);
-	bool selectNormal(float u, float v, coid::uint8 data);
 
 #ifdef PhysX
 

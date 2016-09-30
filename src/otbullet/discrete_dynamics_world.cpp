@@ -22,6 +22,10 @@
 
 #include <ot/glm/glm_ext.h>
 
+/// tmp ////
+#include <BulletCollision/BroadphaseCollision/btAxisSweep3.h>
+/// /////////
+
 //static const float g_temp_tree_rad = .20f;
 
 const float g_sigma_coef = 1.f;
@@ -197,7 +201,6 @@ namespace ot {
 
 
             res.setPersistentManifold(manifold);
-
             manifold->clearManifold();
 
 			for (uints j = 0; j < _cow_internal.size(); j++) {
@@ -225,6 +228,7 @@ namespace ot {
 					_rad = float(sph->getRadius() + 0.02);
                     _lod_dim = _rad;
 					common_data->prepare_sphere_collision(&res, _from, float(sph->getRadius()), 0.02f);
+                    gContactAddedCallback = nullptr;
 				}
 				else if (internal_obj_wrapper.getCollisionShape()->getShapeType() == CAPSULE_SHAPE_PROXYTYPE) {
 					const btCapsuleShape * caps = reinterpret_cast<const btCapsuleShape*>(internal_obj_wrapper.getCollisionShape());
@@ -238,6 +242,7 @@ namespace ot {
 					btVector3 p1 = sc - (main_axis * cap_hheight);
 
 					common_data->prepare_capsule_collision(&res, glm::dvec3(p0.x(), p0.y(), p0.z()), glm::dvec3(p1.x(), p1.y(), p1.z()), cap_rad, float(caps->getMargin()));
+                    gContactAddedCallback = nullptr;
 				}
 				else if (internal_obj_wrapper.getCollisionShape()->isConvex()) {
 					btTransform t = internal_obj_wrapper.getWorldTransform();
@@ -254,6 +259,7 @@ namespace ot {
                     min = (max - min) * 0.5;
                     _lod_dim = min[min.minAxis()];
 					common_data->prepare_bt_convex_collision(&res, &internal_obj_wrapper);
+                    gContactAddedCallback = GJK_contact_added;
 				}
 				else {
 					continue;
@@ -450,6 +456,66 @@ namespace ot {
         });
     }
 
+    void discrete_dynamics_world::query_volume_sphere(const btVector3 & pos, float rad, i_query_result & result)
+    {
+        bt32BitAxisSweep3 * broad = dynamic_cast<bt32BitAxisSweep3 *>(m_broadphasePairCache);
+//        const btVector3 r(rad, rad, rad);
+//        btBroadphaseAabbCallback
+//        broad->aabbTest(pos - r, pos + r);
+
+        static coid::dynarray<const btDbvtNode *> _processing_stack(1024);
+        _processing_stack.reset();
+
+        double3 dpos(pos[0], pos[1], pos[2]);
+
+        const btDbvtBroadphase* raycast_acc = broad->getRaycastAccelerator();
+        const btDbvt * dyn_set = &raycast_acc->m_sets[0];
+        const btDbvt * stat_set = &raycast_acc->m_sets[1];
+        
+        const btDbvtNode * cur_node = nullptr;
+        
+        if (dyn_set && dyn_set->m_root) {
+            _processing_stack.push(dyn_set->m_root);
+        }
+
+        if (stat_set && stat_set->m_root) {
+            _processing_stack.push(stat_set->m_root);
+        }
+        
+        while (_processing_stack.pop(cur_node)) {
+            const btVector3& bt_aabb_cen = cur_node->volume.Center();
+            const btVector3& bt_aabb_half = cur_node->volume.Extents();
+            glm::double3 aabb_cen(bt_aabb_cen[0], bt_aabb_cen[1], bt_aabb_cen[2]);
+            glm::double3 aabb_half(bt_aabb_half[0], bt_aabb_half[1], bt_aabb_half[2]);
+            if (coal::intersects_sphere_aabb(dpos, (double)rad, aabb_cen, aabb_half, (double*)nullptr)) {
+                if (cur_node->isleaf()) {
+                    if(cur_node->data){
+                        btDbvtProxy* dat = reinterpret_cast<btDbvtProxy*>(cur_node->data);
+                        result.add_collision_obj(reinterpret_cast<btCollisionObject*>(dat->m_clientObject));
+                    }
+                }
+                else {
+                    _processing_stack.push(cur_node->childs[0]);
+                    _processing_stack.push(cur_node->childs[1]);
+
+                    /*if(cur_node->childs[0]->isleaf() && cur_node->childs[1]->isleaf()){
+                        btDbvtProxy* d0 = reinterpret_cast<btDbvtProxy*>(cur_node->childs[0]->data);
+                        btDbvtProxy* d1 = reinterpret_cast<btDbvtProxy*>(cur_node->childs[1]->data);
+                        if (d0->m_clientObject != d1->m_clientObject) {
+                            _processing_stack.push(cur_node->childs[1]);
+                        }
+                    }
+                    else {
+                        _processing_stack.push(cur_node->childs[1]);
+                    }*/
+                }
+            };
+        }
+
+
+       
+    }
+
     void discrete_dynamics_world::debugDrawWorld()
     {
         if (!m_debugDrawer) {
@@ -522,6 +588,7 @@ namespace ot {
 
 		_planet_body = new btRigidBody(info);
 		_planet_body->setRestitution(0.0f);
+        _planet_body->setCollisionFlags(_planet_body->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
 
 		_cow_internal.reserve(128,false);
 		_compound_processing_stack.reserve(128, false);

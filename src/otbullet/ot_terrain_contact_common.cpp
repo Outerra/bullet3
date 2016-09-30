@@ -11,6 +11,69 @@
 	#include <common/GuBarycentricCoordinates.h>
 #endif
 
+const bt::triangle* current_processed_triangle = nullptr;
+
+bool selectNormal(float u, float v, coid::uint8 data)
+{
+    if (glm::abs(u) < 0.000001f)
+    {
+        if (glm::abs(v) < 0.000001f)
+        {
+            // Vertex 0
+            if (!(data & (coal::ceEdge01Convex | coal::ceEdge20Convex)))
+                return true;
+        }
+        else if (glm::abs(v) + 0.000001f > 1.f)
+        {
+            // Vertex 2
+            if (!(data & (coal::ceEdge12Convex | coal::ceEdge20Convex)))
+                return true;
+        }
+        else
+        {
+            // Edge 0-2
+            if (!(data & coal::ceEdge20Convex))
+                return true;
+        }
+    }
+    else if (glm::abs(u) + 0.000001f > 1.f)
+    {
+        if (glm::abs(v) < 0.000001f)
+        {
+            // Vertex 1
+            if (!(data & (coal::ceEdge01Convex | coal::ceEdge12Convex)))
+                return true;
+
+        }
+    }
+    else
+    {
+        if (glm::abs(v) < 0.000001f)
+        {
+            // Edge 0-1
+            if (!(data & coal::ceEdge01Convex))
+                return true;
+        }
+        else
+        {
+            const float threshold = 0.9999f;
+            const float temp = u + v;
+            if (temp >= threshold)
+            {
+                // Edge 1-2
+                if (!(data & coal::ceEdge12Convex))
+                    return true;
+            }
+            else
+            {
+                // Face
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 ot_terrain_contact_common::ot_terrain_contact_common(float triangle_collision_margin, btCollisionWorld * world, btCollisionObjectWrapper * planet_body_wrap)
 	:_curr_collider(ctCount)
 	,_triangle_collision_margin(triangle_collision_margin)
@@ -119,9 +182,29 @@ void ot_terrain_contact_common::process_triangle_cache(const coid::dynarray<bt::
 {
     btPersistentManifold * p_man = _manifold->getPersistentManifold();
 
+    /// just commented out in case of cashing 
+
+    /* static const uint MAX_CP_COUNT = 4;
+    static bool cp_to_del[MAX_CP_COUNT];
+    memset(cp_to_del, 0, MAX_CP_COUNT);
+    
+    for (int8 i = 0; i < p_man->getNumContacts(); i++) {
+        if (triangle_cache.find_if([&](const bt::triangle & t) {return t.tri_idx == p_man->getContactPoint(i).m_index1; }) == nullptr) {
+            DASSERT(i < MAX_CP_COUNT);
+            cp_to_del[i] = true;
+        }
+    }
+
+    for (int8 i = MAX_CP_COUNT - 1; i >= 0; i--) {
+        if (cp_to_del[i]) {
+            p_man->removeContactPoint(i);
+        }
+    }*/
+    ///
+
     triangle_cache.for_each([&](const bt::triangle & t) {
-        const uint32 t_idx = t.tri_idx;
 		set_terrain_mesh_offset(*t.parent_offset_p);
+        current_processed_triangle = &t;
 		(this->*_curr_algo)(t);
 	});
 }
@@ -501,67 +584,6 @@ void ot_terrain_contact_common::generateEE(const glm::vec3 & p,
 	}
 }
 
-
-bool ot_terrain_contact_common::selectNormal(float u, float v, coid::uint8 data)
-{
-	if (glm::abs(u) < 0.000001f)
-	{
-		if (glm::abs(v) < 0.000001f)
-		{
-			// Vertex 0
-			if (!(data & (coal::ceEdge01Convex | coal::ceEdge20Convex)))
-				return true;
-		}
-		else if (glm::abs(v) + 0.000001f > 1.f)
-		{
-			// Vertex 2
-			if (!(data & (coal::ceEdge12Convex | coal::ceEdge20Convex)))
-				return true;
-		}
-		else
-		{
-			// Edge 0-2
-			if (!(data & coal::ceEdge20Convex))
-				return true;
-		}
-	}
-	else if (glm::abs(u) + 0.000001f > 1.f)
-	{
-		if (glm::abs(v) < 0.000001f)
-		{
-			// Vertex 1
-			if (!(data & (coal::ceEdge01Convex | coal::ceEdge12Convex)))
-				return true;
-
-		}
-	}
-	else
-	{
-		if (glm::abs(v) < 0.000001f)
-		{
-			// Edge 0-1
-			if (!(data & coal::ceEdge01Convex))
-				return true;
-		}
-		else
-		{
-			const float threshold = 0.9999f;
-			const float temp = u + v;
-			if (temp >= threshold)
-			{
-				// Edge 1-2
-				if (!(data & coal::ceEdge12Convex))
-					return true;
-			}
-			else
-			{
-				// Face
-				return true;
-			}
-		}
-	}
-	return false;
-}
 #ifdef PhysX
 
 bool ot_terrain_contact_common::generateTriangleFullContactManifold(physx::Gu::TriangleV & localTriangle, const uint32 triangleIndex, const uint32 * triIndices, const uint8 triFlags, const btConvexPolyhedron & polyData, physx::Gu::SupportLocalImpl<physx::Gu::TriangleV>* localTriMap, physx::Gu::SupportLocal * polyMap, coid::dynarray<contact_point>& manifoldContacts, uint32 & numContacts, const Ps::aos::FloatVArg contactDist, Ps::aos::Vec3V & patchNormal)
@@ -1663,4 +1685,29 @@ void ot_terrain_contact_common::clear_caches() {
     _triangle_cache.clear();
     _contact_point_cache.clear();
     _additional_col_objs.clear();
+}
+
+bool GJK_contact_added(btManifoldPoint & cp, const btCollisionObjectWrapper * colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper * colObj1Wrap, int partId1, int index1)
+{    
+    DASSERT(current_processed_triangle != nullptr);
+
+    current_processed_triangle->t_flags;
+    
+    const double3 * offset = current_processed_triangle->parent_offset_p;
+    const float3 e01 = current_processed_triangle->b - current_processed_triangle->a;
+    const float3 e02 = current_processed_triangle->c - current_processed_triangle->a;
+    const float e01_len = glm::length(e01);
+    const float e02_len = glm::length(e02);
+    const float3 ap(cp.m_localPointB[0] - offset->x - current_processed_triangle->a.x, 
+        cp.m_localPointB[1] - offset->y - current_processed_triangle->a.y,
+        cp.m_localPointB[2] - offset->z - current_processed_triangle->a.z);
+    const float u = glm::dot(ap, e01) / e01_len;
+    const float v = glm::dot(ap, e02) / e02_len;
+
+    if (selectNormal(u, v, current_processed_triangle->t_flags)) {
+        const float3 n = glm::normalize(glm::cross(e01,e02));
+        cp.m_normalWorldOnB = btVector3(n.x,n.y,n.z);
+    }
+
+    return true;
 }
