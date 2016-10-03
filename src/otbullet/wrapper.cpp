@@ -28,8 +28,6 @@ static btDefaultCollisionConfiguration* _collisionConfiguration = 0;
 
 static physics * _physics = nullptr;
 
-btDynamicsWorld * g_wrld;
-
 ////////////////////////////////////////////////////////////////////////////////
 #ifdef _LIB
 
@@ -122,8 +120,6 @@ iref<physics> physics::create(double r, void* context)
         );
 
     wrld->_aabb_intersect = &_ext_collider_obb;
-    
-    g_wrld = wrld;
 
     _physics->_world = wrld;
 
@@ -150,6 +146,12 @@ void physics::debug_draw_world() {
     if (_dbg_drawer) {
         _world->debugDrawWorld();
     }
+}
+
+void physics::querry_volume_sphere(const double3 & pos, float rad, ifc_inout coid::dynarray<btCollisionObject*>& result)
+{
+    const btVector3 bt_pos(pos.x, pos.y, pos.z);
+    _world->query_volume_sphere(bt_pos,rad,result);
 }
 
 

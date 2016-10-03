@@ -456,7 +456,7 @@ namespace ot {
         });
     }
 
-    void discrete_dynamics_world::query_volume_sphere(const btVector3 & pos, float rad, i_query_result & result)
+    void discrete_dynamics_world::query_volume_sphere(const btVector3 & pos, float rad, coid::dynarray<btCollisionObject *>& result)
     {
         bt32BitAxisSweep3 * broad = dynamic_cast<bt32BitAxisSweep3 *>(m_broadphasePairCache);
 //        const btVector3 r(rad, rad, rad);
@@ -491,23 +491,12 @@ namespace ot {
                 if (cur_node->isleaf()) {
                     if(cur_node->data){
                         btDbvtProxy* dat = reinterpret_cast<btDbvtProxy*>(cur_node->data);
-                        result.add_collision_obj(reinterpret_cast<btCollisionObject*>(dat->m_clientObject));
+                        result.push(reinterpret_cast<btCollisionObject*>(dat->m_clientObject));
                     }
                 }
                 else {
                     _processing_stack.push(cur_node->childs[0]);
                     _processing_stack.push(cur_node->childs[1]);
-
-                    /*if(cur_node->childs[0]->isleaf() && cur_node->childs[1]->isleaf()){
-                        btDbvtProxy* d0 = reinterpret_cast<btDbvtProxy*>(cur_node->childs[0]->data);
-                        btDbvtProxy* d1 = reinterpret_cast<btDbvtProxy*>(cur_node->childs[1]->data);
-                        if (d0->m_clientObject != d1->m_clientObject) {
-                            _processing_stack.push(cur_node->childs[1]);
-                        }
-                    }
-                    else {
-                        _processing_stack.push(cur_node->childs[1]);
-                    }*/
                 }
             };
         }

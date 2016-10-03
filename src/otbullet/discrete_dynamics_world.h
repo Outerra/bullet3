@@ -25,12 +25,7 @@ class ot_terrain_contact_common;
 class planet_qtree;
 
 namespace ot {
-///
-    class i_query_result {
-    public:
-        virtual void add_collision_obj(btCollisionObject * obj) = 0;
-    };
-///
+
 struct tree_flex_inf {
     float3 _flex;
     uint16 _tree_iden;
@@ -173,7 +168,9 @@ protected:
     coid::slothash<tree_flex_inf, uint16, tree_key_extractor> _debug_terrain_trees_active;
 
 public:
-    void query_volume_sphere(const btVector3& pos, float rad, i_query_result & result);
+    virtual void removeRigidBody(btRigidBody* body) override;
+
+    void query_volume_sphere(const btVector3& pos, float rad, coid::dynarray<btCollisionObject *>& result);
 
     virtual void debugDrawWorld() override;
 
@@ -212,7 +209,6 @@ public:
 protected:
 
 	virtual void internalSingleStepSimulation(btScalar timeStep) override;
-    virtual void removeRigidBody(btRigidBody* body) override;
 
 	void ot_terrain_collision_step();
 

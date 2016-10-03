@@ -23,6 +23,11 @@ namespace bt {
 extern bt::physics* BT;
 //}ifc
 
+namespace ot {
+    class discrete_dynamics_world;
+}
+
+
 ///
 class physics : public policy_intrusive_base
 {
@@ -74,6 +79,8 @@ public:
     ifc_fn void set_debug_drawer_mode(int debug_mode);
     ifc_fn void debug_draw_world();
 
+    ifc_fn void querry_volume_sphere(const double3 & pos, float rad, ifc_inout coid::dynarray<btCollisionObject*>& result);
+
     ifc_event bool terrain_collisions(
         const void* context,
         const double3& center,
@@ -98,7 +105,7 @@ public:
 
 private:
 
-    btDynamicsWorld* _world;
+    ot::discrete_dynamics_world* _world;
     btIDebugDraw * _dbg_drawer;
     int _dbg_draw_mode;
     

@@ -7,6 +7,8 @@
 
 #include <BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h>
 
+#include "discrete_dynamics_world.h"
+
 static btRigidBody _fixedObject( btRigidBody::btRigidBodyConstructionInfo(0,0,0) );
 
 ////////////////////////////////////////////////////////////////////////////////
