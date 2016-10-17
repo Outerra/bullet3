@@ -161,7 +161,7 @@ namespace ot {
             }
 
             btPersistentManifold * manifold;
-            if (rb->getTerrainManifoldHandle() == UINT32_MAX) {
+            if (rb->getTerrainManifoldHandle() == UMAX32) {
                 manifold = getDispatcher()->getNewManifold(obj, _planet_body);
                 btPersistentManifold ** manifold_h_ptr = _manifolds.add();
                 *manifold_h_ptr = manifold;
@@ -306,7 +306,7 @@ namespace ot {
                 getDispatcher()->releaseManifold(manifold);
                 _manifolds.get_item(rb->getTerrainManifoldHandle());
                 _manifolds.del(_manifolds.get_item(rb->getTerrainManifoldHandle()));
-                rb->setTerrainManifoldHandle(UINT32_MAX);
+                rb->setTerrainManifoldHandle(UMAX32);
             }
 		}
 
@@ -318,7 +318,7 @@ namespace ot {
         for (uints i = 0; i < tree_batches_cache.size(); i++) {
             bt::tree_batch * tb = tree_batches_cache[i];
 
-            if (tb->last_frame_used == UINT32_MAX) {
+            if (tb->last_frame_used == UMAX32) {
                 build_tb_collision_info(tb);
             }
 

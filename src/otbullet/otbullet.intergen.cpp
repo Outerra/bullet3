@@ -193,9 +193,9 @@ public:
             "bt::physics@wrapper", on ? (void*)&_generic_interface_creator : nullptr);
 
         interface_register::register_interface_creator(
-            "bt::physics.create@1112701558", on ? (void*)&create : nullptr);
+            "bt::physics.create@3665953306", on ? (void*)&create : nullptr);
         interface_register::register_interface_creator(
-            "bt::physics.get@1112701558", on ? (void*)&get : nullptr);
+            "bt::physics.get@3665953306", on ? (void*)&get : nullptr);
     }
 };
 
