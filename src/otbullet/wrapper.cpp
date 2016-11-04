@@ -148,12 +148,12 @@ void physics::debug_draw_world() {
     }
 }
 
-void physics::querry_volume_sphere(const double3 & pos, float rad, coid::dynarray<btCollisionObject*>& result)
+void physics::query_volume_sphere(const double3 & pos, float rad, coid::dynarray<btCollisionObject*>& result)
 {
     _world->query_volume_sphere(pos,rad,result);
 }
 
-void physics::querry_volume_frustum(const double3 & pos,const float4 * f_planes_norms, uint8 nplanes, bool include_partial, coid::dynarray<btCollisionObject*>& result)
+void physics::query_volume_frustum(const double3 & pos,const float4 * f_planes_norms, uint8 nplanes, bool include_partial, coid::dynarray<btCollisionObject*>& result)
 {
     _world->query_volume_frustum(pos, f_planes_norms, nplanes, include_partial,result);
 }

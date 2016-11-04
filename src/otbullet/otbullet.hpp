@@ -79,8 +79,8 @@ public:
     ifc_fn void set_debug_drawer_mode(int debug_mode);
     ifc_fn void debug_draw_world();
 
-    ifc_fn void querry_volume_sphere(const double3 & pos, float rad, ifc_inout coid::dynarray<btCollisionObject*>& result);
-    ifc_fn void querry_volume_frustum(const double3 & pos, const float4 * f_planes_norms, uint8 nplanes, bool include_partial, ifc_inout coid::dynarray<btCollisionObject *>& result);
+    ifc_fn void query_volume_sphere(const double3 & pos, float rad, ifc_inout coid::dynarray<btCollisionObject*>& result);
+    ifc_fn void query_volume_frustum(const double3 & pos, const float4 * f_planes_norms, uint8 nplanes, bool include_partial, ifc_inout coid::dynarray<btCollisionObject *>& result);
 
 
     ifc_event bool terrain_collisions(

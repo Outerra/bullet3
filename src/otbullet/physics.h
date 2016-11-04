@@ -106,9 +106,9 @@ public:
 
     void debug_draw_world();
 
-    void querry_volume_sphere( const double3& pos, float rad, ifc_inout coid::dynarray<btCollisionObject*>& result );
+    void query_volume_sphere( const double3& pos, float rad, ifc_inout coid::dynarray<btCollisionObject*>& result );
 
-    void querry_volume_frustum( const double3& pos, const float4* f_planes_norms, uint8 nplanes, bool include_partial, ifc_inout coid::dynarray<btCollisionObject *>& result );
+    void query_volume_frustum( const double3& pos, const float4* f_planes_norms, uint8 nplanes, bool include_partial, ifc_inout coid::dynarray<btCollisionObject *>& result );
 
 
 protected:
@@ -157,7 +157,7 @@ public:
         if(_cleaner) _cleaner(this,0);
     }
 
-    static const int HASHID = 1981346415;
+    static const int HASHID = 3358894847;
 
     int intergen_hash_id() const override { return HASHID; }
 
@@ -167,7 +167,7 @@ public:
     }
 
     static const coid::token& intergen_default_creator_static( EBackend bck ) {
-        static const coid::token _dc("bt::physics.get@1981346415");
+        static const coid::token _dc("bt::physics.get@3358894847");
         static const coid::token _djs("bt::js::physics@wrapper");
         static const coid::token _dnone;
 
@@ -218,7 +218,7 @@ inline iref<T> physics::create( T* _subclass_, double r, void* context )
     typedef iref<T> (*fn_creator)(physics*, double, void*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.create@1981346415";
+    static const coid::token ifckey = "bt::physics.create@3358894847";
 
     if(!create)
         create = reinterpret_cast<fn_creator>(
@@ -236,7 +236,7 @@ inline iref<T> physics::get( T* _subclass_ )
     typedef iref<T> (*fn_creator)(physics*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.get@1981346415";
+    static const coid::token ifckey = "bt::physics.get@3358894847";
 
     if(!create)
         create = reinterpret_cast<fn_creator>(
@@ -345,10 +345,10 @@ inline void physics::set_debug_drawer_mode( int debug_mode )
 inline void physics::debug_draw_world()
 { return VT_CALL(void,(),31)(); }
 
-inline void physics::querry_volume_sphere( const double3& pos, float rad, coid::dynarray<btCollisionObject*>& result )
+inline void physics::query_volume_sphere( const double3& pos, float rad, coid::dynarray<btCollisionObject*>& result )
 { return VT_CALL(void,(const double3&,float,coid::dynarray<btCollisionObject*>&),32)(pos,rad,result); }
 
-inline void physics::querry_volume_frustum( const double3& pos, const float4* f_planes_norms, uint8 nplanes, bool include_partial, coid::dynarray<btCollisionObject *>& result )
+inline void physics::query_volume_frustum( const double3& pos, const float4* f_planes_norms, uint8 nplanes, bool include_partial, coid::dynarray<btCollisionObject *>& result )
 { return VT_CALL(void,(const double3&,const float4*,uint8,bool,coid::dynarray<btCollisionObject *>&),33)(pos,f_planes_norms,nplanes,include_partial,result); }
 
 } //namespace

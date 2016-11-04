@@ -66,8 +66,8 @@ private:
         _vtable1[29] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btIDebugDraw*)>(&::physics::set_debug_draw_enabled));
         _vtable1[30] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(int)>(&::physics::set_debug_drawer_mode));
         _vtable1[31] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)()>(&::physics::debug_draw_world));
-        _vtable1[32] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(const double3&,float,coid::dynarray<btCollisionObject*>&)>(&::physics::querry_volume_sphere));
-        _vtable1[33] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(const double3&,const float4*,uint8,bool,coid::dynarray<btCollisionObject *>&)>(&::physics::querry_volume_frustum));
+        _vtable1[32] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(const double3&,float,coid::dynarray<btCollisionObject*>&)>(&::physics::query_volume_sphere));
+        _vtable1[33] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(const double3&,const float4*,uint8,bool,coid::dynarray<btCollisionObject *>&)>(&::physics::query_volume_frustum));
         return _vtable1;
     }
 
@@ -193,9 +193,9 @@ public:
             "bt::physics@wrapper", on ? (void*)&_generic_interface_creator : nullptr);
 
         interface_register::register_interface_creator(
-            "bt::physics.create@1981346415", on ? (void*)&create : nullptr);
+            "bt::physics.create@3358894847", on ? (void*)&create : nullptr);
         interface_register::register_interface_creator(
-            "bt::physics.get@1981346415", on ? (void*)&get : nullptr);
+            "bt::physics.get@3358894847", on ? (void*)&get : nullptr);
     }
 };
 
