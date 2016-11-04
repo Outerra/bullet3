@@ -504,7 +504,7 @@ namespace ot {
         }
     }
 
-    void discrete_dynamics_world::query_volume_frustum(const double3 & pos, const float4 * f_planes_norms, uint8 nplanes, coid::dynarray<btCollisionObject*>& result)
+    void discrete_dynamics_world::query_volume_frustum(const double3 & pos, const float4 * f_planes_norms, uint8 nplanes, bool include_partial,coid::dynarray<btCollisionObject*>& result)
     {
 #ifdef _DEBUG
         bt32BitAxisSweep3 * broad = dynamic_cast<bt32BitAxisSweep3 *>(m_broadphasePairCache);
@@ -536,7 +536,7 @@ namespace ot {
             const btVector3& bt_aabb_half = cur_node->volume.Extents();
             glm::double3 aabb_cen(bt_aabb_cen[0], bt_aabb_cen[1], bt_aabb_cen[2]);
             glm::float3 aabb_half(bt_aabb_half[0], bt_aabb_half[1], bt_aabb_half[2]);
-            if (coal::intersects_frustum_aabb(aabb_cen, aabb_half, pos, f_planes_norms, nplanes)) {
+            if (coal::intersects_frustum_aabb(aabb_cen, aabb_half, pos, f_planes_norms, nplanes, include_partial)) {
                 if (cur_node->isleaf()) {
                     if(cur_node->data){
                         btDbvtProxy* dat = reinterpret_cast<btDbvtProxy*>(cur_node->data);
