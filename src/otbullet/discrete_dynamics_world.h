@@ -171,7 +171,7 @@ public:
     virtual void removeRigidBody(btRigidBody* body) override;
 
     void query_volume_sphere(const double3& pos, float rad, coid::dynarray<btCollisionObject *>& result);
-    void query_volume_frustum(const double3&pos, float3* f_planes_norms, uint8 nplanes, coid::dynarray<btCollisionObject *>& result);
+    void query_volume_frustum(const double3&pos, const float4 * f_planes_norms, uint8 nplanes, coid::dynarray<btCollisionObject *>& result);
 
     virtual void debugDrawWorld() override;
 

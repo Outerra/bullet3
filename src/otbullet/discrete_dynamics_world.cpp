@@ -504,7 +504,7 @@ namespace ot {
         }
     }
 
-    void discrete_dynamics_world::query_volume_frustum(const double3 & pos, float3 * f_planes_norms, uint8 nplanes, coid::dynarray<btCollisionObject*>& result)
+    void discrete_dynamics_world::query_volume_frustum(const double3 & pos, const float4 * f_planes_norms, uint8 nplanes, coid::dynarray<btCollisionObject*>& result)
     {
 #ifdef _DEBUG
         bt32BitAxisSweep3 * broad = dynamic_cast<bt32BitAxisSweep3 *>(m_broadphasePairCache);

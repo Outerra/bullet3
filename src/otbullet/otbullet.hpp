@@ -80,7 +80,7 @@ public:
     ifc_fn void debug_draw_world();
 
     ifc_fn void querry_volume_sphere(const double3 & pos, float rad, ifc_inout coid::dynarray<btCollisionObject*>& result);
-    ifc_fn void querry_volume_frustum(const double3 & pos, float3 * f_planes_norms, uint8 nplanes,ifc_inout coid::dynarray<btCollisionObject *>& result);
+    ifc_fn void querry_volume_frustum(const double3 & pos, const float4 * f_planes_norms, uint8 nplanes,ifc_inout coid::dynarray<btCollisionObject *>& result);
 
 
     ifc_event bool terrain_collisions(
