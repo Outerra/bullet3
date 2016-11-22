@@ -536,8 +536,10 @@ namespace ot {
             const btVector3& bt_aabb_half = cur_node->volume.Extents();
             glm::double3 aabb_cen(bt_aabb_cen[0], bt_aabb_cen[1], bt_aabb_cen[2]);
             glm::float3 aabb_half(bt_aabb_half[0], bt_aabb_half[1], bt_aabb_half[2]);
-            if (coal::intersects_frustum_aabb(aabb_cen, aabb_half, pos, f_planes_norms, nplanes, include_partial)) {
-                if (cur_node->isleaf()) {
+            bool isleaf = cur_node->isleaf();
+
+            if (coal::intersects_frustum_aabb(aabb_cen, aabb_half, pos, f_planes_norms, nplanes, include_partial || !isleaf)) {
+                if (isleaf) {
                     if(cur_node->data){
                         btDbvtProxy* dat = reinterpret_cast<btDbvtProxy*>(cur_node->data);
                         result.push(reinterpret_cast<btCollisionObject*>(dat->m_clientObject));

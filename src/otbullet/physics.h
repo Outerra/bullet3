@@ -248,6 +248,8 @@ inline iref<T> physics::get( T* _subclass_ )
     return create(_subclass_);
 }
 
+#pragma warning(push)
+#pragma warning(disable : 4191)
 
 inline void physics::step_simulation( double step )
 { return VT_CALL(void,(double),0)(step); }
@@ -350,6 +352,8 @@ inline void physics::query_volume_sphere( const double3& pos, float rad, coid::d
 
 inline void physics::query_volume_frustum( const double3& pos, const float4* f_planes_norms, uint8 nplanes, bool include_partial, coid::dynarray<btCollisionObject *>& result )
 { return VT_CALL(void,(const double3&,const float4*,uint8,bool,coid::dynarray<btCollisionObject *>&),33)(pos,f_planes_norms,nplanes,include_partial,result); }
+
+#pragma warning(pop)
 
 } //namespace
 
