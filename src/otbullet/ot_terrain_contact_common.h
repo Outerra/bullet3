@@ -195,6 +195,9 @@ private:
 		const uint32 previousNumContacts);
 #endif
 public:
+
+    COIDNEWDELETE("ot_terrain_contact_common");
+
 	ot_terrain_contact_common(float triangle_collision_margin, btCollisionWorld * world, btCollisionObjectWrapper * planet_body_wrap);
     ~ot_terrain_contact_common();
 

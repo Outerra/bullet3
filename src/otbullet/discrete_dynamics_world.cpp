@@ -173,7 +173,10 @@ namespace ot {
             _debug_terrain_trees_active.reset();
         }
 
-        LOCAL_SINGLETON(ot_terrain_contact_common) common_data = new ot_terrain_contact_common(0.00f,this,_pb_wrap);
+        //LOCAL_SINGLETON(ot_terrain_contact_common) common_data = new ot_terrain_contact_common(0.00f,this,_pb_wrap);
+        if(!_common_data)
+            _common_data = new ot_terrain_contact_common(0.00f,this,_pb_wrap);
+
 		for (int i = 0; i < m_collisionObjects.size(); i++) {
 			_cow_internal.clear();
             _compound_processing_stack.clear();
@@ -249,7 +252,7 @@ namespace ot {
 					_cow_internal[j]._index);
 
 
-                common_data->set_internal_obj_wrapper(&internal_obj_wrapper);
+                _common_data->set_internal_obj_wrapper(&internal_obj_wrapper);
 
 				btVector3 sc = internal_obj_wrapper.getWorldTransform().getOrigin();
 				//int face = ot::xyz_to_cubeface(&sc.m_floats[0]);
@@ -263,7 +266,7 @@ namespace ot {
 					const btSphereShape * sph = reinterpret_cast<const btSphereShape*>(internal_obj_wrapper.getCollisionShape());
 					_rad = float(sph->getRadius() + 0.02);
                     _lod_dim = _rad;
-					common_data->prepare_sphere_collision(&res, _from, float(sph->getRadius()), 0.02f);
+					_common_data->prepare_sphere_collision(&res, _from, float(sph->getRadius()), 0.02f);
                     gContactAddedCallback = friction_combiner_cbk;
 				}
 				else if (internal_obj_wrapper.getCollisionShape()->getShapeType() == CAPSULE_SHAPE_PROXYTYPE) {
@@ -277,7 +280,7 @@ namespace ot {
 					btVector3 p0 = sc + (main_axis * cap_hheight);
 					btVector3 p1 = sc - (main_axis * cap_hheight);
 
-					common_data->prepare_capsule_collision(&res, glm::dvec3(p0.x(), p0.y(), p0.z()), glm::dvec3(p1.x(), p1.y(), p1.z()), cap_rad, float(caps->getMargin()));
+					_common_data->prepare_capsule_collision(&res, glm::dvec3(p0.x(), p0.y(), p0.z()), glm::dvec3(p1.x(), p1.y(), p1.z()), cap_rad, float(caps->getMargin()));
                     gContactAddedCallback = friction_combiner_cbk;
 				}
 				else if (internal_obj_wrapper.getCollisionShape()->isConvex()) {
@@ -294,7 +297,7 @@ namespace ot {
 
                     min = (max - min) * 0.5;
                     _lod_dim = min[min.minAxis()];
-					common_data->prepare_bt_convex_collision(&res, &internal_obj_wrapper);
+					_common_data->prepare_bt_convex_collision(&res, &internal_obj_wrapper);
                     gContactAddedCallback = GJK_contact_added;
 				}
 				else {
@@ -323,7 +326,7 @@ namespace ot {
                     timer.reset();
 
 #endif // _PROFILING_ENABLED
-                    common_data->process_triangle_cache(_triangles);
+                    _common_data->process_triangle_cache(_triangles);
 #ifdef _PROFILING_ENABLED
                     _stats.triangles_processed_count += _triangles.size();
                     _stats.triangle_processing_time_ms += timer.time_ns() * 0.000001f;
@@ -335,7 +338,7 @@ namespace ot {
                     prepare_tree_collision_pairs(obj, _tree_batches, frame_count);
                 }
 
-				common_data->process_collision_points();
+				_common_data->process_collision_points();
 			}
 
             if (manifold->getNumContacts() == 0) {

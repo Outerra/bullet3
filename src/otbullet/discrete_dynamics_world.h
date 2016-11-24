@@ -11,6 +11,7 @@
 #include <comm/dynarray.h>
 #include <comm/hash/slothash.h>
 #include <comm/alloc/slotalloc.h>
+#include <comm/local.h>
 
 //#include <ot/logger.h>
 //#include <ot/sketch.h>
@@ -166,6 +167,8 @@ protected:
     coid::dynarray<bt::triangle> _debug_terrain_triangles;
     coid::slothash<bt::tree*, uint16, tree_key_extractor> _debug_terrain_trees;
     coid::slothash<tree_flex_inf, uint16, tree_key_extractor> _debug_terrain_trees_active;
+
+    coid::local<ot_terrain_contact_common> _common_data;
 
 public:
 #ifdef _DEBUG
