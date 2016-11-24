@@ -87,6 +87,15 @@ struct contact_point
 };
 
 bool GJK_contact_added(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1);
+bool friction_combiner_cbk(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1);
+
+/// Copied from the Bullet btManifoldResult
+
+float calculate_combined_friction(float b1_fric, float b2_fric);
+float calculate_combined_restitution(float b1_rest, float b2_rest);
+float calculate_combined_rolling_friction(float b1_roll_fric, float b2_roll_fric);
+
+/// ///////////////
 
 class ot_terrain_contact_common
 {

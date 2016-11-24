@@ -40,6 +40,8 @@ struct triangle
     uint32 idx_c;
 	const double3 * parent_offset_p;
     uint32 tri_idx;
+    float fric;
+    float roll_fric;
 
     triangle(){}
     triangle(const float3 & va,
@@ -60,6 +62,8 @@ struct triangle
         , t_flags(flags)
 		, parent_offset_p(offsetp)
         , tri_idx(tri_idx)
+        , fric(1.0f)
+        , roll_fric(1.0f)
     {}
 };
 

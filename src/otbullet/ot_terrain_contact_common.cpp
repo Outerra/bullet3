@@ -204,7 +204,39 @@ void ot_terrain_contact_common::process_triangle_cache(const coid::dynarray<bt::
 
     triangle_cache.for_each([&](const bt::triangle & t) {
 		set_terrain_mesh_offset(*t.parent_offset_p);
-        current_processed_triangle = &t;
+		current_processed_triangle = &t;
+
+		if (this->_curr_collider == ctCapsule){
+			glm::vec3 p0_loc(_capsule_p0_g - _mesh_offset);
+			glm::vec3 p1_loc(_capsule_p1_g - _mesh_offset);
+			float3 ax_vec = glm::normalize(p1_loc - p0_loc);
+			float3 up(glm::normalize(_capsule_p0_g));
+
+
+			float3 from = p1_loc + (ax_vec * (_capsule_radius + _collider_collision_margin));
+			float3 to = p0_loc - (ax_vec * (_capsule_radius + _collider_collision_margin));
+			float du, dv, dw, dt;;
+			if (coal::intersects_ray_triangle(from, up, t.a, t.b, t.c, du, dv, dw, dt)){
+				float3 cp = t.a * du + t.b * dv + t.c * dw;
+				float l = glm::length(cp - from);
+				float3 dir = glm::normalize(cp - from);
+				du = du;
+			}
+		}else if (this->_curr_collider == ctSphere) {
+            glm::vec3 sph_orig(_sphere_origin_g - _mesh_offset);
+            float3 up(glm::normalize(_sphere_origin_g));
+
+
+            float3 from = sph_orig;
+            float du, dv, dw, dt;;
+            if (coal::intersects_ray_triangle(from, -up, t.a, t.b, t.c, du, dv, dw, dt)) {
+                float3 cp = t.a * du + t.b * dv + t.c * dw;
+                float l = glm::length(cp - from);
+                float3 dir = glm::normalize(cp - from);
+                du = du;
+            }
+        }
+
 		(this->*_curr_algo)(t);
 	});
 }
@@ -234,7 +266,7 @@ void ot_terrain_contact_common::collide_sphere_triangle(const bt::triangle & tri
 {
 	const float t = 0.996f;
 	float infRad = _sphere_radius + _collider_collision_margin + _triangle_collision_margin;
-	float infRadSq = infRad * infRad;
+	float infRadSq = infRad * infRad + 0.0001f;
 	bool generate_contact = false;
 	glm::vec3 contact;
 	glm::vec3 tn = glm::normalize(glm::cross(triangle.b - triangle.a, triangle.c - triangle.a));
@@ -278,9 +310,9 @@ void ot_terrain_contact_common::collide_capsule_triangle(const bt::triangle & tr
 
 
 	const glm::vec3 n = glm::normalize(glm::cross(ab, ac));
-	const float d = glm::dot(triangle.a, n);
+	const float d = -glm::dot(triangle.a, n);
 
-	const float dist = glm::dot(cen, n) - d;
+	const float dist = glm::dot(cen, n) + d;
 
 	if (dist < 0)
 		return;
@@ -290,12 +322,12 @@ void ot_terrain_contact_common::collide_capsule_triangle(const bt::triangle & tr
 
 	if (sqDist < inf_rad_sq) {
 		glm::vec3 patchNormalInTriangle;
-		if (selectNormal(u, v, triangle.t_flags))
+		if (selectNormal(u, v, triangle.t_flags) && triangle.t_flags > 0)
 		{
 			patchNormalInTriangle = n;
 		}
 		else {
-			if (glm::abs(sqDist) < 0.000001f)
+			if (glm::abs(sqDist) < 0.0001f)
 			{
 				patchNormalInTriangle = n;
 			}
@@ -1690,8 +1722,6 @@ void ot_terrain_contact_common::clear_caches() {
 bool GJK_contact_added(btManifoldPoint & cp, const btCollisionObjectWrapper * colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper * colObj1Wrap, int partId1, int index1)
 {    
     DASSERT(current_processed_triangle != nullptr);
-
-    current_processed_triangle->t_flags;
     
     const double3 * offset = current_processed_triangle->parent_offset_p;
     const float3 e01 = current_processed_triangle->b - current_processed_triangle->a;
@@ -1709,5 +1739,37 @@ bool GJK_contact_added(btManifoldPoint & cp, const btCollisionObjectWrapper * co
         cp.m_normalWorldOnB = btVector3(n.x,n.y,n.z);
     }
 
+    friction_combiner_cbk(cp, colObj0Wrap, partId0, index0, colObj1Wrap, partId1, index1);
+
     return true;
+}
+
+bool friction_combiner_cbk(btManifoldPoint & cp, const btCollisionObjectWrapper * colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper * colObj1Wrap, int partId1, int index1)
+{
+    DASSERT(current_processed_triangle != nullptr);
+    cp.m_combinedFriction = calculate_combined_friction(current_processed_triangle->fric, float(colObj0Wrap->getCollisionObject()->getFriction()));
+    cp.m_combinedRollingFriction = calculate_combined_rolling_friction(current_processed_triangle->roll_fric, float(colObj0Wrap->getCollisionObject()->getRollingFriction()));
+    return true;
+}
+
+float calculate_combined_friction(float b1_fric, float b2_fric)
+{
+    float friction = b1_fric * b2_fric;
+
+    const float MAX_FRICTION = float(10.);
+    if (friction < -MAX_FRICTION)
+        friction = -MAX_FRICTION;
+    if (friction > MAX_FRICTION)
+        friction = MAX_FRICTION;
+    return friction;
+}
+
+float calculate_combined_restitution(float b1_rest, float b2_rest)
+{
+    return b1_rest * b2_rest;
+}
+
+float calculate_combined_rolling_friction(float b1_roll_fric, float b2_roll_fric)
+{
+    return calculate_combined_friction(b1_roll_fric,b2_roll_fric);
 }

@@ -10,6 +10,7 @@
 #include <BulletCollision/CollisionShapes/btTriangleMeshShape.h>
 #include <BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h>
 #include <BulletCollision/CollisionShapes/btCompoundShape.h>
+#include <BulletCollision/CollisionShapes/btStaticPlaneShape.h>
 #include <BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h>
 
 #include <LinearMath/btIDebugDraw.h>
@@ -228,7 +229,7 @@ namespace ot {
 					_rad = float(sph->getRadius() + 0.02);
                     _lod_dim = _rad;
 					common_data->prepare_sphere_collision(&res, _from, float(sph->getRadius()), 0.02f);
-                    gContactAddedCallback = nullptr;
+                    gContactAddedCallback = friction_combiner_cbk;
 				}
 				else if (internal_obj_wrapper.getCollisionShape()->getShapeType() == CAPSULE_SHAPE_PROXYTYPE) {
 					const btCapsuleShape * caps = reinterpret_cast<const btCapsuleShape*>(internal_obj_wrapper.getCollisionShape());
@@ -242,7 +243,7 @@ namespace ot {
 					btVector3 p1 = sc - (main_axis * cap_hheight);
 
 					common_data->prepare_capsule_collision(&res, glm::dvec3(p0.x(), p0.y(), p0.z()), glm::dvec3(p1.x(), p1.y(), p1.z()), cap_rad, float(caps->getMargin()));
-                    gContactAddedCallback = nullptr;
+                    gContactAddedCallback = friction_combiner_cbk;
 				}
 				else if (internal_obj_wrapper.getCollisionShape()->isConvex()) {
 					btTransform t = internal_obj_wrapper.getWorldTransform();
@@ -311,6 +312,7 @@ namespace ot {
 		}
 
         ++frame_count;
+        gContactAddedCallback = nullptr;
 	}
 
     void discrete_dynamics_world::prepare_tree_collision_pairs(btCollisionObject * cur_obj, const coid::dynarray<bt::tree_batch*>& tree_batches_cache, uint32 frame)
@@ -531,18 +533,39 @@ namespace ot {
             _processing_stack.push(stat_set->m_root);
         }
         
+        btCollisionObject p_obj;
+
         while (_processing_stack.pop(cur_node)) {
             const btVector3& bt_aabb_cen = cur_node->volume.Center();
             const btVector3& bt_aabb_half = cur_node->volume.Extents();
             glm::double3 aabb_cen(bt_aabb_cen[0], bt_aabb_cen[1], bt_aabb_cen[2]);
             glm::float3 aabb_half(bt_aabb_half[0], bt_aabb_half[1], bt_aabb_half[2]);
-            bool isleaf = cur_node->isleaf();
 
-            if (coal::intersects_frustum_aabb(aabb_cen, aabb_half, pos, f_planes_norms, nplanes, include_partial || !isleaf)) {
-                if (isleaf) {
+            if (coal::intersects_frustum_aabb(aabb_cen, aabb_half, pos, f_planes_norms, nplanes, true)) {
+                if (cur_node->isleaf()) {
                     if(cur_node->data){
                         btDbvtProxy* dat = reinterpret_cast<btDbvtProxy*>(cur_node->data);
-                        result.push(reinterpret_cast<btCollisionObject*>(dat->m_clientObject));
+                        btCollisionObject* leaf_obj = reinterpret_cast<btCollisionObject*>(dat->m_clientObject);
+
+                        const btVector3& cen = leaf_obj->getWorldTransform().getOrigin();
+                        const float3 aabb_pos(float(cen[0] - pos.x), float(cen[1] - pos.y), float(cen[2] - pos.z));
+                        bool passes = true;
+                        for (uint8 p = 0; p < nplanes; p++) {
+                            float3 n(f_planes_norms[p]);
+                            btVector3 min, max;
+                            btTransform t(btMatrix3x3(n.x, n.y, n.z, 0., 0., 0., 0., 0., 0.));
+                            leaf_obj->getCollisionShape()->getAabb(t,min,max);
+                            const float np = float(max[0] - min[0]) * 0.5f;
+                            const float mp = glm::dot(n, aabb_pos) + f_planes_norms[p].w;
+                            if ((include_partial ? mp + np : mp - np) < 0.0f) {
+                                passes = false;
+                                break;
+                            }
+                        }
+
+                        if (passes) {
+                            result.push(leaf_obj);
+                        }
                     }
                 }
                 else {
