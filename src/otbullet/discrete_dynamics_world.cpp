@@ -31,6 +31,41 @@
 
 const float g_sigma_coef = 1.f;
 
+#ifdef _DEBUG
+
+#include <fstream>
+
+void ot::discrete_dynamics_world::dump_triangle_list_to_obj(const char * fname, float off_x, float off_y, float off_z, float rx, float ry, float rz, float rw) {
+    coid::charstr buf;
+    uint vtx_count = 0;
+    quat q(rw, rx, ry, rz);
+    q = glm::inverse(q);
+
+
+    _triangles.for_each([&](const bt::triangle& t) {
+        float3 off(t.parent_offset_p->x - off_x, t.parent_offset_p->y - off_y, t.parent_offset_p->z - off_z);
+        
+        float3 p = q * (float3(t.a) + off);
+        buf << "v " << p.x << " " << p.y << " " << p.z << "\n";
+
+        p = q * (float3(t.b) + off);
+        buf << "v " << p.x << " " << p.y << " " << p.z << "\n";
+
+        p = q * (float3(t.c) + off);
+        buf << "v " << p.x << " " << p.y << " " << p.z << "\n";
+
+        vtx_count += 3;
+        buf << "f " << vtx_count - 2 << " " << vtx_count - 1 << " " << vtx_count << "\n";
+    });
+
+    std::ofstream ofs;
+    ofs.open(fname);
+    ofs << buf.c_str();
+    ofs.close();
+}
+#endif
+
+
 namespace ot {
 
 	void discrete_dynamics_world::internalSingleStepSimulation(btScalar timeStep)

@@ -1749,6 +1749,7 @@ bool friction_combiner_cbk(btManifoldPoint & cp, const btCollisionObjectWrapper 
     DASSERT(current_processed_triangle != nullptr);
     cp.m_combinedFriction = calculate_combined_friction(current_processed_triangle->fric, float(colObj0Wrap->getCollisionObject()->getFriction()));
     cp.m_combinedRollingFriction = calculate_combined_rolling_friction(current_processed_triangle->roll_fric, float(colObj0Wrap->getCollisionObject()->getRollingFriction()));
+    cp.m_combinedRestitution = calculate_combined_restitution(current_processed_triangle->rest, float(colObj0Wrap->getCollisionObject()->getRestitution()));
     return true;
 }
 

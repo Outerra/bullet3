@@ -42,6 +42,7 @@ struct triangle
     uint32 tri_idx;
     float fric;
     float roll_fric;
+    float rest;
 
     triangle(){}
     triangle(const float3 & va,
@@ -64,6 +65,7 @@ struct triangle
         , tri_idx(tri_idx)
         , fric(1.0f)
         , roll_fric(1.0f)
+        , rest(1.0f)
     {}
 };
 

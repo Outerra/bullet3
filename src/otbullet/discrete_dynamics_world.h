@@ -168,6 +168,10 @@ protected:
     coid::slothash<tree_flex_inf, uint16, tree_key_extractor> _debug_terrain_trees_active;
 
 public:
+#ifdef _DEBUG
+    void dump_triangle_list_to_obj(const char * fname,float off_x, float off_y, float off_z, float rx, float ry, float rz, float rw);
+#endif
+
     virtual void removeRigidBody(btRigidBody* body) override;
 
     void query_volume_sphere(const double3& pos, float rad, coid::dynarray<btCollisionObject *>& result);
