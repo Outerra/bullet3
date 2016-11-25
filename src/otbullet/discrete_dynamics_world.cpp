@@ -43,16 +43,16 @@ void ot::discrete_dynamics_world::dump_triangle_list_to_obj(const char * fname, 
 
 
     _triangles.for_each([&](const bt::triangle& t) {
-        float3 off(t.parent_offset_p->x - off_x, t.parent_offset_p->y - off_y, t.parent_offset_p->z - off_z);
+        float4 off(t.parent_offset_p->x - off_x, t.parent_offset_p->y - off_y, t.parent_offset_p->z - off_z,0);
         
-        float3 p = q * (float3(t.a) + off);
-        buf << "v " << p.x << " " << p.y << " " << p.z << "\n";
+        float4 p = q * (float4(t.a,1) + off);
+        buf << "v " << t.a.x << " " << t.a.y << " " << t.a.z << "\n";
 
-        p = q * (float3(t.b) + off);
-        buf << "v " << p.x << " " << p.y << " " << p.z << "\n";
+        p = q * (float4(t.b,1) + off);
+        buf << "v " << t.b.x << " " << t.b.y << " " << t.b.z << "\n";
 
-        p = q * (float3(t.c) + off);
-        buf << "v " << p.x << " " << p.y << " " << p.z << "\n";
+        p = q * (float4(t.c,1) + off);
+        buf << "v " << t.c.x << " " << t.c.y << " " << t.c.z << "\n";
 
         vtx_count += 3;
         buf << "f " << vtx_count - 2 << " " << vtx_count - 1 << " " << vtx_count << "\n";

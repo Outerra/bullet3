@@ -211,6 +211,8 @@ void ot_terrain_contact_common::process_triangle_cache(const coid::dynarray<bt::
 			glm::vec3 p1_loc(_capsule_p1_g - _mesh_offset);
 			float3 ax_vec = glm::normalize(p1_loc - p0_loc);
 			float3 up(glm::normalize(_capsule_p0_g));
+            float3 cap_cen = (p0_loc + p1_loc) * 0.5f;
+            cap_cen += up*0.1f;
 
 
 			float3 from = p1_loc + (ax_vec * (_capsule_radius + _collider_collision_margin));
@@ -322,7 +324,7 @@ void ot_terrain_contact_common::collide_capsule_triangle(const bt::triangle & tr
 
 	if (sqDist < inf_rad_sq) {
 		glm::vec3 patchNormalInTriangle;
-		if (selectNormal(u, v, triangle.t_flags) && triangle.t_flags > 0)
+		if (selectNormal(u, v, triangle.t_flags))
 		{
 			patchNormalInTriangle = n;
 		}
