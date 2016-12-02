@@ -36,6 +36,11 @@ public:
 	uint8	triFlags;
 };
 #endif
+
+/// PHYSX STRUCTS AND STUFF
+
+////////////////////////////////////////////////////////////////////////
+
 struct cached_edge {
 	uint32 _vId1;
 	uint32 _vId2;
@@ -119,6 +124,42 @@ private:
 		const glm::vec3 & a,
 		const glm::vec3 & b);
 
+    /// PHYSX STUFF
+    void make_fat_edge(float3& p0, float3& p1)
+    {
+        static const float fat_coef = 0.01f;
+        float3 delta = p1 - p0;
+        float len = glm::length(delta);
+
+        if (len>0.0f)
+        {
+            delta *= fat_coef / len;
+            p0 -= delta;
+            p1 += delta;
+        }
+    }
+
+    bool intersect_edge_edge(const float3& e00, 
+        const float3& e01, 
+        const float3& e10, 
+        const float3& e11, 
+        const float3& dir, 
+        float& dist, 
+        float3& intersect);
+
+    void generate_ee_contacts_sat2(const float3& a, const float3& b, const float3& c, const float3& normal);
+    void generate_ee_contacts_sat(const float3& a, const float3& b, const float3& c, const float3& normal);
+    void generate_vf_contacts_sat(const float3& a, const float3& b, const float3& c, const float3& normal);
+    bool test_axis_sat(const float3& axis, const float3& a, const float3& b, const float3& c, float& depth);
+    bool capsule_tri_overlap_sat(const float3& a,
+        const float3& b,
+        const float3& c,
+        uint8 tflags,
+        float* t = NULL,
+        float3* pp = NULL);
+
+
+    ////////////////////////////////////////////////////////////////////////////
 #ifdef PhysX
 
 	bool generateTriangleFullContactManifold(physx::Gu::TriangleV& localTriangle,
@@ -215,6 +256,7 @@ public:
 
 	void collide_sphere_triangle(const bt::triangle & triangle);
 	void collide_capsule_triangle(const bt::triangle & triangle);
+    void collide_capsule_triangleSAT(const bt::triangle & triangle);
 	void collide_hull_triangle(const bt::triangle & triangle);
 	void collide_convex_triangle(const bt::triangle & triangle);
 

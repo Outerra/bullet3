@@ -5,6 +5,7 @@
 #include <BulletDynamics/Dynamics/btRigidBody.h>
 #include <BulletCollision/CollisionDispatch/btCollisionWorld.h>
 #include <ot/glm/coal.h>
+#include <ot/logger.h>
 
 #ifdef PhysX
 	#include <pcm/GuPersistentContactManifold.h>
@@ -136,7 +137,7 @@ void ot_terrain_contact_common::prepare_capsule_collision(btManifoldResult * res
 	_capsule_p0_g = p0;
 	_capsule_p1_g = p1;
 	_collider_collision_margin = collision_margin;
-	_curr_algo = &ot_terrain_contact_common::collide_capsule_triangle;
+	_curr_algo = &ot_terrain_contact_common::collide_capsule_triangleSAT;
 }
 #ifdef PhysX
 void ot_terrain_contact_common::prepare_hull_collision(btManifoldResult * result, const glm::quat & hull_rot, const glm::dvec3 & hull_pos, const btConvexPolyhedron & hull_polydata)
@@ -205,6 +206,15 @@ void ot_terrain_contact_common::process_triangle_cache(const coid::dynarray<bt::
     triangle_cache.for_each([&](const bt::triangle & t) {
 		set_terrain_mesh_offset(*t.parent_offset_p);
 		current_processed_triangle = &t;
+        bool should_break = false;
+
+        if ((t.a.x == 14.5196447f) && (t.b.x == 14.7275457f) && (t.c.x == 14.4769783f)) {
+            float3 e01 = t.b - t.a;
+            float3 e12 = t.c - t.b;
+            float3 e20 = t.a - t.c;
+            e20 = e01;
+            should_break = true;
+        }
 
 		if (this->_curr_collider == ctCapsule){
 			glm::vec3 p0_loc(_capsule_p0_g - _mesh_offset);
@@ -245,18 +255,65 @@ void ot_terrain_contact_common::process_triangle_cache(const coid::dynarray<bt::
 
 void ot_terrain_contact_common::process_collision_points()
 {
-	_contact_point_cache.for_each([&](const contact_point & cp) {
-		btVector3 p(cp.point.x, cp.point.y, cp.point.z);
-		btVector3 n(cp.normal.x, cp.normal.y, cp.normal.z);
-		if(_curr_collider == ctSphere){
-			_manifold->addContactPoint(n,p, cp.depth - _sphere_radius - _collider_collision_margin - _triangle_collision_margin);
-            btManifoldPoint& mp = _manifold->getPersistentManifold()->getContactPoint(_manifold->getPersistentManifold()->getNumContacts() - 1);
-            mp.m_partId1 = cp.t_idx;
+    const bool detect_patches = false;
+
+    if (!detect_patches) {
+        _contact_point_cache.for_each([&](const contact_point & cp) {
+            btVector3 p(cp.point.x, cp.point.y, cp.point.z);
+            btVector3 n(cp.normal.x, cp.normal.y, cp.normal.z);
+            if (_curr_collider == ctSphere) {
+                _manifold->addContactPoint(n, p, cp.depth - _sphere_radius);
+                btManifoldPoint& mp = _manifold->getPersistentManifold()->getContactPoint(_manifold->getPersistentManifold()->getNumContacts() - 1);
+                //mp.m_partId1 = cp.t_idx;
+            }
+            else if (_curr_collider == ctCapsule) {
+                _manifold->addContactPoint(n, p, cp.depth - _capsule_radius);
+            }
+        });
+    }
+    else {
+        const float thres_cos = 0.996f;
+        const uints cp_count = _contact_point_cache.size();
+        
+        if (!cp_count) {
+            return;
         }
-		else if (_curr_collider == ctCapsule) {
-			_manifold->addContactPoint(n, p, cp.depth - _capsule_radius - _collider_collision_margin - _triangle_collision_margin);
-		}
-	});
+
+        contact_point * best_cp = &_contact_point_cache[0];
+
+        for (uints i = 1; i < cp_count; i++) {
+            contact_point* cur_cp = &_contact_point_cache[i];
+            if (glm::dot(best_cp->normal, cur_cp->normal) >= thres_cos ) {
+                if (cur_cp->depth < best_cp->depth) {
+                    best_cp = cur_cp;
+                }
+            }
+            else {
+                btVector3 p(best_cp->point.x, best_cp->point.y, best_cp->point.z);
+                btVector3 n(best_cp->normal.x, best_cp->normal.y, best_cp->normal.z);
+
+                if (_curr_collider == ctSphere) {
+                    _manifold->addContactPoint(n, p, best_cp->depth - _sphere_radius);
+                }
+                else if (_curr_collider == ctCapsule) {
+                    _manifold->addContactPoint(n, p, best_cp->depth - _capsule_radius);
+                }
+
+                best_cp = cur_cp;
+            }
+        }
+
+        btVector3 p(best_cp->point.x, best_cp->point.y, best_cp->point.z);
+        btVector3 n(best_cp->normal.x, best_cp->normal.y, best_cp->normal.z);
+
+        if (_curr_collider == ctSphere) {
+            _manifold->addContactPoint(n, p, best_cp->depth - _sphere_radius);
+        }
+        else if (_curr_collider == ctCapsule) {
+            _manifold->addContactPoint(n, p, best_cp->depth - _capsule_radius);
+        }
+    }
+    
 }
 
 void ot_terrain_contact_common::process_additional_col_objs()
@@ -279,13 +336,13 @@ void ot_terrain_contact_common::collide_sphere_triangle(const bt::triangle & tri
 		triangle.t_flags, 
 		contact, 
 		generate_contact);
-	glm::vec3 normal = glm::normalize(_sphere_origin - contact);
+    glm::vec3 normal = glm::normalize(_sphere_origin - contact);
 	const float cos_theta = glm::dot(normal, tn);
-	if (d <= infRadSq && (generate_contact || cos_theta > t)) {
+	if (d <= infRadSq && (generate_contact || cos_theta >= t)) {
 		float penetration_depth = glm::sqrt(d);
 		bool patch_found = false;
 		for (uints i = 0; i < _contact_point_cache.size(); i++) {
-			if (glm::dot(normal, _contact_point_cache[i].normal) > t) {
+			if (glm::dot(normal, _contact_point_cache[i].normal) >= 0.996) {
 				if (_contact_point_cache[i].depth > penetration_depth) {
 					_contact_point_cache[i].point = glm::dvec3(contact) + _mesh_offset;
 					_contact_point_cache[i].depth = penetration_depth;
@@ -302,7 +359,7 @@ void ot_terrain_contact_common::collide_sphere_triangle(const bt::triangle & tri
 	}
 }
 
-void ot_terrain_contact_common::collide_capsule_triangle(const bt::triangle & triangle)
+/*void ot_terrain_contact_common::collide_capsule_triangle(const bt::triangle & triangle)
 {
 	const float inf_rad = (_capsule_radius + _collider_collision_margin + _triangle_collision_margin);
 	const float inf_rad_sq = inf_rad * inf_rad;
@@ -312,9 +369,9 @@ void ot_terrain_contact_common::collide_capsule_triangle(const bt::triangle & tr
 
 
 	const glm::vec3 n = glm::normalize(glm::cross(ab, ac));
-	const float d = -glm::dot(triangle.a, n);
+	const float d = glm::dot(triangle.a, n);
 
-	const float dist = glm::dot(cen, n) + d;
+	const float dist = glm::dot(cen, n) - d;
 
 	if (dist < 0)
 		return;
@@ -342,6 +399,8 @@ void ot_terrain_contact_common::collide_capsule_triangle(const bt::triangle & tr
 				patchNormalInTriangle = glm::normalize(pointOnSegment - pointOnTriangle);
 			}
 		}
+
+        //patchNormalInTriangle = n;
 
 		const unsigned int previousNumContacts = _contact_point_cache.size();
 
@@ -394,6 +453,89 @@ void ot_terrain_contact_common::collide_capsule_triangle(const bt::triangle & tr
 			}
 		}
 	}
+}*/
+
+void ot_terrain_contact_common::collide_capsule_triangleSAT(const bt::triangle & triangle)
+{
+    const float inf_rad = (_capsule_radius + _collider_collision_margin + _triangle_collision_margin);
+    const float inf_rad_sq = inf_rad * inf_rad;
+    const float touching_threshold = 0.001f * 0.001f;
+    const float3 ab = triangle.b - triangle.a;
+    const float3 ac = triangle.c - triangle.a;
+    const float3 tn = glm::normalize(glm::cross(ab,ac));
+    const float3 cen = (_capsule_p0 + _capsule_p1) * .5f;
+    const float d = glm::dot(triangle.a, tn);
+    float t, u, v;
+    const float sqDist = coal::distance_segment_triangle_sqr(_capsule_p0, _capsule_p1, triangle.a, triangle.b, triangle.c, t, u, v);
+
+    // too far
+    if (sqDist >= inf_rad_sq) {
+        return;
+    }
+
+    // back face culling
+    if (glm::dot(tn, cen) < d) {
+        return;
+    }
+
+    uints start_idx = _contact_point_cache.size();
+
+    if (sqDist > touching_threshold) { // capsule and triangle are in intersection, not just touching
+        float3 normal;
+        if (selectNormal(u, v, triangle.t_flags)) { 
+            normal = tn;
+        }
+        else {
+            const float3 pq = _capsule_p1 - _capsule_p0;
+            const float3 pointOnSegment = pq*t + _capsule_p0;
+            const float w = 1 - u - v;
+            const float3 pointOnTriangle = triangle.a * w + triangle.b * u + triangle.c * v;
+            normal = glm::normalize(pointOnSegment - pointOnTriangle);
+        }
+
+        generate_ee_contacts_sat2(triangle.a, triangle.b, triangle.c, normal);
+        generate_vf_contacts_sat(triangle.a, triangle.b, triangle.c, normal);
+    }
+    else {
+        float3 sep_ax;
+        if (!capsule_tri_overlap_sat(triangle.a, triangle.b, triangle.c, triangle.t_flags)) {
+            return;
+        }
+
+        generate_ee_contacts_sat(triangle.a, triangle.b, triangle.c, sep_ax);
+        generate_vf_contacts_sat(triangle.a, triangle.b, triangle.c, sep_ax);
+    }
+
+    uints end_idx = _contact_point_cache.size();
+
+    if (end_idx - start_idx <= 1) {
+        return;
+    }
+
+    const float threshold_cos = 0.996f;
+    
+    contact_point * best_cp = &_contact_point_cache[start_idx];
+    uints cur_idx = start_idx;
+
+    for (uints i = start_idx; i < end_idx; i++) {
+        contact_point* cur_cp = &_contact_point_cache[i];
+        if (glm::dot(best_cp->normal, cur_cp->normal) >= threshold_cos) {
+            if (cur_cp->depth < best_cp->depth) {
+                best_cp = cur_cp;
+            }
+        }
+        else {
+            _contact_point_cache[cur_idx] = *best_cp;
+            cur_idx++;
+            best_cp = cur_cp;
+        }
+    }
+
+    _contact_point_cache[cur_idx] = *best_cp;
+    cur_idx++;
+
+    _contact_point_cache.resize(cur_idx);
+
 }
 #ifdef PhysX
 
@@ -528,8 +670,11 @@ void ot_terrain_contact_common::generateContacts(const glm::vec3 & a, const glm:
 
 	if (coal::is_valid_triangle_barycentric_coord(v0, w0) && inflatedRadius > dist3)
 	{
-		contact_point cp(glm::dvec3(closestP31) + _mesh_offset, normal, -ipt,0);
-		*_contact_point_cache.add(1) = cp;
+        contact_point cp(glm::dvec3(closestP31) + _mesh_offset, normal, -ipt,0);
+		// try triangle normal
+        //contact_point cp(glm::dvec3(closestP31) + _mesh_offset, planeNormal, -ipt,0);
+
+        *_contact_point_cache.add(1) = cp;
 	}
 
 	const float inomq = glm::dot(planeNormal, -aq);
@@ -552,7 +697,9 @@ void ot_terrain_contact_common::generateContacts(const glm::vec3 & a, const glm:
 	if (coal::is_valid_triangle_barycentric_coord(v1, w1) && inflatedRadius > dist4)
 	{
 		contact_point cp(glm::dvec3(closestP41) + _mesh_offset, normal, -iqt,0);
-		*_contact_point_cache.add(1) = cp;
+        // try triangle normal
+        //contact_point cp(glm::dvec3(closestP41) + _mesh_offset, planeNormal, -iqt, 0);
+        *_contact_point_cache.add(1) = cp;
 	}
 }
 
@@ -618,7 +765,197 @@ void ot_terrain_contact_common::generateEE(const glm::vec3 & p,
 	}
 }
 
+bool ot_terrain_contact_common::intersect_edge_edge(const float3& e00,
+    const float3& e01,
+    const float3& e10,
+    const float3& e11,
+    const float3& dir,
+    float& dist,
+    float3& intersect)
+{
+    const float3 e0 = e01 - e00;
+    const float3 pn = glm::cross(e0, dir);
+    const float pd = -glm::dot(pn, e00);
+    const float d_e10 = glm::dot(e10, pn) + pd;
+    float temp = d_e10 * (glm::dot(e11, pn) + pd);
+    
+    if (temp > 0.0f) {
+        return false;
+    }
+    
+    float3 e1 = e11 - e10;
+
+    temp = glm::dot(pn, e1);
+
+    if (glm::abs(temp) < 0.00001) {
+        return false;
+    }
+
+    intersect = e10 - e1*(d_e10 / temp);
+
+    uint32 i, j;
+    coal::closest_axis(pn,i,j);
+
+    dist = (e0[i] * (intersect[j] - e00[j]) - e0[j] * (intersect[i] - e00[i])) / (e0[i] * dir[j] - e0[j] * dir[i]);
+    
+    if (dist < 0.0f) {
+        return false;
+    }
+
+    intersect -= dist*dir;
+
+    temp = (e00.x - intersect.x) * (e01.x - intersect.x) + (e00.y - intersect.y) * (e01.y - intersect.y) + (e00.z - intersect.z) * (e01.z - intersect.z);
+    if (temp < 0.001f) {
+        return true;
+    }
+
+    return false;
+}
+
+void ot_terrain_contact_common::generate_ee_contacts_sat(const float3 & a, const float3 & b, const float3 & c, const float3 & normal)
+{
+    const float3 * verts[3] = { &a, &b, &c };
+    float3 c0 = _capsule_p0;
+    float3 c1 = _capsule_p1;
+    make_fat_edge(c0, c1);
+
+    for (uint8 i = 0; i < 3; i++) {
+        float dist;
+        float3 intersect;
+        const bool res = intersect_edge_edge(*verts[i], *verts[(i + 1) % 3], c0, c1, -normal, dist, intersect);
+        if (res)
+        {
+            *_contact_point_cache.add(1) = contact_point(double3(intersect) + _mesh_offset, normal, dist, 0);
+        }
+    }
+}
+
+
+void ot_terrain_contact_common::generate_ee_contacts_sat2(const float3 & a, const float3 & b, const float3 & c, const float3 & normal)
+{
+    const float3 * verts[3] = { &a, &b, &c };
+    float3 c0 = _capsule_p0;
+    float3 c1 = _capsule_p1;
+    make_fat_edge(c0, c1);
+
+    for (uint8 i = 0; i < 3; i++) {
+        float dist;
+        float3 intersect;
+        const bool res = intersect_edge_edge(*verts[i], *verts[(i + 1) % 3], c0, c1, normal, dist, intersect);
+        if (res && dist < _capsule_radius + _collider_collision_margin)
+        {
+            *_contact_point_cache.add(1) = contact_point(double3(intersect) + _mesh_offset, normal, dist , 0);
+            
+        }
+    }
+}
+
+void ot_terrain_contact_common::generate_vf_contacts_sat(const float3 & a, const float3 & b, const float3 & c, const float3 & normal)
+{
+    const float3* seg[2] = { &_capsule_p0,&_capsule_p1 };
+
+    for (uint8 i = 0; i < 2; i++) {
+        const float3& p = *seg[i];
+        float u, v, w, t;
+        const bool res = coal::intersects_ray_triangle(p, -normal, a, b, c, u, v, w, t);
+        if (res && t < _capsule_radius + _collider_collision_margin) 
+        {
+            *_contact_point_cache.add(1) = contact_point(double3(p - t * normal) + _mesh_offset, normal, t, 0);
+        }
+    }
+}
+
+bool ot_terrain_contact_common::test_axis_sat(const float3 & axis, const float3 & a, const float3 & b, const float3 & c, float & depth)
+{
+    float min0 = glm::dot(_capsule_p0, axis);
+    float max0 = glm::dot(_capsule_p1, axis);
+    if (min0 > max0) {
+        float tmp = min0;
+        min0 = max0;
+        max0 = tmp;
+    }
+
+    min0 -= _capsule_radius;
+    max0 += _capsule_radius;
+    
+    float min1, max1;
+    {
+        min1 = max1 = glm::dot(a, axis);
+        const float dp1 = glm::dot(b,axis);
+        min1 = glm::min(min1, dp1);
+        max1 = glm::min(max1, dp1);
+        const float dp2 = glm::dot(c, axis);
+        min1 = glm::min(min1, dp2);
+        max1 = glm::min(max1, dp2);
+    }
+
+    if (max0 < min1 || max1 < min0) {
+        return false;
+    }
+
+    const float d0 = max0 - min1;
+    DASSERT(d0 >= 0.0f);
+    const float d1 = max1 - min0;
+    DASSERT(d1 >= 0.0f);
+    depth = glm::min(d0, d1);
+
+    return true;
+}
+
+bool ot_terrain_contact_common::capsule_tri_overlap_sat(const float3 & a, const float3 & b, const float3 & c, uint8 tflags, float * t, float3 * pp)
+{
+    const float3* tri_verts[3] = { &a, &b, &c };
+    float pd = FLT_MAX;
+
+    float3 sep = glm::normalize(glm::cross(b - a, c - a));
+    if (!test_axis_sat(sep, a, b, c, pd)) {
+        return false;
+    }
+
+    const uint8 activeEdgeFlags[3] = { coal::EConvexEdge::ceEdge01Convex,coal::EConvexEdge::ceEdge12Convex ,coal::EConvexEdge::ceEdge20Convex };
+    const float3 capsule_axis(glm::normalize(_capsule_p1 - _capsule_p0));
+    for (uint8 i = 0; i < 3; i++) {
+        if (tflags & activeEdgeFlags[i]) {
+            const float3& p0 = *tri_verts[i];
+            const float3& p1 = *tri_verts[(i + 1) % 3];
+            const float3 e(p1 - p0);
+            float3 cross = glm::cross(capsule_axis,e);
+            if (cross.x > 0.000001f || cross.y > 0.000001f || cross.z > 0.000001f) {
+                cross = glm::normalize(cross);
+                float d;
+                if (!test_axis_sat(cross, a, b, c, d)) {
+                    return false;
+                }
+
+                if (d < pd) {
+                    pd = d;
+                    sep = cross;
+                }
+            }
+        }
+    }
+    
+    const float one_third = 1.0f / 3.0f;
+
+    const float3 cap_cen = (_capsule_p0 + _capsule_p1) * 0.5f;
+    const float3 tri_cen = (a + b + c)*one_third;
+    const float3 wit = cap_cen - tri_cen;
+
+    if (glm::dot(sep, wit) < 0.0f) {
+        sep = -sep;
+    }
+
+    if (t) {
+        *t = pd;
+    }
+
+    if (pp) {
+        *pp = sep;
+    }
+}
+
 #ifdef PhysX
+
 
 bool ot_terrain_contact_common::generateTriangleFullContactManifold(physx::Gu::TriangleV & localTriangle, const uint32 triangleIndex, const uint32 * triIndices, const uint8 triFlags, const btConvexPolyhedron & polyData, physx::Gu::SupportLocalImpl<physx::Gu::TriangleV>* localTriMap, physx::Gu::SupportLocal * polyMap, coid::dynarray<contact_point>& manifoldContacts, uint32 & numContacts, const Ps::aos::FloatVArg contactDist, Ps::aos::Vec3V & patchNormal)
 {
