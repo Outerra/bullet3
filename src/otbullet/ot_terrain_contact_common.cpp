@@ -5,7 +5,6 @@
 #include <BulletDynamics/Dynamics/btRigidBody.h>
 #include <BulletCollision/CollisionDispatch/btCollisionWorld.h>
 #include <ot/glm/coal.h>
-#include <ot/logger.h>
 
 const bt::triangle* current_processed_triangle = nullptr;
 
@@ -110,9 +109,7 @@ void ot_terrain_contact_common::process_triangle_cache(const coid::dynarray<bt::
     triangle_cache.for_each([&](const bt::triangle & t) {
 		set_terrain_mesh_offset(*t.parent_offset_p);
 		current_processed_triangle = &t;
-
         
-
         /*
         this was here for debugging purposes
         bool should_break = false;
@@ -181,7 +178,7 @@ void ot_terrain_contact_common::process_collision_points()
                 //mp.m_partId1 = cp.t_idx;
             }
             else if (_curr_collider == ctCapsule) {
-                _manifold->addContactPoint(n, p, cp.depth - _capsule_radius);
+                    _manifold->addContactPoint(n, p, cp.depth - _capsule_radius);
             }
         });
     }
@@ -296,12 +293,13 @@ void ot_terrain_contact_common::collide_capsule_triangle(const bt::triangle & tr
 
     coal::EVoronoiFeature vf = coal::uvw_to_voronoi_feature(u,v,w);
     if (coal::is_contact_on_convex_edge(vf, triangle.t_flags)) {
-        float3 cp = triangle.a * u + triangle.b * v + triangle.c * w;
-        float3 sp = _capsule_p0*(1.f - t) + _capsule_p1*t;
+        const float3 cp = triangle.a * u + triangle.b * v + triangle.c * w;
+        const float3 sp = _capsule_p0*(1.f - t) + _capsule_p1*t;
+        const float3 n = glm::normalize(sp - cp);
         *_contact_point_cache.add() = contact_point(double3(cp) + _mesh_offset,glm::normalize(sp - cp),glm::sqrt(dist_sq),0);
     }
     else {
-        float3 cp = triangle.a * u + triangle.b * v + triangle.c * w;
+        const float3 cp = triangle.a * u + triangle.b * v + triangle.c * w;
         *_contact_point_cache.add() = contact_point(double3(cp) + _mesh_offset, tn, glm::sqrt(dist_sq), 0);
     }
 }
