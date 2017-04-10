@@ -23,13 +23,13 @@ public:
     {
         typedef iref<bt::physics> (*fn_bind)(const script_handle&, double, void*, const coid::token&, v8::Handle<v8::Context>*);
         static fn_bind binder = 0;
-        static const coid::token ifckey = "bt::js::physics.create@creator";
-        
-        if(!binder)
+        static const coid::token ifckey = "bt::physics.create@creator.js";
+
+        if (!binder)
             binder = reinterpret_cast<fn_bind>(
                 coid::interface_register::get_interface_creator(ifckey));
 
-        if(!binder)
+        if (!binder)
             throw coid::exception("interface binder inaccessible: ") << ifckey;
 
         return binder(script, r, context, bindvar, ctx);
@@ -40,13 +40,13 @@ public:
     {
         typedef iref<bt::physics> (*fn_bind)(const script_handle&, const coid::token&, v8::Handle<v8::Context>*);
         static fn_bind binder = 0;
-        static const coid::token ifckey = "bt::js::physics.get@creator";
-        
-        if(!binder)
+        static const coid::token ifckey = "bt::physics.get@creator.js";
+
+        if (!binder)
             binder = reinterpret_cast<fn_bind>(
                 coid::interface_register::get_interface_creator(ifckey));
 
-        if(!binder)
+        if (!binder)
             throw coid::exception("interface binder inaccessible: ") << ifckey;
 
         return binder(script, bindvar, ctx);

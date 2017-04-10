@@ -134,7 +134,7 @@ public:
     virtual bool is_bound_terrain_collisions_aabb() { return true; }
     virtual bool is_bound_tree_collisions() { return true; }
     virtual bool is_bound_log() { return true; }
-    
+
 public:
     // --- creators ---
 
@@ -154,13 +154,13 @@ public:
     // --- internal helpers ---
 
     virtual ~physics() {
-        if(_cleaner) _cleaner(this,0);
+        if (_cleaner) _cleaner(this,0);
     }
 
-    static const int HASHID = 3342117228;
+    static const int HASHID = 3392450085;
 
     int intergen_hash_id() const override final { return HASHID; }
-    
+
     bool iface_is_derived( int hash ) const override final {
         return hash == HASHID;
     }
@@ -171,13 +171,15 @@ public:
     }
 
     static const coid::token& intergen_default_creator_static( EBackend bck ) {
-        static const coid::token _dc("bt::physics.get@3342117228");
-        static const coid::token _djs("bt::js::physics@wrapper");
+        static const coid::token _dc("bt::physics.get@3392450085");
+        static const coid::token _djs("bt::physics@wrapper.js");
+        static const coid::token _dlua("bt::physics@wrapper.lua");
         static const coid::token _dnone;
 
         switch(bck) {
         case IFC_BACKEND_CXX: return _dc;
         case IFC_BACKEND_JS:  return _djs;
+        case IFC_BACKEND_LUA: return _dlua;
         default: return _dnone;
         }
     }
@@ -186,22 +188,23 @@ public:
     template<enum EBackend B>
     static void* intergen_wrapper_cache() {
         static void* _cached_wrapper=0;
-        if(!_cached_wrapper) {
+        if (!_cached_wrapper) {
             const coid::token& tok = intergen_default_creator_static(B);
             _cached_wrapper = coid::interface_register::get_interface_creator(tok);
         }
         return _cached_wrapper;
     }
-    
+
     void* intergen_wrapper( EBackend bck ) const override final {
         switch(bck) {
         case IFC_BACKEND_JS: return intergen_wrapper_cache<IFC_BACKEND_JS>();
+        case IFC_BACKEND_LUA: return intergen_wrapper_cache<IFC_BACKEND_LUA>();
         default: return 0;
         }
     }
-    
+
     EBackend intergen_backend() const override { return IFC_BACKEND_CXX; }
-    
+
     const coid::token& intergen_default_creator( EBackend bck ) const override final {
         return intergen_default_creator_static(bck);
     }
@@ -222,13 +225,13 @@ inline iref<T> physics::create( T* _subclass_, double r, void* context )
     typedef iref<T> (*fn_creator)(physics*, double, void*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.create@3342117228";
+    static const coid::token ifckey = "bt::physics.create@3392450085";
 
-    if(!create)
+    if (!create)
         create = reinterpret_cast<fn_creator>(
             coid::interface_register::get_interface_creator(ifckey));
 
-    if(!create)
+    if (!create)
         throw coid::exception("interface creator inaccessible: ") << ifckey;
 
     return create(_subclass_, r, context);
@@ -240,13 +243,13 @@ inline iref<T> physics::get( T* _subclass_ )
     typedef iref<T> (*fn_creator)(physics*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.get@3342117228";
+    static const coid::token ifckey = "bt::physics.get@3392450085";
 
-    if(!create)
+    if (!create)
         create = reinterpret_cast<fn_creator>(
             coid::interface_register::get_interface_creator(ifckey));
 
-    if(!create)
+    if (!create)
         throw coid::exception("interface creator inaccessible: ") << ifckey;
 
     return create(_subclass_);
