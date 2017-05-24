@@ -7,7 +7,6 @@
     <ClCompile Include="..\..\src\otbullet\discrete_dynamics_world.cpp" />
     <ClCompile Include="..\..\src\otbullet\ot_terrain_contact_common.cpp" />
     <ClCompile Include="..\..\src\otbullet\tree_batch.cpp" />
-    <ClCompile Include="..\..\src\otbullet\sketch_debug_draw.cpp" />
   </ItemGroup>
   <ItemGroup>
     <hpp Include="..\..\src\otbullet\otbullet.hpp" />
@@ -19,7 +18,6 @@
     <ClInclude Include="..\..\src\otbullet\physics.h" />
     <ClInclude Include="..\..\src\otbullet\physics.js.h" />
     <ClInclude Include="..\..\src\otbullet\tree_batch.h" />
-    <ClInclude Include="..\..\src\otbullet\sketch_debug_draw.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\otbullet\otbullet.inl" />
