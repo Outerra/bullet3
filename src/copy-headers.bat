@@ -16,7 +16,7 @@ xcopy ..\bin\Win32\ReleaseLTCG\otbullet.pdb ..\..\..\..\bin\ /y
 xcopy ..\bin\Win32\Debug\otbulletd.dll ..\..\..\..\bin\ /y
 xcopy ..\bin\Win32\Debug\otbulletd.pdb ..\..\..\..\bin\ /y
 
-xcopy ..\bin\x64\ReleaseLTCG\otbullet.dll ..\..\..\..\bin64\ /y
-xcopy ..\bin\x64\ReleaseLTCG\otbullet.pdb ..\..\..\..\bin64\ /y
-xcopy ..\bin\x64\Debug\otbulletd.dll ..\..\..\..\bin64\ /y
-xcopy ..\bin\x64\Debug\otbulletd.pdb ..\..\..\..\bin64\ /y
+xcopy ..\bin\x64\ReleaseLTCG\otbullet.dll ..\..\..\..\bin\x64\ /y
+xcopy ..\bin\x64\ReleaseLTCG\otbullet.pdb ..\..\..\..\bin\x64\ /y
+xcopy ..\bin\x64\Debug\otbulletd.dll ..\..\..\..\bin\x64\ /y
+xcopy ..\bin\x64\Debug\otbulletd.pdb ..\..\..\..\bin\x64\ /y
