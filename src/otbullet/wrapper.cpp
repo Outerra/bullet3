@@ -304,8 +304,10 @@ void physics::step_simulation( double step )
 ////////////////////////////////////////////////////////////////////////////////
 void physics::ray_test( const double from[3], const double to[3], void* cb)
 {
-    _world->rayTest(*(const btVector3*)from, *(const btVector3*)to,
-        *(btCollisionWorld::RayResultCallback*)cb);
+    btVector3 afrom = btVector3(from[0], from[1], from[2]);
+    btVector3 ato = btVector3(to[0], to[1], to[2]);
+
+    _world->rayTest(afrom, ato, *(btCollisionWorld::RayResultCallback*)cb);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
