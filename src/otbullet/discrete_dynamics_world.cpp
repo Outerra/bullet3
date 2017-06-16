@@ -310,8 +310,15 @@ namespace ot {
                 get_obb(internal_obj_wrapper.getCollisionShape(), internal_obj_wrapper.getWorldTransform(), _from, _basis);
 
                 //if(!_sphere_intersect(_context, _from , _rad , _lod_dim, _triangles, _trees)) {
-                if (!_aabb_intersect(_context, _from, _basis, _lod_dim, _triangles, _tree_batches)) {
+                _relocation_offset = _tb_cache.get_array().ptr();
+                if (!_aabb_intersect(_context, _from, _basis, _lod_dim, _triangles, _tree_batches, _tb_cache)) {
+                    DASSERT(_tree_batches.size() == 0);
                     continue;
+                }
+                
+                if (_relocation_offset != _tb_cache.get_array().ptr()) {
+                    repair_tree_batches();
+                    repair_tree_collision_pairs();
                 }
 
 				if (_triangles.size() > 0) {
@@ -353,10 +360,11 @@ namespace ot {
         gContactAddedCallback = nullptr;
 	}
 
-    void discrete_dynamics_world::prepare_tree_collision_pairs(btCollisionObject * cur_obj, const coid::dynarray<bt::tree_batch*>& tree_batches_cache, uint32 frame)
-    {
+    void discrete_dynamics_world::prepare_tree_collision_pairs(btCollisionObject * cur_obj, const coid::dynarray<uint>& tree_batches_cache, uint32 frame)
+    {        
         for (uints i = 0; i < tree_batches_cache.size(); i++) {
-            bt::tree_batch * tb = tree_batches_cache[i];
+            uint bid = tree_batches_cache[i];
+            bt::tree_batch * tb = _tb_cache.get_item(bid) ;
 
             if (tb->last_frame_used == UMAX32) {
                 build_tb_collision_info(tb);
@@ -375,16 +383,16 @@ namespace ot {
 
                 float3 p = float3(glm::normalize(tb->trees[j].pos)) * tb->trees[j].height;
                 float3 cen_rel(_from - tb->trees[j].pos);
-                if (coal::distance_point_segment_sqr(cen_rel, float3(0, 0, 0), p) < glm::pow(tb->info(j)->tree_inf->radius + _rad,2.f)) {
-                    tree_collision_pair tcp(cur_obj, tb->info(j));
+                if (coal::distance_point_segment_sqr(cen_rel, float3(0, 0, 0), p) < glm::pow(tb->trees[j].radius + _rad,2.f)) {
+                    tree_collision_pair tcp(cur_obj, bid, j);
                     tree_collision_pair * cached_tcp = _tree_collision_pairs.find_if([&](const tree_collision_pair& _tcp) {
                         return tcp == _tcp;
                     });
 
                     if (!cached_tcp) {
                         cached_tcp = _tree_collision_pairs.add();
-                        cached_tcp->init_with(cur_obj,tcp.tree_col_info,tb->trees[j]);
-                        cached_tcp->manifold = getDispatcher()->getNewManifold(cached_tcp->obj, &cached_tcp->tree_col_info->obj);
+                        cached_tcp->init_with(cur_obj, bid, j, tb->trees[j]);
+                        cached_tcp->manifold = getDispatcher()->getNewManifold(cached_tcp->obj, &tb->info(j)->obj);
                     }
                     
                     cached_tcp->reused = true;
@@ -404,7 +412,6 @@ namespace ot {
             btTransform t_trans;
             t_trans.setOrigin(btVector3(pos.x,pos.y,pos.z));
             t_trans.setRotation(btQuaternion(rot.x,rot.y,rot.z,rot.w));
-            tci->tree_inf = &t;
             btCapsuleShape * t_cap = new (&tci->shape) btCapsuleShape(t.radius, t.height);
             btCollisionObject * t_col = new (&tci->obj) btCollisionObject();
             t_col->setCollisionShape(t_cap);
@@ -430,7 +437,9 @@ namespace ot {
 
             btRigidBody * rb_obj = btRigidBody::upcast(tcp.obj);
             btCollisionObjectWrapper obj1_wrapper(0, tcp.obj->getCollisionShape(), tcp.obj, tcp.obj->getWorldTransform(), -1, -1);
-            btCollisionObjectWrapper obj2_wrapper(0, &tcp.tree_col_info->shape, &tcp.tree_col_info->obj, tcp.tree_col_info->obj.getWorldTransform(), -1, -1);
+            bt::tree_collision_info* tree_col_info = get_tree_collision_info(tcp);
+            bt::tree* tree_inf = get_tree(tcp);
+            btCollisionObjectWrapper obj2_wrapper(0, &tree_col_info->shape, &tree_col_info->obj, tree_col_info->obj.getWorldTransform(), -1, -1);
 
             btManifoldResult res(&obj1_wrapper, &obj2_wrapper);
             res.setPersistentManifold(manifold);
@@ -461,15 +470,15 @@ namespace ot {
                         return;
                     }
                     
-                    const float l = float(tcp.tree_col_info->shape.getHalfHeight() + min_cp.m_localPointB[tcp.tree_col_info->shape.getUpAxis()]);
+                    const float l = float(tree_col_info->shape.getHalfHeight() + min_cp.m_localPointB[tree_col_info->shape.getUpAxis()]);
                     const float dp = float(rb_obj->getLinearVelocity().length() / (rb_obj->getInvMass()));
 
                     float f = dp * tcp.tc_ctx.max_collision_duration_inv;
-                    float sig = (f*l*tcp.tree_col_info->tree_inf->radius) / tcp.tree_col_info->tree_inf->I;
+                    float sig = (f*l*tree_inf->radius) / tree_inf->I;
 
-                    if (tcp.tree_col_info->tree_inf->sig_max <= sig) {
+                    if (tree_inf->sig_max <= sig) {
                         tcp.tc_ctx.custom_handling = true;
-                        tcp.tc_ctx.braking_force = (tcp.tree_col_info->tree_inf->sig_max * tcp.tree_col_info->tree_inf->I) / (l*tcp.tree_col_info->tree_inf->radius);
+                        tcp.tc_ctx.braking_force = (tree_inf->sig_max * tree_inf->I) / (l*tree_inf->radius);
                         tcp.tc_ctx.force_apply_pt = min_cp.m_localPointA;
                         tcp.tc_ctx.force_dir = -rb_obj->getLinearVelocity().normalized();  
                         tcp.tc_ctx.orig_tree_dir = rb_obj->getWorldTransform().getOrigin().normalized();
@@ -482,10 +491,10 @@ namespace ot {
 
             if (tcp.tc_ctx.custom_handling) {
                 if (tcp.tc_ctx.collision_duration < tcp.tc_ctx.max_collision_duration) {
-                    float3 displacement = _tree_collision(rb_obj, tcp.tc_ctx,float(time_step));
+                    float3 displacement = _tree_collision(rb_obj, tcp.tc_ctx,float(time_step),_tb_cache);
                     if (m_debugDrawer) {
                         bool is_new = false;
-                        uint16 tree_iden = tcp.tree_col_info->tree_inf->identifier;
+                        uint16 tree_iden = tree_inf->identifier;
                         tree_flex_inf * slot = _debug_terrain_trees_active.find_or_insert_value_slot_uninit(tree_iden, &is_new);
                         new(slot) tree_flex_inf(displacement, tree_iden);
                     }
@@ -494,6 +503,44 @@ namespace ot {
                 manifold->clearManifold();
             }
         });
+    }
+
+    void discrete_dynamics_world::repair_tree_collision_pairs()
+    {
+        _tree_collision_pairs.for_each([&](tree_collision_pair& tcp) {
+            bt::tree_collision_info* tci = get_tree_collision_info(tcp);
+            tcp.manifold->setBodies(tcp.obj, &tci->obj);
+        });
+    }
+
+    void discrete_dynamics_world::repair_tree_batches()
+    {
+        _tb_cache.for_each([&](bt::tree_batch& tb) {
+            if (tb.last_frame_used != 0xffffffff) {
+                for (uint i = 0; i < tb.tree_count; i++) {
+                    bt::tree_collision_info* tci = tb.info(i);
+                    tci->obj.setCollisionShape(&tci->shape);
+                }
+            }
+        });
+    }
+
+    bt::tree_collision_info * discrete_dynamics_world::get_tree_collision_info(const tree_collision_pair& tcp)
+    {
+        uint tree_id = tcp.tree_col_info;
+        uint bid = tree_id >> 4;
+        uint8 tid = tree_id & 0xf;
+        bt::tree_batch* tb = _tb_cache.get_item(bid);
+        return tb->info(tid);
+    }
+
+    bt::tree * discrete_dynamics_world::get_tree(const tree_collision_pair & tcp)
+    {
+        uint tree_id = tcp.tree_col_info;
+        uint bid = tree_id >> 4;
+        uint8 tid = tree_id & 0xf;
+        bt::tree_batch* tb = _tb_cache.get_item(bid);
+        return &tb->trees[tid];
     }
 
     void discrete_dynamics_world::query_volume_sphere(const double3& pos, float rad, coid::dynarray<btCollisionObject *>& result)
@@ -679,6 +726,7 @@ namespace ot {
 
         , _debug_terrain_triangles(1024)
         , _debug_terrain_trees(1024)
+        , _relocation_offset(0)
 	{
 		btTriangleShape * ts = new btTriangleShape();
 		ts->setMargin(0.0f);

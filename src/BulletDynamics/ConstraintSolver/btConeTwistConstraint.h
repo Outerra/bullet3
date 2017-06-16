@@ -150,11 +150,11 @@ public:
 
 	const btRigidBody& getRigidBodyA() const
 	{
-		return m_rbA;
+		return *m_rbA;
 	}
 	const btRigidBody& getRigidBodyB() const
 	{
-		return m_rbB;
+		return *m_rbB;
 	}
 
 	void setAngularOnly(bool angularOnly)

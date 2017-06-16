@@ -4,6 +4,7 @@
 
 //ifc{
 #include "physics_cfg.h"
+#include <comm/alloc/slotalloc.h>
 
 class btDynamicsWorld;
 class btCollisionShape;
@@ -89,7 +90,8 @@ public:
         float radius,
         float lod_dimension,
         coid::dynarray<bt::triangle>& data,
-        coid::dynarray<bt::tree_batch*>& trees);
+        coid::dynarray<uint>& trees,
+        coid::slotalloc<bt::tree_batch>& tree_batches);
 
     ifc_event bool terrain_collisions_aabb(
         const void* context,
@@ -97,11 +99,13 @@ public:
         float3x3 basis,
         float lod_dimension,
         coid::dynarray<bt::triangle>& data,
-        coid::dynarray<bt::tree_batch*>& trees);
+        coid::dynarray<uint>& trees,
+        coid::slotalloc<bt::tree_batch>& tree_batches);
 
     ifc_event float3 tree_collisions(btRigidBody * obj,
         bt::tree_collision_contex & ctx,
-        float time_step);
+        float time_step, 
+        coid::slotalloc<bt::tree_batch>& tree_batches);
 
     ifc_event void log(const coid::token& text);
 

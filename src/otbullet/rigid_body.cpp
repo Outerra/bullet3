@@ -9,7 +9,7 @@
 
 #include "discrete_dynamics_world.h"
 
-static btRigidBody _fixedObject( btRigidBody::btRigidBodyConstructionInfo(0,0,0) );
+//static btRigidBody _fixedObject( btRigidBody::btRigidBodyConstructionInfo(0,0,0) );
 
 ////////////////////////////////////////////////////////////////////////////////
 class rigid_body_constraint : public btTypedConstraint
@@ -42,7 +42,7 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 btRigidBody* physics::fixed_object()
 {
-    return &_fixedObject;
+    return &btTypedConstraint::getFixedBody();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

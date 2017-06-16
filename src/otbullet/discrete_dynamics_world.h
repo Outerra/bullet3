@@ -40,7 +40,7 @@ struct tree_flex_inf {
 struct tree_collision_pair
 {
     btCollisionObject* obj;
-    bt::tree_collision_info* tree_col_info;
+    uint tree_col_info;
     
     bool reused;
     btPersistentManifold * manifold;
@@ -53,21 +53,21 @@ struct tree_collision_pair
 
     tree_collision_pair()
         : obj(0)
-        , tree_col_info(0)
+        , tree_col_info(-1)
         
         , reused(false)
         , manifold(0)
     {}
 
-    tree_collision_pair(btCollisionObject* col_obj, bt::tree_collision_info* tree)
+    tree_collision_pair(btCollisionObject* col_obj, uint bid, uint8 tid)
         :tree_collision_pair(){
         obj = col_obj;
-        tree_col_info = tree;
+        tree_col_info = bid << 4 | (tid &0xf);
     }
 
-    void init_with (btCollisionObject* col_obj, bt::tree_collision_info* tree_col_inf,const bt::tree& tree_props) {
+    void init_with (btCollisionObject* col_obj, uint bid, uint8 tid,const bt::tree& tree_props) {
         obj = col_obj;
-        tree_col_info = tree_col_inf;
+        tree_col_info = bid << 4 | (tid & 0xf);
         tc_ctx.tree_identifier = tree_props.identifier; 
     }
 };
@@ -154,7 +154,10 @@ protected:
 	coid::dynarray<compound_processing_entry> _compound_processing_stack;
 
     coid::dynarray<bt::triangle> _triangles;
-    coid::dynarray<bt::tree_batch*> _tree_batches;
+    coid::slotalloc<bt::tree_batch> _tb_cache;
+    void * _relocation_offset;
+
+    coid::dynarray<uint> _tree_batches;
 
     double3 _from;
     float3 _ray;
@@ -188,7 +191,8 @@ public:
         float radius,
         float lod_dimension,
         coid::dynarray<bt::triangle>& data,
-        coid::dynarray<bt::tree_batch*>& trees );
+        coid::dynarray<uint>& trees,
+        coid::slotalloc<bt::tree_batch>& tree_batches );
 
     typedef bool(*fn_ext_collision_2)(
         const void* context,
@@ -196,9 +200,10 @@ public:
         const float3x3& basis,
         float lod_dimension,
         coid::dynarray<bt::triangle>& data,
-        coid::dynarray<bt::tree_batch*>& trees);
+        coid::dynarray<uint>& trees,
+        coid::slotalloc<bt::tree_batch>& tree_batches );
 
-    typedef float3(*fn_process_tree_collision)(btRigidBody * obj, bt::tree_collision_contex & ctx, float time_step);
+    typedef float3(*fn_process_tree_collision)(btRigidBody * obj, bt::tree_collision_contex & ctx, float time_step, coid::slotalloc<bt::tree_batch>& tree_batches );
 
     fn_ext_collision_2 _aabb_intersect;
 
@@ -220,7 +225,7 @@ protected:
 
 	void ot_terrain_collision_step();
 
-    void prepare_tree_collision_pairs(btCollisionObject * cur_obj, const coid::dynarray<bt::tree_batch*>& trees_cache, uint32 frame);
+    void prepare_tree_collision_pairs(btCollisionObject * cur_obj, const coid::dynarray<uint>& trees_cache, uint32 frame);
     void build_tb_collision_info(bt::tree_batch * tb);
 
     fn_ext_collision _sphere_intersect;
@@ -246,6 +251,12 @@ protected:
         _stats.after_ot_phase_time_ms = 0;
         _stats.before_ot_phase_time_ms = 0;
     };
+
+    void repair_tree_collision_pairs();
+    void repair_tree_batches();
+    bt::tree_collision_info* get_tree_collision_info(const tree_collision_pair& tcp);
+    bt::tree* get_tree(const tree_collision_pair& tcp);
+
 };
 
 } // namespace ot

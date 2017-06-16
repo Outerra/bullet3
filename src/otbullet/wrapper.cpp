@@ -36,7 +36,8 @@ extern bool _ext_collider(const void* context,
 	float radius,
     float lod_dimension,
 	coid::dynarray<bt::triangle>& data,
-	coid::dynarray<bt::tree_batch*>& trees);
+	coid::dynarray<uint>& trees,
+    coid::slotalloc<bt::tree_batch>& tree_batches);
 
 extern bool _ext_collider_obb(
     const void * context,
@@ -44,12 +45,14 @@ extern bool _ext_collider_obb(
     const float3x3& basis,
     float lod_dimension,
     coid::dynarray<bt::triangle>& data,
-    coid::dynarray<bt::tree_batch*>& trees);
+    coid::dynarray<uint>& trees,
+    coid::slotalloc<bt::tree_batch>& tree_batches);
 
 
 extern float3 _ext_tree_col(btRigidBody * obj, 
         bt::tree_collision_contex & ctx,
-    float time_step);
+    float time_step,
+    coid::slotalloc<bt::tree_batch>& tree_batches);
 #else
 
 static bool _ext_collider(
@@ -58,9 +61,10 @@ static bool _ext_collider(
     float radius,
     float lod_dimension,
     coid::dynarray<bt::triangle>& data,
-    coid::dynarray<bt::tree_batch*>& trees)
+    coid::dynarray<uint>& trees,
+    coid::slotalloc<bt::tree_batch>& tree_batches)
 {
-    return _physics->terrain_collisions(planet, center, radius, lod_dimension, data, trees);
+    return _physics->terrain_collisions(planet, center, radius, lod_dimension, data, trees, tree_batches);
 }
 
 static bool _ext_collider_obb(
@@ -69,16 +73,18 @@ static bool _ext_collider_obb(
     const float3x3& basis,
     float lod_dimension,
     coid::dynarray<bt::triangle>& data,
-    coid::dynarray<bt::tree_batch*>& trees) 
+    coid::dynarray<uint>& trees,
+    coid::slotalloc<bt::tree_batch>& tree_batches)
 {
-    return _physics->terrain_collisions_aabb(planet, center, basis, lod_dimension, data, trees);
+    return _physics->terrain_collisions_aabb(planet, center, basis, lod_dimension, data, trees, tree_batches);
 }
 
 static float3 _ext_tree_col(btRigidBody * obj,
     bt::tree_collision_contex & ctx,
-    float time_step) {
+    float time_step,
+    coid::slotalloc<bt::tree_batch>& tree_batches) {
 
-    return _physics->tree_collisions(obj, ctx, time_step);
+    return _physics->tree_collisions(obj, ctx, time_step,tree_batches);
 
 }
 #endif
@@ -128,7 +134,7 @@ iref<physics> physics::create(double r, void* context)
     _physics->_dbg_drawer = nullptr;
    
     // default mode
-    _physics->_dbg_draw_mode = btIDebugDraw::DBG_DrawContactPoints | btIDebugDraw::DBG_DrawWireframe;    
+    _physics->_dbg_draw_mode = btIDebugDraw::DBG_DrawContactPoints | btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawConstraints | btIDebugDraw::DBG_DrawConstraintLimits;
 
     return _physics;
 }
