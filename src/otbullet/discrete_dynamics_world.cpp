@@ -742,6 +742,7 @@ namespace ot {
 
         , _debug_terrain_triangles(1024)
         , _debug_trees(1024)
+        , _tb_cache(1024)
         , _relocation_offset(0)
 	{
 		btTriangleShape * ts = new btTriangleShape();
