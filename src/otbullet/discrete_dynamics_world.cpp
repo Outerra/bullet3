@@ -20,8 +20,11 @@
 #include "ot_terrain_contact_common.h"
 
 #include <comm/timer.h>
+#include <comm/log/logger.h>
 
 #include <ot/glm/glm_ext.h>
+
+
 
 /// tmp ////
 #include <BulletCollision/BroadphaseCollision/btAxisSweep3.h>
@@ -169,8 +172,9 @@ namespace ot {
         
         if (m_debugDrawer) {
             _debug_terrain_triangles.clear();
-            _debug_terrain_trees.reset();
-            _debug_terrain_trees_active.reset();
+            //_debug_terrain_trees.reset();
+            //_debug_terrain_trees_active.reset();
+            _debug_trees.reset();
         }
 
         //LOCAL_SINGLETON(ot_terrain_contact_common) common_data = new ot_terrain_contact_common(0.00f,this,_pb_wrap);
@@ -317,6 +321,7 @@ namespace ot {
                 }
                 
                 if (_relocation_offset != _tb_cache.get_array().ptr()) {
+                    coidlog_warning("discrete_dynamics_world", "Tree baches slot allocator rebased. Tree batches count: " << _tb_cache.count());
                     repair_tree_batches();
                     repair_tree_collision_pairs();
                 }
@@ -377,8 +382,9 @@ namespace ot {
                     continue;
 
                 if (m_debugDrawer) {
-                    bt::tree ** slot = _debug_terrain_trees.find_or_insert_value_slot(tb->trees[j].identifier, 0);
-                    *slot = &tb->trees[j];
+                    //bt::tree ** slot = _debug_terrain_trees.find_or_insert_value_slot(tb->trees[j].identifier, 0);
+                    //*slot = &tb->trees[j];
+                    *_debug_trees.add() = bid << 4 | (j & 0xf);
                 }
 
                 float3 p = float3(glm::normalize(tb->trees[j].pos)) * tb->trees[j].height;
@@ -493,10 +499,10 @@ namespace ot {
                 if (tcp.tc_ctx.collision_duration < tcp.tc_ctx.max_collision_duration) {
                     float3 displacement = _tree_collision(rb_obj, tcp.tc_ctx,float(time_step),_tb_cache);
                     if (m_debugDrawer) {
-                        bool is_new = false;
-                        uint16 tree_iden = tree_inf->identifier;
-                        tree_flex_inf * slot = _debug_terrain_trees_active.find_or_insert_value_slot_uninit(tree_iden, &is_new);
-                        new(slot) tree_flex_inf(displacement, tree_iden);
+                        //bool is_new = false;
+                       // uint16 tree_iden = tree_inf->identifier;
+                        //tree_flex_inf * slot = _debug_terrain_trees_active.find_or_insert_value_slot_uninit(tree_iden, &is_new);
+                       // new(slot) tree_flex_inf(displacement, tree_iden);
                     }
                 }
 
@@ -509,6 +515,10 @@ namespace ot {
     {
         _tree_collision_pairs.for_each([&](tree_collision_pair& tcp) {
             bt::tree_collision_info* tci = get_tree_collision_info(tcp);
+            DASSERT((void*)&tci->obj >= (void*)_tb_cache.get_array().ptr() && 
+                (void*)&tci->obj < (void*)_tb_cache.get_array().ptre());
+            DASSERT((void*)tci->obj.getCollisionShape() >= (void*)_tb_cache.get_array().ptr() &&
+                (void*)tci->obj.getCollisionShape() < (void*)_tb_cache.get_array().ptre());
             tcp.manifold->setBodies(tcp.obj, &tci->obj);
         });
     }
@@ -537,6 +547,11 @@ namespace ot {
     bt::tree * discrete_dynamics_world::get_tree(const tree_collision_pair & tcp)
     {
         uint tree_id = tcp.tree_col_info;
+        return get_tree(tree_id);
+    }
+
+    bt::tree * discrete_dynamics_world::get_tree(uint tree_id)
+    {
         uint bid = tree_id >> 4;
         uint8 tid = tree_id & 0xf;
         bt::tree_batch* tb = _tb_cache.get_item(bid);
@@ -697,16 +712,17 @@ namespace ot {
             m_debugDrawer->drawLine(c, a, cl_white);
         }
 
-        _debug_terrain_trees.for_each([&](const bt::tree * t) {
+        _debug_trees.for_each([&](uint tid) {
 
                 
                 
-                const tree_flex_inf* tfi = _debug_terrain_trees_active.find_value(t->identifier);
-                float3 displacement = (tfi) ? tfi->_flex : float3(0);
-
+               // const tree_flex_inf* tfi = _debug_terrain_trees_active.find_value(t->identifier);
+                //float3 displacement = (tfi) ? tfi->_flex : float3(0);
+                
+                bt::tree* t = get_tree(tid);
                 btVector3 bt_p1(t->pos.x, t->pos.y, t->pos.z);
                 btVector3 bt_norm(bt_p1.normalized());
-                btVector3 bt_p2 = bt_p1 + bt_norm * t->height + btVector3(displacement.x,displacement.y,displacement.z)*t->max_flex;
+                btVector3 bt_p2 = bt_p1 + bt_norm * t->height;
 
                 m_debugDrawer->drawLine(bt_p1, bt_p2, cl_white);
         });
@@ -725,7 +741,7 @@ namespace ot {
 		, _context(context)
 
         , _debug_terrain_triangles(1024)
-        , _debug_terrain_trees(1024)
+        , _debug_trees(1024)
         , _relocation_offset(0)
 	{
 		btTriangleShape * ts = new btTriangleShape();

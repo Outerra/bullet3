@@ -168,9 +168,11 @@ protected:
     bt::ot_world_physics_stats _stats;
 
     coid::dynarray<bt::triangle> _debug_terrain_triangles;
-    coid::slothash<bt::tree*, uint16, tree_key_extractor> _debug_terrain_trees;
+    /*coid::slothash<bt::tree*, uint16, tree_key_extractor> _debug_terrain_trees;
     coid::slothash<tree_flex_inf, uint16, tree_key_extractor> _debug_terrain_trees_active;
-
+    */
+    coid::dynarray<uint> _debug_trees;
+ 
     coid::local<ot_terrain_contact_common> _common_data;
 
 public:
@@ -256,6 +258,7 @@ protected:
     void repair_tree_batches();
     bt::tree_collision_info* get_tree_collision_info(const tree_collision_pair& tcp);
     bt::tree* get_tree(const tree_collision_pair& tcp);
+    bt::tree* get_tree(uint tree_id);
 
 };
 
