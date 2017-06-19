@@ -163,7 +163,7 @@ namespace ot {
 
 	void discrete_dynamics_world::ot_terrain_collision_step()
 	{
-        static uint32 frame_count;
+        static uint frame_count = 0;
 
 #ifdef _PROFILING_ENABLED
         static coid::nsec_timer timer;
@@ -315,7 +315,7 @@ namespace ot {
 
                 //if(!_sphere_intersect(_context, _from , _rad , _lod_dim, _triangles, _trees)) {
                 _relocation_offset = _tb_cache.get_array().ptr();
-                if (!_aabb_intersect(_context, _from, _basis, _lod_dim, _triangles, _tree_batches, _tb_cache)) {
+                if (!_aabb_intersect(_context, _from, _basis, _lod_dim, _triangles, _tree_batches, _tb_cache, frame_count)) {
                     DASSERT(_tree_batches.size() == 0);
                     continue;
                 }
@@ -739,7 +739,6 @@ namespace ot {
         , _sphere_intersect(ext_collider)
         , _tree_collision(ext_tree_col)
 		, _context(context)
-
         , _debug_terrain_triangles(1024)
         , _debug_trees(1024)
         , _tb_cache(1024)

@@ -96,6 +96,8 @@ struct tree_collision_info
 struct tree_batch
 {
     const terrain_mesh* tm;
+    uint tm_version;
+    uint16 idx_in_tm;
     uint last_frame_used;
     uint tree_count;
     tree trees[16];

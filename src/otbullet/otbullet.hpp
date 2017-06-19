@@ -91,7 +91,8 @@ public:
         float lod_dimension,
         coid::dynarray<bt::triangle>& data,
         coid::dynarray<uint>& trees,
-        coid::slotalloc<bt::tree_batch>& tree_batches);
+        coid::slotalloc<bt::tree_batch>& tree_batches,
+        uint frame );
 
     ifc_event bool terrain_collisions_aabb(
         const void* context,
@@ -100,7 +101,8 @@ public:
         float lod_dimension,
         coid::dynarray<bt::triangle>& data,
         coid::dynarray<uint>& trees,
-        coid::slotalloc<bt::tree_batch>& tree_batches);
+        coid::slotalloc<bt::tree_batch>& tree_batches,
+        uint frame );
 
     ifc_event float3 tree_collisions(btRigidBody * obj,
         bt::tree_collision_contex & ctx,

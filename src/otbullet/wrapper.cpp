@@ -37,7 +37,8 @@ extern bool _ext_collider(const void* context,
     float lod_dimension,
 	coid::dynarray<bt::triangle>& data,
 	coid::dynarray<uint>& trees,
-    coid::slotalloc<bt::tree_batch>& tree_batches);
+    coid::slotalloc<bt::tree_batch>& tree_batches,
+    uint frame );
 
 extern bool _ext_collider_obb(
     const void * context,
@@ -46,13 +47,14 @@ extern bool _ext_collider_obb(
     float lod_dimension,
     coid::dynarray<bt::triangle>& data,
     coid::dynarray<uint>& trees,
-    coid::slotalloc<bt::tree_batch>& tree_batches);
+    coid::slotalloc<bt::tree_batch>& tree_batches,
+    uint frame );
 
 
 extern float3 _ext_tree_col(btRigidBody * obj, 
         bt::tree_collision_contex & ctx,
     float time_step,
-    coid::slotalloc<bt::tree_batch>& tree_batches);
+    coid::slotalloc<bt::tree_batch>& tree_baFBtches);
 #else
 
 static bool _ext_collider(
@@ -62,9 +64,10 @@ static bool _ext_collider(
     float lod_dimension,
     coid::dynarray<bt::triangle>& data,
     coid::dynarray<uint>& trees,
-    coid::slotalloc<bt::tree_batch>& tree_batches)
+    coid::slotalloc<bt::tree_batch>& tree_batches,
+    uint frame )
 {
-    return _physics->terrain_collisions(planet, center, radius, lod_dimension, data, trees, tree_batches);
+    return _physics->terrain_collisions(planet, center, radius, lod_dimension, data, trees, tree_batches, frame);
 }
 
 static bool _ext_collider_obb(
@@ -74,9 +77,10 @@ static bool _ext_collider_obb(
     float lod_dimension,
     coid::dynarray<bt::triangle>& data,
     coid::dynarray<uint>& trees,
-    coid::slotalloc<bt::tree_batch>& tree_batches)
+    coid::slotalloc<bt::tree_batch>& tree_batches,
+    uint frame )
 {
-    return _physics->terrain_collisions_aabb(planet, center, basis, lod_dimension, data, trees, tree_batches);
+    return _physics->terrain_collisions_aabb(planet, center, basis, lod_dimension, data, trees, tree_batches, frame);
 }
 
 static float3 _ext_tree_col(btRigidBody * obj,
