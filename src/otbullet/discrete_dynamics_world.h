@@ -205,11 +205,27 @@ public:
         coid::dynarray<bt::triangle>& data,
         coid::dynarray<uint>& trees,
         coid::slotalloc<bt::tree_batch>& tree_batches,
-        uint frame );
+        uint frame,
+        bool& is_above_tm);
 
     typedef float3(*fn_process_tree_collision)(btRigidBody * obj, bt::tree_collision_contex & ctx, float time_step, coid::slotalloc<bt::tree_batch>& tree_batches );
 
+    typedef float(*fn_terrain_ray_intersect)(
+        const void* context,
+        const double3& from,
+        const float3& dir,
+        const float2& minmaxlen,
+        float3* norm,
+        double3* pos);
+
+    typedef float(*fn_elevation_above_terrain)(const double3& pos,
+        float maxlen,
+        float3* norm,
+        double3* hitpoint);
+
     fn_ext_collision_2 _aabb_intersect;
+    fn_terrain_ray_intersect _terrain_ray_intersect;
+    fn_elevation_above_terrain _elevation_above_terrain;
 
 	discrete_dynamics_world(btDispatcher* dispatcher,
 		btBroadphaseInterface* pairCache,
@@ -217,6 +233,8 @@ public:
 		btCollisionConfiguration* collisionConfiguration,
         fn_ext_collision ext_collider, 
         fn_process_tree_collision ext_tree_col,
+        fn_terrain_ray_intersect ext_terrain_ray_intersect,
+        fn_elevation_above_terrain ext_elevation_above_terrain,
 		const void* context = 0);
 
     const bt::ot_world_physics_stats & get_stats() const {

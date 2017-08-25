@@ -1,10 +1,13 @@
 #include "ot_terrain_contact_common.h"
 #include <BulletCollision/CollisionShapes/btConvexPolyhedron.h>
 #include <BulletCollision/CollisionShapes/btTriangleShape.h>
+#include <BulletCollision/CollisionShapes/btStaticPlaneShape.h>
 #include <BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h>
 #include <BulletDynamics/Dynamics/btRigidBody.h>
 #include <BulletCollision/CollisionDispatch/btCollisionWorld.h>
 #include <ot/glm/coal.h>
+
+#include <ot/world.h>
 
 const bt::triangle* current_processed_triangle = nullptr;
 
@@ -169,6 +172,20 @@ void ot_terrain_contact_common::process_collision_points()
     const bool detect_patches = false;
 
     if (!detect_patches) {
+     /*   if (_curr_collider == ctSphere) {
+            double3 norm = glm::normalize(this->_sphere_origin_g);
+            float elev = ot::world::get()->elevation(this->_sphere_origin_g);
+            if (elev <= this->_sphere_radius) {
+                btVector3 p(this->_sphere_origin_g.x - norm.x * elev, 
+                    this->_sphere_origin_g.y - norm.y * elev, 
+                    this->_sphere_origin_g.z - norm.z * elev);
+                btVector3 n(norm.x, norm.y, norm.z);
+                _manifold->addContactPoint(n, p, elev - _sphere_radius);
+            }
+
+            return;
+        }*/
+
         _contact_point_cache.for_each([&](const contact_point & cp) {
             btVector3 p(cp.point.x, cp.point.y, cp.point.z);
             btVector3 n(cp.normal.x, cp.normal.y, cp.normal.z);
@@ -330,6 +347,41 @@ void ot_terrain_contact_common::collide_convex_triangle(const bt::triangle & tri
     _collision_world->getDispatcher()->freeCollisionAlgorithm(colAlgo);
 }
 
+void ot_terrain_contact_common::collide_object_plane(fn_elevation_above_terrain elevation_above_terrain)
+{
+    DASSERT(_internal_object);
+    btVector3 pos_bt = _internal_object->getWorldTransform().getOrigin();
+    double3 pos(pos_bt.x(), pos_bt.y(), pos_bt.z());
+    double3 norm = glm::normalize(pos);
+    double3 hit;
+    float3 hit_norm;
+    ot::terrain::hitpoint hp;
+ 
+    const double elev(elevation_above_terrain(pos, _sphere_radius, &hit_norm, &hit));
+
+    btStaticPlaneShape plane(btVector3(hit_norm.x, hit_norm.y, hit_norm.z).normalized(), glm::dot(glm::normalize(double3(hit_norm)), hit));
+    //btStaticPlaneShape plane(btVector3(norm.x,norm.y,norm.z),glm::dot(norm,pos - (norm*elev)));
+
+    btCollisionObjectWrapper planeObWrap(_manifold->getBody1Wrap(), &plane, _manifold->getBody1Wrap()->getCollisionObject(), _manifold->getBody1Wrap()->getWorldTransform(), 0, 0);//correct transform?
+    btCollisionAlgorithm* colAlgo = _collision_world->getDispatcher()->findAlgorithm(_manifold->getBody0Wrap(), &planeObWrap, _manifold->getPersistentManifold());
+
+    const btCollisionObjectWrapper* tmpWrap = 0;
+
+    tmpWrap = _manifold->getBody1Wrap();
+    _manifold->setBody1Wrap(&planeObWrap);
+    _manifold->setShapeIdentifiersB(0, 0);
+
+
+    colAlgo->processCollision(_manifold->getBody0Wrap(), &planeObWrap, _collision_world->getDispatchInfo(), _manifold);
+
+    _manifold->setBody1Wrap(tmpWrap);
+
+//    DASSERT(_manifold->getPersistentManifold()->getNumContacts() <= 1);
+
+    colAlgo->~btCollisionAlgorithm();
+    _collision_world->getDispatcher()->freeCollisionAlgorithm(colAlgo);
+}
+
 void ot_terrain_contact_common::add_triangle(const glm::vec3 & a, const glm::vec3 & b, const glm::vec3 & c, uint32 ia, uint32 ib, uint32 ic, uint8 flags, const double3 * mesh_offset, uint32 tri_idx)
 {
 	*_triangle_cache.add(1) = bt::triangle(a, b, c, ia, ib, ic, flags, mesh_offset,tri_idx);
@@ -391,6 +443,16 @@ bool GJK_contact_added(btManifoldPoint & cp, const btCollisionObjectWrapper * co
 
     return true;
 }
+
+
+bool plane_contact_added(btManifoldPoint & cp, const btCollisionObjectWrapper * colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper * colObj1Wrap, int partId1, int index1)
+{
+    cp.m_combinedFriction = calculate_combined_friction(1.0f, float(colObj0Wrap->getCollisionObject()->getFriction()));
+    cp.m_combinedRollingFriction = calculate_combined_rolling_friction(1.0f, float(colObj0Wrap->getCollisionObject()->getRollingFriction()));
+    cp.m_combinedRestitution = calculate_combined_restitution(1.0f, float(colObj0Wrap->getCollisionObject()->getRestitution()));
+    return true;
+}
+
 
 bool friction_combiner_cbk(btManifoldPoint & cp, const btCollisionObjectWrapper * colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper * colObj1Wrap, int partId1, int index1)
 {

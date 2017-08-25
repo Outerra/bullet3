@@ -102,12 +102,26 @@ public:
         coid::dynarray<bt::triangle>& data,
         coid::dynarray<uint>& trees,
         coid::slotalloc<bt::tree_batch>& tree_batches,
-        uint frame );
+        uint frame, 
+        bool& is_above_tm);
 
     ifc_event float3 tree_collisions(btRigidBody * obj,
         bt::tree_collision_contex & ctx,
         float time_step, 
         coid::slotalloc<bt::tree_batch>& tree_batches);
+
+    ifc_event float terrain_ray_intersect(
+        const void* context,
+        const double3& from,
+        const float3& dir,
+        const float2& minmaxlen,
+        float3* norm,
+        double3* pos);
+
+    ifc_event float elevation_above_terrain(const double3& pos, 
+        float maxlen, 
+        float3* norm, 
+        double3* hitpoint);
 
     ifc_event void log(const coid::token& text);
 

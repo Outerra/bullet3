@@ -48,7 +48,23 @@ extern bool _ext_collider_obb(
     coid::dynarray<bt::triangle>& data,
     coid::dynarray<uint>& trees,
     coid::slotalloc<bt::tree_batch>& tree_batches,
-    uint frame );
+    uint frame,
+    bool& is_above_tm);
+
+extern float _ext_terrain_ray_intersect(
+    const void* planet,
+    const double3& from,
+    const float3& dir,
+    const float2& minmaxlen,
+    float3* norm,
+    double3* pos);
+
+extern static float _ext_elevation_above_terrain(
+    const double3& pos,
+    float maxlen,
+    float3* norm,
+    double3* hitpoint);
+
 
 
 extern float3 _ext_tree_col(btRigidBody * obj, 
@@ -78,10 +94,41 @@ static bool _ext_collider_obb(
     coid::dynarray<bt::triangle>& data,
     coid::dynarray<uint>& trees,
     coid::slotalloc<bt::tree_batch>& tree_batches,
-    uint frame )
+    uint frame,
+    bool& is_above_tm)
 {
-    return _physics->terrain_collisions_aabb(planet, center, basis, lod_dimension, data, trees, tree_batches, frame);
+    return _physics->terrain_collisions_aabb(planet, center, basis, lod_dimension, data, trees, tree_batches, frame,is_above_tm);
 }
+
+static float _ext_terrain_ray_intersect(
+    const void* planet,
+    const double3& from,
+    const float3& dir,
+    const float2& minmaxlen,
+    float3* norm,
+    double3* pos) {
+    return _physics->terrain_ray_intersect(
+        planet,
+        from,
+        dir,
+        minmaxlen,
+        norm,
+        pos);
+}
+
+static float _ext_elevation_above_terrain(
+    const double3& pos,
+    float maxlen,
+    float3* norm,
+    double3* hitpoint) 
+{
+    return _physics->elevation_above_terrain(
+        pos,
+        maxlen,
+        norm,
+        hitpoint);
+}
+
 
 static float3 _ext_tree_col(btRigidBody * obj,
     bt::tree_collision_contex & ctx,
@@ -126,6 +173,8 @@ iref<physics> physics::create(double r, void* context)
         _collisionConfiguration,
         &_ext_collider,
         &_ext_tree_col,
+        &_ext_terrain_ray_intersect,
+        &_ext_elevation_above_terrain,
 		context
         );
 

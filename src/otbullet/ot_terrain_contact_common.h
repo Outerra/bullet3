@@ -70,6 +70,9 @@ struct contact_point
 bool GJK_contact_added(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1);
 bool friction_combiner_cbk(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1);
 
+bool plane_contact_added(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1);
+
+
 /// Copied from the Bullet btManifoldResult
 
 float calculate_combined_friction(float b1_fric, float b2_fric);
@@ -77,6 +80,19 @@ float calculate_combined_restitution(float b1_rest, float b2_rest);
 float calculate_combined_rolling_friction(float b1_roll_fric, float b2_roll_fric);
 
 /// ///////////////
+
+typedef float(*fn_terrain_ray_intersect)(
+    const void* context,
+    const double3& from,
+    const float3& dir,
+    const float2& minmaxlen,
+    float3* norm,
+    double3* pos);
+
+typedef float(*fn_elevation_above_terrain)(const double3& pos,
+    float maxlen,
+    float3* norm,
+    double3* hitpoint);
 
 class ot_terrain_contact_common
 {
@@ -104,6 +120,7 @@ public:
 	void collide_sphere_triangle(const bt::triangle & triangle);
     void collide_capsule_triangle(const bt::triangle & triangle);
 	void collide_convex_triangle(const bt::triangle & triangle);
+    void collide_object_plane(fn_elevation_above_terrain elevation_above_terrain);
 
 	void add_triangle(const glm::vec3 & a, const glm::vec3 & b, const glm::vec3 & c, uint32 ia, uint32 ib, uint32 ic, uint8 flags, const double3 * mesh_offset, uint32 tri_idx);
 	void add_additional_col_obj(btCollisionObject * col_obj);
@@ -111,6 +128,8 @@ public:
     void set_internal_obj_wrapper(btCollisionObjectWrapper * internal_wrap) { _internal_object = internal_wrap;};
     
     void clear_common_data();
+
+    void set_bounding_sphere_rad(float rad) { _sphere_radius = rad; }
 private:
 	typedef void(ot_terrain_contact_common::*CollisionAlgorithm)(const bt::triangle &);
 	btCollisionObjectWrapper * _planet_body_wrap;

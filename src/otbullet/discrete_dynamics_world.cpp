@@ -244,7 +244,6 @@ namespace ot {
 
 
             res.setPersistentManifold(manifold);
-            manifold->clearManifold();
 
 			for (uints j = 0; j < _cow_internal.size(); j++) {
 
@@ -308,6 +307,8 @@ namespace ot {
 					continue;
 				}
 
+                _common_data->set_bounding_sphere_rad(_rad);
+
 				_triangles.clear();
                 _tree_batches.clear();
 
@@ -315,7 +316,10 @@ namespace ot {
 
                 //if(!_sphere_intersect(_context, _from , _rad , _lod_dim, _triangles, _trees)) {
                 _relocation_offset = _tb_cache.get_array().ptr();
-                if (!_aabb_intersect(_context, _from, _basis, _lod_dim, _triangles, _tree_batches, _tb_cache, frame_count)) {
+                
+                bool is_above_tm = false;
+
+                if (!_aabb_intersect(_context, _from, _basis, _lod_dim, _triangles, _tree_batches, _tb_cache, frame_count,is_above_tm)) {
                     DASSERT(_tree_batches.size() == 0);
                     continue;
                 }
@@ -338,7 +342,15 @@ namespace ot {
                     timer.reset();
 
 #endif // _PROFILING_ENABLED
-                    _common_data->process_triangle_cache(_triangles);
+
+                    if (is_above_tm) {
+                        _common_data->process_triangle_cache(_triangles);
+                    }
+                    else {
+                        gContactAddedCallback = plane_contact_added;
+                        _common_data->collide_object_plane(_elevation_above_terrain);
+                    }
+                    
 #ifdef _PROFILING_ENABLED
                     _stats.triangles_processed_count += _triangles.size();
                     _stats.triangle_processing_time_ms += timer.time_ns() * 0.000001f;
@@ -352,6 +364,9 @@ namespace ot {
 
 				_common_data->process_collision_points();
 			}
+            int before = res.getPersistentManifold()->getNumContacts();
+            
+            res.refreshContactPoints();
 
             if (manifold->getNumContacts() == 0) {
                 getDispatcher()->releaseManifold(manifold);
@@ -734,10 +749,14 @@ namespace ot {
 		btCollisionConfiguration * collisionConfiguration,
         fn_ext_collision ext_collider,
         fn_process_tree_collision ext_tree_col,
+        fn_terrain_ray_intersect ext_terrain_ray_intersect,
+        fn_elevation_above_terrain ext_elevation_above_terrain,
 		const void* context)
 		: btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver,collisionConfiguration)
         , _sphere_intersect(ext_collider)
         , _tree_collision(ext_tree_col)
+        , _terrain_ray_intersect(ext_terrain_ray_intersect)
+        , _elevation_above_terrain(ext_elevation_above_terrain)
 		, _context(context)
         , _debug_terrain_triangles(1024)
         , _debug_trees(1024)

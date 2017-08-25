@@ -120,9 +120,13 @@ protected:
 
     virtual bool terrain_collisions( const void* context, const double3& center, float radius, float lod_dimension, coid::dynarray<bt::triangle>& data, coid::dynarray<uint>& trees, coid::slotalloc<bt::tree_batch>& tree_batches, uint frame ){ throw coid::exception("handler not implemented"); }
 
-    virtual bool terrain_collisions_aabb( const void* context, const double3& center, float3x3 basis, float lod_dimension, coid::dynarray<bt::triangle>& data, coid::dynarray<uint>& trees, coid::slotalloc<bt::tree_batch>& tree_batches, uint frame ){ throw coid::exception("handler not implemented"); }
+    virtual bool terrain_collisions_aabb( const void* context, const double3& center, float3x3 basis, float lod_dimension, coid::dynarray<bt::triangle>& data, coid::dynarray<uint>& trees, coid::slotalloc<bt::tree_batch>& tree_batches, uint frame, bool& is_above_tm ){ throw coid::exception("handler not implemented"); }
 
     virtual float3 tree_collisions( btRigidBody* obj, bt::tree_collision_contex& ctx, float time_step, coid::slotalloc<bt::tree_batch>& tree_batches ){ throw coid::exception("handler not implemented"); }
+
+    virtual float terrain_ray_intersect( const void* context, const double3& from, const float3& dir, const float2& minmaxlen, float3* norm, double3* pos ){ throw coid::exception("handler not implemented"); }
+
+    virtual float elevation_above_terrain( const double3& pos, float maxlen, float3* norm, double3* hitpoint ){ throw coid::exception("handler not implemented"); }
 
     virtual void log( const coid::token& text ) {}
 
@@ -134,6 +138,8 @@ public:
     virtual bool is_bound_terrain_collisions() { return true; }
     virtual bool is_bound_terrain_collisions_aabb() { return true; }
     virtual bool is_bound_tree_collisions() { return true; }
+    virtual bool is_bound_terrain_ray_intersect() { return true; }
+    virtual bool is_bound_elevation_above_terrain() { return true; }
     virtual bool is_bound_log() { return true; }
 
 public:
@@ -158,7 +164,7 @@ public:
         if (_cleaner) _cleaner(this,0);
     }
 
-    static const int HASHID = 4232743063;
+    static const int HASHID = 3023259009;
 
     int intergen_hash_id() const override final { return HASHID; }
 
@@ -172,7 +178,7 @@ public:
     }
 
     static const coid::token& intergen_default_creator_static( EBackend bck ) {
-        static const coid::token _dc("bt::physics.get@4232743063");
+        static const coid::token _dc("bt::physics.get@3023259009");
         static const coid::token _djs("bt::physics@wrapper.js");
         static const coid::token _dlua("bt::physics@wrapper.lua");
         static const coid::token _dnone;
@@ -226,7 +232,7 @@ inline iref<T> physics::create( T* _subclass_, double r, void* context )
     typedef iref<T> (*fn_creator)(physics*, double, void*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.create@4232743063";
+    static const coid::token ifckey = "bt::physics.create@3023259009";
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
@@ -244,7 +250,7 @@ inline iref<T> physics::get( T* _subclass_ )
     typedef iref<T> (*fn_creator)(physics*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.get@4232743063";
+    static const coid::token ifckey = "bt::physics.get@3023259009";
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
