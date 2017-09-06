@@ -178,6 +178,8 @@ iref<physics> physics::create(double r, void* context)
 		context
         );
 
+    wrld->setGravity(btVector3(0, 0, 0));
+
     wrld->_aabb_intersect = &_ext_collider_obb;
 
     _physics->_world = wrld;
