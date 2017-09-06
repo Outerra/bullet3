@@ -553,12 +553,12 @@ btVector3 btMultiBody::worldDirToLocal(int i, const btVector3 &world_dir) const
 
 btMatrix3x3 btMultiBody::localFrameToWorld(int i, const btMatrix3x3 &local_frame) const
 {
-	btMatrix3x3 result = local_frame;
-	btVector3 frameInWorld0 = localDirToWorld(i, local_frame.getColumn(0));
-	btVector3 frameInWorld1 = localDirToWorld(i, local_frame.getColumn(1));
-	btVector3 frameInWorld2 = localDirToWorld(i, local_frame.getColumn(2));
-	result.setValue(frameInWorld0[0], frameInWorld1[0], frameInWorld2[0], frameInWorld0[1], frameInWorld1[1], frameInWorld2[1], frameInWorld0[2], frameInWorld1[2], frameInWorld2[2]);
-	return result;
+    btMatrix3x3 result = local_frame;
+    btVector3 frameInWorld0 = localDirToWorld(i, local_frame.getColumn(0));
+    btVector3 frameInWorld1 = localDirToWorld(i, local_frame.getColumn(1));
+    btVector3 frameInWorld2 = localDirToWorld(i, local_frame.getColumn(2));
+    result.setValue(frameInWorld0[0], frameInWorld1[0], frameInWorld2[0], frameInWorld0[1], frameInWorld1[1], frameInWorld2[1], frameInWorld0[2], frameInWorld1[2], frameInWorld2[2]);
+    return result;
 }
 
 void btMultiBody::compTreeLinkVelocities(btVector3 *omega, btVector3 *vel) const
@@ -801,14 +801,14 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 	btScalar * Y = &scratch_r[0];
 	//
 	//aux variables	
-	btSpatialMotionVector spatJointVel;         //spatial velocity due to the joint motion (i.e. without predecessors' influence)
-	btScalar D[36];                             //"D" matrix; it's dofxdof for each body so asingle 6x6 D matrix will do
-	btScalar invD_times_Y[6];                   //D^{-1} * Y [dofxdof x dofx1 = dofx1] <=> D^{-1} * u; better moved to buffers since it is recalced in calcAccelerationDeltasMultiDof; num_dof of btScalar would cover all bodies
-	btSpatialMotionVector result;               //holds results of the SolveImatrix op; it is a spatial motion vector (accel)
-	btScalar Y_minus_hT_a[6];                   //Y - h^{T} * a; it's dofx1 for each body so a single 6x1 temp is enough
-	btSpatialForceVector spatForceVecTemps[6];  //6 temporary spatial force vectors
-	btSpatialTransformationMatrix fromParent;   //spatial transform from parent to child
-	btSymmetricSpatialDyad dyadTemp;            //inertia matrix temp
+	btSpatialMotionVector spatJointVel;					//spatial velocity due to the joint motion (i.e. without predecessors' influence)
+	btScalar D[36];										//"D" matrix; it's dofxdof for each body so asingle 6x6 D matrix will do	
+	btScalar invD_times_Y[6];							//D^{-1} * Y [dofxdof x dofx1 = dofx1] <=> D^{-1} * u; better moved to buffers since it is recalced in calcAccelerationDeltasMultiDof; num_dof of btScalar would cover all bodies	
+	btSpatialMotionVector result;							//holds results of the SolveImatrix op; it is a spatial motion vector (accel)
+	btScalar Y_minus_hT_a[6];							//Y - h^{T} * a; it's dofx1 for each body so a single 6x1 temp is enough	
+	btSpatialForceVector spatForceVecTemps[6];				//6 temporary spatial force vectors
+	btSpatialTransformationMatrix fromParent;				//spatial transform from parent to child
+	btSymmetricSpatialDyad dyadTemp;						//inertia matrix temp
 	btSpatialTransformationMatrix fromWorld;
 	fromWorld.m_trnVec.setZero();
 	/////////////////
@@ -1278,7 +1278,7 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 	}
 }
 
-void btMultiBody::solveImatrix(const btVector3 &rhs_top, const btVector3 &rhs_bot, btScalar result[6]) const
+void btMultiBody::solveImatrix(const btVector3& rhs_top, const btVector3& rhs_bot, btScalar result[6]) const
 {
 	int num_links = getNumLinks();
 	///solve I * x = rhs, so the result = invI * rhs
@@ -1460,11 +1460,11 @@ void btMultiBody::calcAccelerationDeltasMultiDof(const btScalar *force, btScalar
 	btScalar * Y = r_ptr; 
 	////////////////
 	//aux variables
-	btScalar invD_times_Y[6];                   //D^{-1} * Y [dofxdof x dofx1 = dofx1] <=> D^{-1} * u; better moved to buffers since it is recalced in calcAccelerationDeltasMultiDof; num_dof of btScalar would cover all bodies
-	btSpatialMotionVector result;               //holds results of the SolveImatrix op; it is a spatial motion vector (accel)
-	btScalar Y_minus_hT_a[6];                   //Y - h^{T} * a; it's dofx1 for each body so a single 6x1 temp is enough
-	btSpatialForceVector spatForceVecTemps[6];  //6 temporary spatial force vectors
-	btSpatialTransformationMatrix fromParent;
+	btScalar invD_times_Y[6];							//D^{-1} * Y [dofxdof x dofx1 = dofx1] <=> D^{-1} * u; better moved to buffers since it is recalced in calcAccelerationDeltasMultiDof; num_dof of btScalar would cover all bodies
+	btSpatialMotionVector result;							//holds results of the SolveImatrix op; it is a spatial motion vector (accel)
+	btScalar Y_minus_hT_a[6];							//Y - h^{T} * a; it's dofx1 for each body so a single 6x1 temp is enough	
+	btSpatialForceVector spatForceVecTemps[6];				//6 temporary spatial force vectors
+	btSpatialTransformationMatrix fromParent;	
 	/////////////////
 
     // First 'upward' loop.
@@ -2327,8 +2327,8 @@ const char*	btMultiBody::serialize(void* dataBuffer, class btSerializer* seriali
 
 				memPtr->m_linkMass = getLink(i).m_mass;
 				memPtr->m_parentIndex = getLink(i).m_parent;
-			memPtr->m_jointDamping = getLink(i).m_jointDamping;
-			memPtr->m_jointFriction = getLink(i).m_jointFriction;
+				memPtr->m_jointDamping = getLink(i).m_jointDamping;
+				memPtr->m_jointFriction = getLink(i).m_jointFriction;
 			memPtr->m_jointLowerLimit = getLink(i).m_jointLowerLimit;
 			memPtr->m_jointUpperLimit = getLink(i).m_jointUpperLimit;
 			memPtr->m_jointMaxForce = getLink(i).m_jointMaxForce;

@@ -336,13 +336,13 @@ public:
 	btVector3 localDirToWorld(int i, const btVector3 &local_dir) const;
 	btVector3 worldPosToLocal(int i, const btVector3 &world_pos) const;
 	btVector3 worldDirToLocal(int i, const btVector3 &world_dir) const;
-    
+
     //
-	// transform a frame in local coordinate to a frame in world coordinate
+    // transform a frame in local coordinate to a frame in world coordinate
     //
 	btMatrix3x3 localFrameToWorld(int i, const btMatrix3x3 &local_frame) const;
 
-    
+
     //
     // set external forces and torques. Note all external forces/torques are given in the WORLD frame.
     //
@@ -744,7 +744,7 @@ private:
     btMultiBody(const btMultiBody &);  // not implemented
     void operator=(const btMultiBody &);  // not implemented
 
-	void solveImatrix(const btVector3 &rhs_top, const btVector3 &rhs_bot, btScalar result[6]) const;
+	void solveImatrix(const btVector3& rhs_top, const btVector3& rhs_bot, btScalar result[6]) const;
 	void solveImatrix(const btSpatialForceVector &rhs, btSpatialMotionVector &result) const;
 	
 	void updateLinksDofOffsets()
@@ -867,9 +867,9 @@ struct btMultiBodyLinkDoubleData
 	double					m_jointPos[7];
 	double					m_jointVel[6];
 	double					m_jointTorque[6];
-	
-	double m_jointDamping;
-	double m_jointFriction;
+
+	double					m_jointDamping;
+	double					m_jointFriction;
 	double m_jointLowerLimit;
 	double m_jointUpperLimit;
 	double m_jointMaxForce;
@@ -903,13 +903,13 @@ struct btMultiBodyLinkFloatData
 	float					m_jointVel[6];
 	float					m_jointTorque[6];
 	int						m_posVarCount;
-	float m_jointDamping;
-	float m_jointFriction;
+	float					m_jointDamping;
+	float					m_jointFriction;
 	float m_jointLowerLimit;
 	float m_jointUpperLimit;
 	float m_jointMaxForce;
 	float m_jointMaxVelocity;
-	
+
 	char *m_linkName;
 	char *m_jointName;
 	btCollisionObjectFloatData *m_linkCollider;
