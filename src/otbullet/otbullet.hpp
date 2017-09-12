@@ -123,6 +123,8 @@ public:
         float3* norm, 
         double3* hitpoint);
 
+    ifc_event void add_static_collider(const void * context, btCollisionObject * obj, const double3& cen, const float3x3& basis);
+
     ifc_event void log(const coid::token& text);
 
 private:

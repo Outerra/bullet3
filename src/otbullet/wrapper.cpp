@@ -136,7 +136,10 @@ static float3 _ext_tree_col(btRigidBody * obj,
     coid::slotalloc<bt::tree_batch>& tree_batches) {
 
     return _physics->tree_collisions(obj, ctx, time_step,tree_batches);
+}
 
+static void _ext_add_static_collider(const void * context,btCollisionObject * obj, const double3& cen, const float3x3& basis) {
+    _physics->add_static_collider(context,obj,cen,basis);
 }
 #endif
 
@@ -336,7 +339,20 @@ void physics::add_collision_object( btCollisionObject* obj, unsigned int group, 
     if(inactive)
         obj->setActivationState(DISABLE_SIMULATION);
 
+   /* if (obj->isStaticObject()) {
+        float3x3 basis;
+        double3 cen;
+
+        _world->get_obb(obj->getCollisionShape(),obj->getWorldTransform(),cen,basis);
+        add_static_collider(_world->get_context(),obj,cen,basis);
+    }
+    else {
+        _world->addCollisionObject(obj, group, mask);
+    }*/
+
     _world->addCollisionObject(obj, group, mask);
+
+ 
 }
 
 ////////////////////////////////////////////////////////////////////////////////

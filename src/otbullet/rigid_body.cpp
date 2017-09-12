@@ -86,8 +86,8 @@ void physics::destroy_rigid_body( btRigidBody*& obj )
 void physics::add_rigid_body( btRigidBody* obj, unsigned int group, unsigned int mask,
     btActionInterface* action, bt::constraint_info* constraint )
 {
-    if(action)
-		obj->setActivationState(DISABLE_DEACTIVATION);
+//    if(action)
+//		obj->setActivationState(DISABLE_DEACTIVATION);
 
     _world->addRigidBody(obj, group, mask);
 
@@ -120,7 +120,7 @@ void physics::remove_rigid_body( btRigidBody* obj, btActionInterface* action, bt
 ////////////////////////////////////////////////////////////////////////////////
 void physics::pause_rigid_body( btRigidBody* obj, bool pause )
 {
-    obj->forceActivationState(pause ? DISABLE_SIMULATION : DISABLE_DEACTIVATION);
+    obj->forceActivationState(pause ? DISABLE_SIMULATION : ACTIVE_TAG);
 
     if(pause) {
         btVector3 v(0,0,0);

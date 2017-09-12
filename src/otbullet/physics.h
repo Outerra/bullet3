@@ -128,6 +128,8 @@ protected:
 
     virtual float elevation_above_terrain( const double3& pos, float maxlen, float3* norm, double3* hitpoint ){ throw coid::exception("handler not implemented"); }
 
+    virtual void add_static_collider( const void* context, btCollisionObject* obj, const double3& cen, const float3x3& basis ) {}
+
     virtual void log( const coid::token& text ) {}
 
     virtual void force_bind_script_events() {}
@@ -140,6 +142,7 @@ public:
     virtual bool is_bound_tree_collisions() { return true; }
     virtual bool is_bound_terrain_ray_intersect() { return true; }
     virtual bool is_bound_elevation_above_terrain() { return true; }
+    virtual bool is_bound_add_static_collider() { return true; }
     virtual bool is_bound_log() { return true; }
 
 public:
@@ -165,7 +168,7 @@ public:
         if (_cleaner) _cleaner(this,0);
     }
 
-    static const int HASHID = 3023259009;
+    static const int HASHID = 3573161280;
 
     int intergen_hash_id() const override final { return HASHID; }
 
@@ -179,7 +182,7 @@ public:
     }
 
     static const coid::token& intergen_default_creator_static( EBackend bck ) {
-        static const coid::token _dc("bt::physics.get@3023259009");
+        static const coid::token _dc("bt::physics.get@3573161280");
         static const coid::token _djs("bt::physics@wrapper.js");
         static const coid::token _dlua("bt::physics@wrapper.lua");
         static const coid::token _dnone;
@@ -253,7 +256,7 @@ inline iref<T> physics::create( T* _subclass_, double r, void* context )
     typedef iref<T> (*fn_creator)(physics*, double, void*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.create@3023259009";
+    static const coid::token ifckey = "bt::physics.create@3573161280";
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
@@ -271,7 +274,7 @@ inline iref<T> physics::get( T* _subclass_ )
     typedef iref<T> (*fn_creator)(physics*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.get@3023259009";
+    static const coid::token ifckey = "bt::physics.get@3573161280";
 
     if (!create)
         create = reinterpret_cast<fn_creator>(

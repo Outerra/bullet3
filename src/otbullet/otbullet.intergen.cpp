@@ -198,10 +198,10 @@ public:
             on ? (void*)&_generic_interface_creator : nullptr);
 
         interface_register::register_interface_creator(
-            "bt::physics.create@3023259009",
+            "bt::physics.create@3573161280",
             on ? (void*)&create : nullptr);
         interface_register::register_interface_creator(
-            "bt::physics.get@3023259009",
+            "bt::physics.get@3573161280",
             on ? (void*)&get : nullptr);
     }
 };
@@ -263,6 +263,14 @@ float physics::elevation_above_terrain( const double3& pos, float maxlen, float3
         throw coid::exception() << "elevation_above_terrain" << " handler not implemented";
     else
         return _ifc_host->iface<bt::physics>()->elevation_above_terrain(pos, maxlen, norm, hitpoint);
+}
+
+void physics::add_static_collider( const void* context, btCollisionObject* obj, const double3& cen, const float3x3& basis )
+{
+	if (!_ifc_host) 
+        throw coid::exception() << "add_static_collider" << " handler not implemented";
+    else
+        return _ifc_host->iface<bt::physics>()->add_static_collider(context, obj, cen, basis);
 }
 
 void physics::log( const coid::token& text )
