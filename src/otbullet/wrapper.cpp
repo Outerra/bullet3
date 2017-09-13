@@ -212,16 +212,31 @@ void physics::debug_draw_world() {
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void physics::query_volume_sphere(const double3 & pos, float rad, coid::dynarray<btCollisionObject*>& result)
 {
-    _world->query_volume_sphere(pos,rad,result);
+    
+    _world->query_volume_sphere(pos, rad, [&](btCollisionObject* obj) {
+        result.push(obj);
+    });
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void physics::query_volume_frustum(const double3 & pos,const float4 * f_planes_norms, uint8 nplanes, bool include_partial, coid::dynarray<btCollisionObject*>& result)
 {
-    _world->query_volume_frustum(pos, f_planes_norms, nplanes, include_partial,result);
+    
+    _world->query_volume_frustum(pos, f_planes_norms, nplanes, include_partial, [&](btCollisionObject* obj) {
+        result.push(obj);
+    });
 }
 
+////////////////////////////////////////////////////////////////////////////////
+void physics::wake_up_objects_in_radius(const double3 & pos, float rad) {
+    _world->query_volume_sphere(pos, rad, [&](btCollisionObject* obj) {
+        obj->setActivationState(ACTIVE_TAG);
+        obj->setDeactivationTime(0);
+    });
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 btCollisionShape* physics::create_shape( bt::EShape sh, const float hvec[3] )

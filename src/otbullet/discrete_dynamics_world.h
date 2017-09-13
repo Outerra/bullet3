@@ -7,6 +7,7 @@
 #include "physics_cfg.h"
 
 #include <ot/glm/glm_types.h>
+#include <ot/glm/coal.h>
 
 #include <comm/dynarray.h>
 #include <comm/hash/slothash.h>
@@ -182,9 +183,6 @@ public:
 
     virtual void removeRigidBody(btRigidBody* body) override;
 
-    void query_volume_sphere(const double3& pos, float rad, coid::dynarray<btCollisionObject *>& result);
-    void query_volume_frustum(const double3&pos, const float4 * f_planes_norms, uint8 nplanes, bool include_partial, coid::dynarray<btCollisionObject *>& result);
-
     virtual void debugDrawWorld() override;
 
     typedef bool (*fn_ext_collision)(
@@ -244,6 +242,127 @@ public:
     const void * get_context() { return _context; }
 
     void get_obb(const btCollisionShape * cs, const btTransform& t, double3& cen, float3x3& basis);
+
+    template<class fn> // void (*fn)(btCollisionObject * obj)
+    void query_volume_sphere(const double3& pos, float rad, fn process_fn)
+    {
+#ifdef _DEBUG
+        bt32BitAxisSweep3 * broad = dynamic_cast<bt32BitAxisSweep3 *>(m_broadphasePairCache);
+        DASSERT(broad != nullptr);
+#else
+        bt32BitAxisSweep3 * broad = static_cast<bt32BitAxisSweep3 *>(m_broadphasePairCache);
+#endif
+
+        static coid::dynarray<const btDbvtNode *> _processing_stack(1024);
+        _processing_stack.reset();
+
+        const btDbvtBroadphase* raycast_acc = broad->getRaycastAccelerator();
+        DASSERT(raycast_acc);
+
+        const btDbvt * dyn_set = &raycast_acc->m_sets[0];
+        const btDbvt * stat_set = &raycast_acc->m_sets[1];
+
+        const btDbvtNode * cur_node = nullptr;
+
+        if (dyn_set && dyn_set->m_root) {
+            _processing_stack.push(dyn_set->m_root);
+        }
+
+        if (stat_set && stat_set->m_root) {
+            _processing_stack.push(stat_set->m_root);
+        }
+
+        while (_processing_stack.pop(cur_node)) {
+            const btVector3& bt_aabb_cen = cur_node->volume.Center();
+            const btVector3& bt_aabb_half = cur_node->volume.Extents();
+            double3 aabb_cen(bt_aabb_cen[0], bt_aabb_cen[1], bt_aabb_cen[2]);
+            double3 aabb_half(bt_aabb_half[0], bt_aabb_half[1], bt_aabb_half[2]);
+            if (coal::intersects_sphere_aabb(pos, (double)rad, aabb_cen, aabb_half, (double*)nullptr)) {
+                if (cur_node->isleaf()) {
+                    if (cur_node->data) {
+                        btDbvtProxy* dat = reinterpret_cast<btDbvtProxy*>(cur_node->data);
+                        process_fn(reinterpret_cast<btCollisionObject*>(dat->m_clientObject));
+                    }
+                }
+                else {
+                    _processing_stack.push(cur_node->childs[0]);
+                    _processing_stack.push(cur_node->childs[1]);
+                }
+            }
+        }
+    }
+
+    template<class fn> // void (*fn)(btCollisionObject * obj)
+    void query_volume_frustum(const double3&pos, const float4 * f_planes_norms, uint8 nplanes, bool include_partial, fn process_fn)
+    {
+#ifdef _DEBUG
+        bt32BitAxisSweep3 * broad = dynamic_cast<bt32BitAxisSweep3 *>(m_broadphasePairCache);
+        DASSERT(broad != nullptr);
+#else
+        bt32BitAxisSweep3 * broad = static_cast<bt32BitAxisSweep3 *>(m_broadphasePairCache);
+#endif
+        static coid::dynarray<const btDbvtNode *> _processing_stack(1024);
+        _processing_stack.reset();
+
+        const btDbvtBroadphase* raycast_acc = broad->getRaycastAccelerator();
+        DASSERT(raycast_acc);
+
+        const btDbvt * dyn_set = &raycast_acc->m_sets[0];
+        const btDbvt * stat_set = &raycast_acc->m_sets[1];
+
+        const btDbvtNode * cur_node = nullptr;
+
+        if (dyn_set && dyn_set->m_root) {
+            _processing_stack.push(dyn_set->m_root);
+        }
+
+        if (stat_set && stat_set->m_root) {
+            _processing_stack.push(stat_set->m_root);
+        }
+
+        btCollisionObject p_obj;
+
+        while (_processing_stack.pop(cur_node)) {
+            const btVector3& bt_aabb_cen = cur_node->volume.Center();
+            const btVector3& bt_aabb_half = cur_node->volume.Extents();
+            double3 aabb_cen(bt_aabb_cen[0], bt_aabb_cen[1], bt_aabb_cen[2]);
+            float3 aabb_half(bt_aabb_half[0], bt_aabb_half[1], bt_aabb_half[2]);
+
+            if (coal::intersects_frustum_aabb(aabb_cen, aabb_half, pos, f_planes_norms, nplanes, true)) {
+                if (cur_node->isleaf()) {
+                    if (cur_node->data) {
+                        btDbvtProxy* dat = reinterpret_cast<btDbvtProxy*>(cur_node->data);
+                        btCollisionObject* leaf_obj = reinterpret_cast<btCollisionObject*>(dat->m_clientObject);
+
+                        const btVector3& cen = leaf_obj->getWorldTransform().getOrigin();
+                        const float3 aabb_pos(float(cen[0] - pos.x), float(cen[1] - pos.y), float(cen[2] - pos.z));
+                        bool passes = true;
+                        for (uint8 p = 0; p < nplanes; p++) {
+                            float3 n(f_planes_norms[p]);
+                            btVector3 min, max;
+                            btTransform t(btMatrix3x3(n.x, n.y, n.z, 0., 0., 0., 0., 0., 0.));
+                            leaf_obj->getCollisionShape()->getAabb(t, min, max);
+                            const float np = float(max[0] - min[0]) * 0.5f;
+                            const float mp = glm::dot(n, aabb_pos) + f_planes_norms[p].w;
+                            if ((include_partial ? mp + np : mp - np) < 0.0f) {
+                                passes = false;
+                                break;
+                            }
+                        }
+
+                        if (passes) {
+                            process_fn(leaf_obj);
+                        }
+                    }
+                }
+                else {
+                    _processing_stack.push(cur_node->childs[0]);
+                    _processing_stack.push(cur_node->childs[1]);
+                }
+            };
+        }
+    }
+
 
 
 protected:

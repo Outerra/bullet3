@@ -82,6 +82,7 @@ public:
 
     ifc_fn void query_volume_sphere(const double3 & pos, float rad, ifc_inout coid::dynarray<btCollisionObject*>& result);
     ifc_fn void query_volume_frustum(const double3 & pos, const float4 * f_planes_norms, uint8 nplanes, bool include_partial, ifc_inout coid::dynarray<btCollisionObject *>& result);
+    ifc_fn void wake_up_objects_in_radius(const double3 & pos, float rad);
 
 
     ifc_event bool terrain_collisions(

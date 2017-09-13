@@ -15,8 +15,6 @@
 
 #include <LinearMath/btIDebugDraw.h>
 
-#include <ot/glm/coal.h>
-
 #include "ot_terrain_contact_common.h"
 
 #include <comm/timer.h>
@@ -245,6 +243,8 @@ namespace ot {
 
             res.setPersistentManifold(manifold);
 
+            uint tri_count = 0;
+
 			for (uints j = 0; j < _cow_internal.size(); j++) {
 
 				btCollisionObjectWrapper internal_obj_wrapper(_cow_internal[j]._parent,
@@ -330,6 +330,8 @@ namespace ot {
                     repair_tree_collision_pairs();
                 }
 
+                tri_count += _triangles.size();
+
 				if (_triangles.size() > 0) {
 
                     if (m_debugDrawer) {
@@ -368,7 +370,7 @@ namespace ot {
             
             res.refreshContactPoints();
 
-            if (manifold->getNumContacts() == 0) {
+            if (manifold->getNumContacts() == 0 || tri_count == 0) {
                 getDispatcher()->releaseManifold(manifold);
                 _manifolds.get_item(rb->getTerrainManifoldHandle());
                 _manifolds.del(_manifolds.get_item(rb->getTerrainManifoldHandle()));
@@ -571,124 +573,6 @@ namespace ot {
         uint8 tid = tree_id & 0xf;
         bt::tree_batch* tb = _tb_cache.get_item(bid);
         return &tb->trees[tid];
-    }
-
-    void discrete_dynamics_world::query_volume_sphere(const double3& pos, float rad, coid::dynarray<btCollisionObject *>& result)
-    {
-#ifdef _DEBUG
-        bt32BitAxisSweep3 * broad = dynamic_cast<bt32BitAxisSweep3 *>(m_broadphasePairCache);
-        DASSERT(broad!=nullptr);
-#else
-        bt32BitAxisSweep3 * broad = static_cast<bt32BitAxisSweep3 *>(m_broadphasePairCache);
-#endif
-
-        static coid::dynarray<const btDbvtNode *> _processing_stack(1024);
-        _processing_stack.reset();
-
-        const btDbvtBroadphase* raycast_acc = broad->getRaycastAccelerator();
-        DASSERT(raycast_acc);
-
-        const btDbvt * dyn_set = &raycast_acc->m_sets[0];
-        const btDbvt * stat_set = &raycast_acc->m_sets[1];
-        
-        const btDbvtNode * cur_node = nullptr;
-        
-        if (dyn_set && dyn_set->m_root) {
-            _processing_stack.push(dyn_set->m_root);
-        }
-
-        if (stat_set && stat_set->m_root) {
-            _processing_stack.push(stat_set->m_root);
-        }
-        
-        while (_processing_stack.pop(cur_node)) {
-            const btVector3& bt_aabb_cen = cur_node->volume.Center();
-            const btVector3& bt_aabb_half = cur_node->volume.Extents();
-            glm::double3 aabb_cen(bt_aabb_cen[0], bt_aabb_cen[1], bt_aabb_cen[2]);
-            glm::double3 aabb_half(bt_aabb_half[0], bt_aabb_half[1], bt_aabb_half[2]);
-            if (coal::intersects_sphere_aabb(pos, (double)rad, aabb_cen, aabb_half, (double*)nullptr)) {
-                if (cur_node->isleaf()) {
-                    if(cur_node->data){
-                        btDbvtProxy* dat = reinterpret_cast<btDbvtProxy*>(cur_node->data);
-                        result.push(reinterpret_cast<btCollisionObject*>(dat->m_clientObject));
-                    }
-                }
-                else {
-                    _processing_stack.push(cur_node->childs[0]);
-                    _processing_stack.push(cur_node->childs[1]);
-                }
-            };
-        }
-    }
-
-    void discrete_dynamics_world::query_volume_frustum(const double3 & pos, const float4 * f_planes_norms, uint8 nplanes, bool include_partial,coid::dynarray<btCollisionObject*>& result)
-    {
-#ifdef _DEBUG
-        bt32BitAxisSweep3 * broad = dynamic_cast<bt32BitAxisSweep3 *>(m_broadphasePairCache);
-        DASSERT(broad != nullptr);
-#else
-        bt32BitAxisSweep3 * broad = static_cast<bt32BitAxisSweep3 *>(m_broadphasePairCache);
-#endif
-        static coid::dynarray<const btDbvtNode *> _processing_stack(1024);
-        _processing_stack.reset();
-
-        const btDbvtBroadphase* raycast_acc = broad->getRaycastAccelerator();
-        DASSERT(raycast_acc);
-
-        const btDbvt * dyn_set = &raycast_acc->m_sets[0];
-        const btDbvt * stat_set = &raycast_acc->m_sets[1];
-        
-        const btDbvtNode * cur_node = nullptr;
-        
-        if (dyn_set && dyn_set->m_root) {
-            _processing_stack.push(dyn_set->m_root);
-        }
-
-        if (stat_set && stat_set->m_root) {
-            _processing_stack.push(stat_set->m_root);
-        }
-        
-        btCollisionObject p_obj;
-
-        while (_processing_stack.pop(cur_node)) {
-            const btVector3& bt_aabb_cen = cur_node->volume.Center();
-            const btVector3& bt_aabb_half = cur_node->volume.Extents();
-            glm::double3 aabb_cen(bt_aabb_cen[0], bt_aabb_cen[1], bt_aabb_cen[2]);
-            glm::float3 aabb_half(bt_aabb_half[0], bt_aabb_half[1], bt_aabb_half[2]);
-
-            if (coal::intersects_frustum_aabb(aabb_cen, aabb_half, pos, f_planes_norms, nplanes, true)) {
-                if (cur_node->isleaf()) {
-                    if(cur_node->data){
-                        btDbvtProxy* dat = reinterpret_cast<btDbvtProxy*>(cur_node->data);
-                        btCollisionObject* leaf_obj = reinterpret_cast<btCollisionObject*>(dat->m_clientObject);
-
-                        const btVector3& cen = leaf_obj->getWorldTransform().getOrigin();
-                        const float3 aabb_pos(float(cen[0] - pos.x), float(cen[1] - pos.y), float(cen[2] - pos.z));
-                        bool passes = true;
-                        for (uint8 p = 0; p < nplanes; p++) {
-                            float3 n(f_planes_norms[p]);
-                            btVector3 min, max;
-                            btTransform t(btMatrix3x3(n.x, n.y, n.z, 0., 0., 0., 0., 0., 0.));
-                            leaf_obj->getCollisionShape()->getAabb(t,min,max);
-                            const float np = float(max[0] - min[0]) * 0.5f;
-                            const float mp = glm::dot(n, aabb_pos) + f_planes_norms[p].w;
-                            if ((include_partial ? mp + np : mp - np) < 0.0f) {
-                                passes = false;
-                                break;
-                            }
-                        }
-
-                        if (passes) {
-                            result.push(leaf_obj);
-                        }
-                    }
-                }
-                else {
-                    _processing_stack.push(cur_node->childs[0]);
-                    _processing_stack.push(cur_node->childs[1]);
-                }
-            };
-        }
     }
 
     void discrete_dynamics_world::debugDrawWorld()

@@ -111,6 +111,8 @@ public:
 
     void query_volume_frustum( const double3& pos, const float4* f_planes_norms, uint8 nplanes, bool include_partial, ifc_inout coid::dynarray<btCollisionObject *>& result );
 
+    void wake_up_objects_in_radius( const double3& pos, float rad );
+
 
 protected:
     // --- interface events (callbacks from host to client) ---
@@ -168,7 +170,7 @@ public:
         if (_cleaner) _cleaner(this,0);
     }
 
-    static const int HASHID = 3573161280;
+    static const int HASHID = 2719886067;
 
     int intergen_hash_id() const override final { return HASHID; }
 
@@ -182,7 +184,7 @@ public:
     }
 
     static const coid::token& intergen_default_creator_static( EBackend bck ) {
-        static const coid::token _dc("bt::physics.get@3573161280");
+        static const coid::token _dc("bt::physics.get@2719886067");
         static const coid::token _djs("bt::physics@wrapper.js");
         static const coid::token _dlua("bt::physics@wrapper.lua");
         static const coid::token _dnone;
@@ -256,7 +258,7 @@ inline iref<T> physics::create( T* _subclass_, double r, void* context )
     typedef iref<T> (*fn_creator)(physics*, double, void*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.create@3573161280";
+    static const coid::token ifckey = "bt::physics.create@2719886067";
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
@@ -274,7 +276,7 @@ inline iref<T> physics::get( T* _subclass_ )
     typedef iref<T> (*fn_creator)(physics*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.get@3573161280";
+    static const coid::token ifckey = "bt::physics.get@2719886067";
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
@@ -390,6 +392,9 @@ inline void physics::query_volume_sphere( const double3& pos, float rad, coid::d
 
 inline void physics::query_volume_frustum( const double3& pos, const float4* f_planes_norms, uint8 nplanes, bool include_partial, coid::dynarray<btCollisionObject *>& result )
 { return VT_CALL(void,(const double3&,const float4*,uint8,bool,coid::dynarray<btCollisionObject *>&),33)(pos,f_planes_norms,nplanes,include_partial,result); }
+
+inline void physics::wake_up_objects_in_radius( const double3& pos, float rad )
+{ return VT_CALL(void,(const double3&,float),34)(pos,rad); }
 
 #pragma warning(pop)
 
