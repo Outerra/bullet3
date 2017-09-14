@@ -359,6 +359,10 @@ void ot_terrain_contact_common::collide_object_plane(fn_elevation_above_terrain 
  
     const double elev(elevation_above_terrain(pos, _sphere_radius, &hit_norm, &hit));
 
+    if (elev == _sphere_radius) {
+        return;
+    }
+
     btStaticPlaneShape plane(btVector3(hit_norm.x, hit_norm.y, hit_norm.z).normalized(), glm::dot(glm::normalize(double3(hit_norm)), hit));
     //btStaticPlaneShape plane(btVector3(norm.x,norm.y,norm.z),glm::dot(norm,pos - (norm*elev)));
 
