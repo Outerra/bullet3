@@ -156,7 +156,7 @@ protected:
 
     coid::dynarray<bt::triangle> _triangles;
     coid::slotalloc<bt::tree_batch> _tb_cache;
-    void * _relocation_offset;
+    //void * _relocation_offset;
 
     coid::dynarray<uint> _tree_batches;
 
