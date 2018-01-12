@@ -246,7 +246,9 @@ namespace ot {
             uint tri_count = 0;
 
 			for (uints j = 0; j < _cow_internal.size(); j++) {
-
+                if (_cow_internal[j]._shape->getUserIndex() & 1) { // do not collide with terrain
+                    continue;
+                }
 				btCollisionObjectWrapper internal_obj_wrapper(_cow_internal[j]._parent,
 					_cow_internal[j]._shape,
 					obj,

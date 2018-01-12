@@ -330,6 +330,10 @@ void ot_terrain_contact_common::collide_convex_triangle(const bt::triangle & tri
 
 
     btCollisionObjectWrapper triObWrap(_manifold->getBody1Wrap(), &tm, _manifold->getBody1Wrap()->getCollisionObject(), _manifold->getBody1Wrap()->getWorldTransform(), 0, triangle.tri_idx);//correct transform?
+
+    const btCollisionObjectWrapper * curr_col_obj_wrapper = _manifold->getBody0Wrap();
+    _manifold->setBody0Wrap(_convex_object);
+
     btCollisionAlgorithm* colAlgo = _collision_world->getDispatcher()->findAlgorithm(_manifold->getBody0Wrap(), &triObWrap, _manifold->getPersistentManifold());
 
     const btCollisionObjectWrapper* tmpWrap = 0;
@@ -341,6 +345,7 @@ void ot_terrain_contact_common::collide_convex_triangle(const bt::triangle & tri
 
     colAlgo->processCollision(_manifold->getBody0Wrap(), &triObWrap, _collision_world->getDispatchInfo(), _manifold);
 
+    _manifold->setBody1Wrap(curr_col_obj_wrapper);
     _manifold->setBody1Wrap(tmpWrap);
     
     colAlgo->~btCollisionAlgorithm();
