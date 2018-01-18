@@ -122,7 +122,7 @@ protected:
 
     virtual bool terrain_collisions( const void* context, const double3& center, float radius, float lod_dimension, coid::dynarray<bt::triangle>& data, coid::dynarray<uint>& trees, coid::slotalloc<bt::tree_batch>& tree_batches, uint frame ){ throw coid::exception("handler not implemented"); }
 
-    virtual bool terrain_collisions_aabb( const void* context, const double3& center, float3x3 basis, float lod_dimension, coid::dynarray<bt::triangle>& data, coid::dynarray<uint>& trees, coid::slotalloc<bt::tree_batch>& tree_batches, uint frame, bool& is_above_tm ){ throw coid::exception("handler not implemented"); }
+    virtual int terrain_collisions_aabb( const void* context, const double3& center, float3x3 basis, float lod_dimension, coid::dynarray<bt::triangle>& data, coid::dynarray<uint>& trees, coid::slotalloc<bt::tree_batch>& tree_batches, uint frame, bool& is_above_tm, double3& under_contact, float3& under_normal ){ throw coid::exception("handler not implemented"); }
 
     virtual float3 tree_collisions( btRigidBody* obj, bt::tree_collision_contex& ctx, float time_step, coid::slotalloc<bt::tree_batch>& tree_batches ){ throw coid::exception("handler not implemented"); }
 
@@ -170,7 +170,7 @@ public:
         if (_cleaner) _cleaner(this,0);
     }
 
-    static const int HASHID = 2719886067;
+    static const int HASHID = 2650151887;
 
     int intergen_hash_id() const override final { return HASHID; }
 
@@ -184,7 +184,7 @@ public:
     }
 
     static const coid::token& intergen_default_creator_static( EBackend bck ) {
-        static const coid::token _dc("bt::physics.get@2719886067");
+        static const coid::token _dc("bt::physics.get@2650151887");
         static const coid::token _djs("bt::physics@wrapper.js");
         static const coid::token _dlua("bt::physics@wrapper.lua");
         static const coid::token _dnone;
@@ -258,7 +258,7 @@ inline iref<T> physics::create( T* _subclass_, double r, void* context )
     typedef iref<T> (*fn_creator)(physics*, double, void*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.create@2719886067";
+    static const coid::token ifckey = "bt::physics.create@2650151887";
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
@@ -276,7 +276,7 @@ inline iref<T> physics::get( T* _subclass_ )
     typedef iref<T> (*fn_creator)(physics*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.get@2719886067";
+    static const coid::token ifckey = "bt::physics.get@2650151887";
 
     if (!create)
         create = reinterpret_cast<fn_creator>(

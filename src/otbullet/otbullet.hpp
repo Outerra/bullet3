@@ -95,7 +95,7 @@ public:
         coid::slotalloc<bt::tree_batch>& tree_batches,
         uint frame );
 
-    ifc_event bool terrain_collisions_aabb(
+    ifc_event int terrain_collisions_aabb(
         const void* context,
         const double3& center,
         float3x3 basis,
@@ -104,7 +104,9 @@ public:
         coid::dynarray<uint>& trees,
         coid::slotalloc<bt::tree_batch>& tree_batches,
         uint frame, 
-        bool& is_above_tm);
+        bool& is_above_tm,
+        double3& under_contact,
+        float3& under_normal);
 
     ifc_event float3 tree_collisions(btRigidBody * obj,
         bt::tree_collision_contex & ctx,

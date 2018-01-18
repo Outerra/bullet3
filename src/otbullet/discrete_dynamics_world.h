@@ -195,7 +195,7 @@ public:
         coid::slotalloc<bt::tree_batch>& tree_batches,
         uint frame );
 
-    typedef bool(*fn_ext_collision_2)(
+    typedef int(*fn_ext_collision_2)(
         const void* context,
         const double3& center,
         const float3x3& basis,
@@ -204,7 +204,9 @@ public:
         coid::dynarray<uint>& trees,
         coid::slotalloc<bt::tree_batch>& tree_batches,
         uint frame,
-        bool& is_above_tm);
+        bool& is_above_tm,
+        double3& under_contact,
+        float3& under_normal);
 
     typedef float3(*fn_process_tree_collision)(btRigidBody * obj, bt::tree_collision_contex & ctx, float time_step, coid::slotalloc<bt::tree_batch>& tree_batches );
 

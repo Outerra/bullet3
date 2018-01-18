@@ -40,7 +40,7 @@ extern bool _ext_collider(const void* context,
     coid::slotalloc<bt::tree_batch>& tree_batches,
     uint frame );
 
-extern bool _ext_collider_obb(
+extern int _ext_collider_obb(
     const void * context,
     const double3& center,
     const float3x3& basis,
@@ -49,7 +49,9 @@ extern bool _ext_collider_obb(
     coid::dynarray<uint>& trees,
     coid::slotalloc<bt::tree_batch>& tree_batches,
     uint frame,
-    bool& is_above_tm);
+    bool& is_above_tm,
+    double3& under_contact,
+    float3& under_normal);
 
 extern float _ext_terrain_ray_intersect(
     const void* planet,
@@ -86,7 +88,7 @@ static bool _ext_collider(
     return _physics->terrain_collisions(planet, center, radius, lod_dimension, data, trees, tree_batches, frame);
 }
 
-static bool _ext_collider_obb(
+static int _ext_collider_obb(
     const void * planet,
     const double3& center,
     const float3x3& basis,
@@ -95,9 +97,11 @@ static bool _ext_collider_obb(
     coid::dynarray<uint>& trees,
     coid::slotalloc<bt::tree_batch>& tree_batches,
     uint frame,
-    bool& is_above_tm)
+    bool& is_above_tm,
+    double3& under_contact,
+    float3& under_normal)
 {
-    return _physics->terrain_collisions_aabb(planet, center, basis, lod_dimension, data, trees, tree_batches, frame,is_above_tm);
+    return _physics->terrain_collisions_aabb(planet, center, basis, lod_dimension, data, trees, tree_batches, frame,is_above_tm, under_contact, under_normal);
 }
 
 static float _ext_terrain_ray_intersect(
