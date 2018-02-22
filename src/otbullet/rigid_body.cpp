@@ -138,14 +138,15 @@ void physics::set_rigid_body_mass( btRigidBody* obj, float mass, const float ine
 ////////////////////////////////////////////////////////////////////////////////
 void physics::set_rigid_body_gravity( btRigidBody* obj, const double gravity[3] )
 {
-    obj->setGravity(*reinterpret_cast<const btVector3*>(gravity));
+    obj->setGravity(btVector3(gravity[0], gravity[1], gravity[2]));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void physics::set_rigid_body_transform( btRigidBody* obj, const btTransform& tr, const double gravity[3] )
 {
     obj->setCenterOfMassTransform(tr);
-    obj->setGravity(*reinterpret_cast<const btVector3*>(gravity));
+    obj->setGravity(btVector3(gravity[0], gravity[1], gravity[2]));
+    
 }
 
 ////////////////////////////////////////////////////////////////////////////////
