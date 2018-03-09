@@ -372,6 +372,10 @@ void ot_terrain_contact_common::collide_object_plane(fn_elevation_above_terrain 
     //btStaticPlaneShape plane(btVector3(norm.x,norm.y,norm.z),glm::dot(norm,pos - (norm*elev)));
 
     btCollisionObjectWrapper planeObWrap(_manifold->getBody1Wrap(), &plane, _manifold->getBody1Wrap()->getCollisionObject(), _manifold->getBody1Wrap()->getWorldTransform(), 0, 0);//correct transform?
+
+	const btCollisionObjectWrapper * curr_col_obj_wrapper = _manifold->getBody0Wrap();
+	_manifold->setBody0Wrap(_convex_object);
+
     btCollisionAlgorithm* colAlgo = _collision_world->getDispatcher()->findAlgorithm(_manifold->getBody0Wrap(), &planeObWrap, _manifold->getPersistentManifold());
 
     const btCollisionObjectWrapper* tmpWrap = 0;
