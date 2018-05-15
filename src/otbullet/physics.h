@@ -170,7 +170,14 @@ public:
         if (_cleaner) _cleaner(this,0);
     }
 
-    static const int HASHID = 2650151887;
+    ///Interface revision hash
+    static const int HASHID = 2633374268;
+    
+    ///Interface name (full ns::class string)
+    static const coid::tokenhash& IFCNAME() {
+        static const coid::tokenhash _name = "bt::physics";
+        return _name;
+    }
 
     int intergen_hash_id() const override final { return HASHID; }
 
@@ -179,12 +186,11 @@ public:
     }
 
     const coid::tokenhash& intergen_interface_name() const override final {
-        static const coid::tokenhash _name = "bt::physics";
-        return _name;
+        return IFCNAME();
     }
 
     static const coid::token& intergen_default_creator_static( EBackend bck ) {
-        static const coid::token _dc("bt::physics.get@2650151887");
+        static const coid::token _dc("bt::physics.get@2633374268");
         static const coid::token _djs("bt::physics@wrapper.js");
         static const coid::token _dlua("bt::physics@wrapper.lua");
         static const coid::token _dnone;
@@ -236,8 +242,8 @@ public:
         type.consume("struct ");
 
         coid::charstr tmp = "bt::physics";
-        tmp << "@client" << '.' << type;
-        
+        tmp << "@client-2633374268" << '.' << type;
+
         coid::interface_register::register_interface_creator(tmp, cc);
         return 0;
     }
@@ -258,14 +264,16 @@ inline iref<T> physics::create( T* _subclass_, double r, void* context )
     typedef iref<T> (*fn_creator)(physics*, double, void*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.create@2650151887";
+    static const coid::token ifckey = "bt::physics.create@2633374268";
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
             coid::interface_register::get_interface_creator(ifckey));
 
-    if (!create)
-        throw coid::exception("interface creator inaccessible: ") << ifckey;
+    if (!create) {
+        log_mismatch("create", "bt::physics.create", "@2633374268");
+        return 0;
+    }
 
     return create(_subclass_, r, context);
 }
@@ -276,14 +284,16 @@ inline iref<T> physics::get( T* _subclass_ )
     typedef iref<T> (*fn_creator)(physics*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.get@2650151887";
+    static const coid::token ifckey = "bt::physics.get@2633374268";
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
             coid::interface_register::get_interface_creator(ifckey));
 
-    if (!create)
-        throw coid::exception("interface creator inaccessible: ") << ifckey;
+    if (!create) {
+        log_mismatch("get", "bt::physics.get", "@2633374268");
+        return 0;
+    }
 
     return create(_subclass_);
 }
