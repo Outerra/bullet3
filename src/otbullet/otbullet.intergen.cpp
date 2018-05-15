@@ -157,24 +157,19 @@ protected:
 
     static iref<physics> _generic_interface_creator( ::physics* host, physics* __here__)
     {
-        iref<physics> rval;
-        if (host->_ifc_host && !__here__)
-            rval.create(static_cast<physics_dispatcher*>(host->_ifc_host.get()));
-            
-        if (rval.is_empty()) {
-            physics_dispatcher* dispatcher = __here__ ? static_cast<physics_dispatcher*>(__here__) : new physics_dispatcher;
-            rval.create(dispatcher);
-            
-            dispatcher->_host.create(host);
-            dispatcher->_vtable = _capture ? get_vtable_intercept() : get_vtable();
+        //cast to dispatch to sidestep protected access restrictions
+        physics_dispatcher* __disp__ = static_cast<physics_dispatcher*>(__here__);
+        if (!__disp__)
+            __disp__ = new physics_dispatcher;
+
+        __disp__->_host.create(host);
+        __disp__->_vtable = _capture ? get_vtable_intercept() : get_vtable();
+        if (!host->_ifc_host) {
+            __disp__->_cleaner = &_cleaner_callback;
+            host->_ifc_host.assign_safe(__disp__);
         }
 
-        if (!host->_ifc_host.assign_safe(rval.get()))
-            rval.create(static_cast<physics_dispatcher*>(host->_ifc_host.get()));
-        else
-            static_cast<physics_dispatcher*>(rval.get())->_cleaner = &_cleaner_callback;
-
-        return rval;
+        return __disp__;
     }
 
 public:

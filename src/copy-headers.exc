@@ -7,3 +7,5 @@
 .dll
 .pdb
 .inl
+.user
+.db

@@ -5,7 +5,9 @@ xcopy BulletCollision ..\..\..\include\bullet\BulletCollision\ /sy /exclude:copy
 xcopy BulletDynamics ..\..\..\include\bullet\BulletDynamics\ /sy /exclude:copy-headers.exc
 xcopy LinearMath ..\..\..\include\bullet\LinearMath\ /sy /exclude:copy-headers.exc
 xcopy *.h ..\..\..\include\bullet\ /y
-xcopy otbullet ..\..\..\include\bullet\otbullet\ /sy /exclude:copy-headers.exc
+xcopy otbullet\physics.h ..\..\..\include\bullet\otbullet\ /y
+xcopy otbullet\physics_cfg.h ..\..\..\include\bullet\otbullet\ /y
+xcopy otbullet\docs\*.html ..\..\..\include\bullet\otbullet\docs\ /sy
 
 rem xcopy ..\bin\Win32\Debug ..\..\..\lib.14\Win32\Debug\ /sy /exclude:copy-headers.exc
 rem xcopy ..\bin\Win32\Release ..\..\..\lib.14\Win32\Release\ /sy /exclude:copy-headers.exc
