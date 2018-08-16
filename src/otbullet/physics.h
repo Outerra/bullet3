@@ -16,7 +16,6 @@ class btDynamicsWorld;
 class btCollisionShape;
 class btCompoundShape;
 class btCollisionObject;
-class btGhostObject;
 class btRigidBody;
 class btActionInterface;
 class btTransform;
@@ -27,8 +26,10 @@ namespace bt {
     class constraint_info;
     class physics;
     struct ot_world_physics_stats;
+    class terrain_mesh_broadphase;
 }
 extern bt::physics* BT;
+
 
 class physics;
 
@@ -44,11 +45,13 @@ public:
 
     // --- interface methods ---
 
+    bt::terrain_mesh_broadphase* create_broadphase( const double3& min, const double3& max );
+
+    void add_collision_object_to_tm_broadphase( bt::terrain_mesh_broadphase* bp, btCollisionObject* co, unsigned int group, unsigned int mask );
+
     void step_simulation( double step );
 
     void ray_test( const double from[3], const double to[3], void* cb );
-
-    void set_current_frame( uint frame );
 
     btRigidBody* fixed_object();
 
@@ -71,8 +74,6 @@ public:
     void predict_rigid_body_transform( btRigidBody* obj, double dt, ifc_out btTransform& tr );
 
     btCollisionObject* create_collision_object( btCollisionShape* shape, void* usr1, void* usr2 );
-
-    btGhostObject* create_ghost_object( btCollisionShape* shape, void* usr1, void* usr2 );
 
     void destroy_collision_object( btCollisionObject*& obj );
 
@@ -118,8 +119,6 @@ public:
 
     void wake_up_objects_in_radius( const double3& pos, float rad );
 
-    bool is_point_inside_terrain_ocluder( const double3& pt );
-
 
 protected:
     // --- interface events (callbacks from host to client) ---
@@ -129,7 +128,7 @@ protected:
 
     virtual bool terrain_collisions( const void* context, const double3& center, float radius, float lod_dimension, coid::dynarray<bt::triangle>& data, coid::dynarray<uint>& trees, coid::slotalloc<bt::tree_batch>& tree_batches, uint frame ){ throw coid::exception("handler not implemented"); }
 
-    virtual int terrain_collisions_aabb( const void* context, const double3& center, float3x3 basis, float lod_dimension, coid::dynarray<bt::triangle>& data, coid::dynarray<uint>& trees, coid::slotalloc<bt::tree_batch>& tree_batches, uint frame, bool& is_above_tm, double3& under_contact, float3& under_normal ){ throw coid::exception("handler not implemented"); }
+    virtual int terrain_collisions_aabb( const void* context, const double3& center, float3x3 basis, float lod_dimension, coid::dynarray<bt::triangle>& data, coid::dynarray<uint>& trees, coid::slotalloc<bt::tree_batch>& tree_batches, uint frame, bool& is_above_tm, double3& under_contact, float3& under_normal, coid::dynarray<bt::terrain_mesh_broadphase*>& broadphases ){ throw coid::exception("handler not implemented"); }
 
     virtual float3 tree_collisions( btRigidBody* obj, bt::tree_collision_contex& ctx, float time_step, coid::slotalloc<bt::tree_batch>& tree_batches ){ throw coid::exception("handler not implemented"); }
 
@@ -178,7 +177,7 @@ public:
     }
 
     ///Interface revision hash
-    static const int HASHID = 98631184;
+    static const int HASHID = 910203938;
     
     ///Interface name (full ns::class string)
     static const coid::tokenhash& IFCNAME() {
@@ -197,16 +196,14 @@ public:
     }
 
     static const coid::token& intergen_default_creator_static( EBackend bck ) {
-        static const coid::token _dc("bt::physics.get@98631184");
+        static const coid::token _dc("bt::physics.get@910203938");
         static const coid::token _djs("bt::physics@wrapper.js");
-        static const coid::token _djsc("bt::physics@wrapper.jsc");
         static const coid::token _dlua("bt::physics@wrapper.lua");
         static const coid::token _dnone;
 
         switch(bck) {
         case IFC_BACKEND_CXX: return _dc;
         case IFC_BACKEND_JS:  return _djs;
-        case IFC_BACKEND_JSC:  return _djsc;
         case IFC_BACKEND_LUA: return _dlua;
         default: return _dnone;
         }
@@ -226,7 +223,6 @@ public:
     void* intergen_wrapper( EBackend bck ) const override final {
         switch(bck) {
         case IFC_BACKEND_JS: return intergen_wrapper_cache<IFC_BACKEND_JS>();
-        case IFC_BACKEND_JSC: return intergen_wrapper_cache<IFC_BACKEND_JSC>();
         case IFC_BACKEND_LUA: return intergen_wrapper_cache<IFC_BACKEND_LUA>();
         default: return 0;
         }
@@ -252,7 +248,7 @@ public:
         type.consume("struct ");
 
         coid::charstr tmp = "bt::physics";
-        tmp << "@client-98631184" << '.' << type;
+        tmp << "@client-910203938" << '.' << type;
 
         coid::interface_register::register_interface_creator(tmp, cc);
         return 0;
@@ -274,14 +270,14 @@ inline iref<T> physics::create( T* _subclass_, double r, void* context )
     typedef iref<T> (*fn_creator)(physics*, double, void*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.create@98631184";
+    static const coid::token ifckey = "bt::physics.create@910203938";
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
             coid::interface_register::get_interface_creator(ifckey));
 
     if (!create) {
-        log_mismatch("create", "bt::physics.create", "@98631184");
+        log_mismatch("create", "bt::physics.create", "@910203938");
         return 0;
     }
 
@@ -295,14 +291,14 @@ inline iref<T> physics::get( T* _subclass_ )
     typedef iref<T> (*fn_creator)(physics*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.get@98631184";
+    static const coid::token ifckey = "bt::physics.get@910203938";
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
             coid::interface_register::get_interface_creator(ifckey));
 
     if (!create) {
-        log_mismatch("get", "bt::physics.get", "@98631184");
+        log_mismatch("get", "bt::physics.get", "@910203938");
         return 0;
     }
 
@@ -312,50 +308,50 @@ inline iref<T> physics::get( T* _subclass_ )
 #pragma warning(push)
 #pragma warning(disable : 4191)
 
+inline bt::terrain_mesh_broadphase* physics::create_broadphase( const double3& min, const double3& max )
+{ return VT_CALL(bt::terrain_mesh_broadphase*,(const double3&,const double3&),0)(min,max); }
+
+inline void physics::add_collision_object_to_tm_broadphase( bt::terrain_mesh_broadphase* bp, btCollisionObject* co, unsigned int group, unsigned int mask )
+{ return VT_CALL(void,(bt::terrain_mesh_broadphase*,btCollisionObject*,unsigned int,unsigned int),1)(bp,co,group,mask); }
+
 inline void physics::step_simulation( double step )
-{ return VT_CALL(void,(double),0)(step); }
+{ return VT_CALL(void,(double),2)(step); }
 
 inline void physics::ray_test( const double from[3], const double to[3], void* cb )
-{ return VT_CALL(void,(const double[3],const double[3],void*),1)(from,to,cb); }
-
-inline void physics::set_current_frame( uint frame )
-{ return VT_CALL(void,(uint),2)(frame); }
+{ return VT_CALL(void,(const double[3],const double[3],void*),3)(from,to,cb); }
 
 inline btRigidBody* physics::fixed_object()
-{ return VT_CALL(btRigidBody*,(),3)(); }
+{ return VT_CALL(btRigidBody*,(),4)(); }
 
 inline btRigidBody* physics::create_rigid_body( float mass, btCollisionShape* shape, void* usr1, void* usr2 )
-{ return VT_CALL(btRigidBody*,(float,btCollisionShape*,void*,void*),4)(mass,shape,usr1,usr2); }
+{ return VT_CALL(btRigidBody*,(float,btCollisionShape*,void*,void*),5)(mass,shape,usr1,usr2); }
 
 inline void physics::destroy_rigid_body( btRigidBody*& obj )
-{ return VT_CALL(void,(btRigidBody*&),5)(obj); }
+{ return VT_CALL(void,(btRigidBody*&),6)(obj); }
 
 inline void physics::add_rigid_body( btRigidBody* obj, unsigned int group, unsigned int mask, btActionInterface* action, bt::constraint_info* constraint )
-{ return VT_CALL(void,(btRigidBody*,unsigned int,unsigned int,btActionInterface*,bt::constraint_info*),6)(obj,group,mask,action,constraint); }
+{ return VT_CALL(void,(btRigidBody*,unsigned int,unsigned int,btActionInterface*,bt::constraint_info*),7)(obj,group,mask,action,constraint); }
 
 inline void physics::remove_rigid_body( btRigidBody* obj, btActionInterface* action, bt::constraint_info* constraint )
-{ return VT_CALL(void,(btRigidBody*,btActionInterface*,bt::constraint_info*),7)(obj,action,constraint); }
+{ return VT_CALL(void,(btRigidBody*,btActionInterface*,bt::constraint_info*),8)(obj,action,constraint); }
 
 inline void physics::pause_rigid_body( btRigidBody* obj, bool pause )
-{ return VT_CALL(void,(btRigidBody*,bool),8)(obj,pause); }
+{ return VT_CALL(void,(btRigidBody*,bool),9)(obj,pause); }
 
 inline void physics::set_rigid_body_mass( btRigidBody* obj, float mass, const float inertia[3] )
-{ return VT_CALL(void,(btRigidBody*,float,const float[3]),9)(obj,mass,inertia); }
+{ return VT_CALL(void,(btRigidBody*,float,const float[3]),10)(obj,mass,inertia); }
 
 inline void physics::set_rigid_body_gravity( btRigidBody* obj, const double gravity[3] )
-{ return VT_CALL(void,(btRigidBody*,const double[3]),10)(obj,gravity); }
+{ return VT_CALL(void,(btRigidBody*,const double[3]),11)(obj,gravity); }
 
 inline void physics::set_rigid_body_transform( btRigidBody* obj, const btTransform& tr, const double gravity[3] )
-{ return VT_CALL(void,(btRigidBody*,const btTransform&,const double[3]),11)(obj,tr,gravity); }
+{ return VT_CALL(void,(btRigidBody*,const btTransform&,const double[3]),12)(obj,tr,gravity); }
 
 inline void physics::predict_rigid_body_transform( btRigidBody* obj, double dt, btTransform& tr )
-{ return VT_CALL(void,(btRigidBody*,double,btTransform&),12)(obj,dt,tr); }
+{ return VT_CALL(void,(btRigidBody*,double,btTransform&),13)(obj,dt,tr); }
 
 inline btCollisionObject* physics::create_collision_object( btCollisionShape* shape, void* usr1, void* usr2 )
-{ return VT_CALL(btCollisionObject*,(btCollisionShape*,void*,void*),13)(shape,usr1,usr2); }
-
-inline btGhostObject* physics::create_ghost_object( btCollisionShape* shape, void* usr1, void* usr2 )
-{ return VT_CALL(btGhostObject*,(btCollisionShape*,void*,void*),14)(shape,usr1,usr2); }
+{ return VT_CALL(btCollisionObject*,(btCollisionShape*,void*,void*),14)(shape,usr1,usr2); }
 
 inline void physics::destroy_collision_object( btCollisionObject*& obj )
 { return VT_CALL(void,(btCollisionObject*&),15)(obj); }
@@ -422,9 +418,6 @@ inline void physics::query_volume_frustum( const double3& pos, const float4* f_p
 
 inline void physics::wake_up_objects_in_radius( const double3& pos, float rad )
 { return VT_CALL(void,(const double3&,float),36)(pos,rad); }
-
-inline bool physics::is_point_inside_terrain_ocluder( const double3& pt )
-{ return VT_CALL(bool,(const double3&),37)(pt); }
 
 #pragma warning(pop)
 

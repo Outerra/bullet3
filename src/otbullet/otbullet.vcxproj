@@ -270,6 +270,7 @@
     <ClCompile Include="..\..\src\otbullet\sketch_debug_draw.cpp" />
     <ClCompile Include="..\..\src\otbullet\tree_batch.cpp" />
     <ClCompile Include="..\..\src\otbullet\wrapper.cpp" />
+    <ClCompile Include="tm_broadphase.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\comm\_build\msvc\2015\comm_static.vcxproj">
@@ -288,12 +289,12 @@
   <ItemGroup>
     <ClInclude Include="..\..\src\otbullet\discrete_dynamics_world.h" />
     <ClInclude Include="..\..\src\otbullet\ot_terrain_contact_common.h" />
-    <ClInclude Include="..\..\src\otbullet\physics.h" />
     <ClInclude Include="..\..\src\otbullet\physics.js.h" />
     <ClInclude Include="..\..\src\otbullet\physics_cfg.h" />
     <ClInclude Include="..\..\src\otbullet\sketch_debug_draw.h" />
     <ClInclude Include="..\..\src\otbullet\tree_batch.h" />
-    <ClInclude Include="shape_info_cfg.h" />
+    <ClInclude Include="physics.h" />
+    <ClInclude Include="tm_broadphase.h" />
     <hpp Include="..\..\src\otbullet\otbullet.hpp">
       <FileType>hpp</FileType>
     </hpp>

@@ -37,22 +37,22 @@ private:
     {
         if (_vtable1) return _vtable1;
 
-        _vtable1 = new ifn_t[38];
-        _vtable1[0] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(double)>(&::physics::step_simulation));
-        _vtable1[1] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(const double[3],const double[3],void*)>(&::physics::ray_test));
-        _vtable1[2] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(uint)>(&::physics::set_current_frame));
-        _vtable1[3] = reinterpret_cast<ifn_t>(static_cast<btRigidBody*(policy_intrusive_base::*)()>(&::physics::fixed_object));
-        _vtable1[4] = reinterpret_cast<ifn_t>(static_cast<btRigidBody*(policy_intrusive_base::*)(float,btCollisionShape*,void*,void*)>(&::physics::create_rigid_body));
-        _vtable1[5] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btRigidBody*&)>(&::physics::destroy_rigid_body));
-        _vtable1[6] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btRigidBody*,unsigned int,unsigned int,btActionInterface*,bt::constraint_info*)>(&::physics::add_rigid_body));
-        _vtable1[7] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btRigidBody*,btActionInterface*,bt::constraint_info*)>(&::physics::remove_rigid_body));
-        _vtable1[8] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btRigidBody*,bool)>(&::physics::pause_rigid_body));
-        _vtable1[9] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btRigidBody*,float,const float[3])>(&::physics::set_rigid_body_mass));
-        _vtable1[10] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btRigidBody*,const double[3])>(&::physics::set_rigid_body_gravity));
-        _vtable1[11] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btRigidBody*,const btTransform&,const double[3])>(&::physics::set_rigid_body_transform));
-        _vtable1[12] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btRigidBody*,double,btTransform&)>(&::physics::predict_rigid_body_transform));
-        _vtable1[13] = reinterpret_cast<ifn_t>(static_cast<btCollisionObject*(policy_intrusive_base::*)(btCollisionShape*,void*,void*)>(&::physics::create_collision_object));
-        _vtable1[14] = reinterpret_cast<ifn_t>(static_cast<btGhostObject*(policy_intrusive_base::*)(btCollisionShape*,void*,void*)>(&::physics::create_ghost_object));
+        _vtable1 = new ifn_t[37];
+        _vtable1[0] = reinterpret_cast<ifn_t>(static_cast<bt::terrain_mesh_broadphase*(policy_intrusive_base::*)(const double3&,const double3&)>(&::physics::create_broadphase));
+        _vtable1[1] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(bt::terrain_mesh_broadphase*,btCollisionObject*,unsigned int,unsigned int)>(&::physics::add_collision_object_to_tm_broadphase));
+        _vtable1[2] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(double)>(&::physics::step_simulation));
+        _vtable1[3] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(const double[3],const double[3],void*)>(&::physics::ray_test));
+        _vtable1[4] = reinterpret_cast<ifn_t>(static_cast<btRigidBody*(policy_intrusive_base::*)()>(&::physics::fixed_object));
+        _vtable1[5] = reinterpret_cast<ifn_t>(static_cast<btRigidBody*(policy_intrusive_base::*)(float,btCollisionShape*,void*,void*)>(&::physics::create_rigid_body));
+        _vtable1[6] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btRigidBody*&)>(&::physics::destroy_rigid_body));
+        _vtable1[7] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btRigidBody*,unsigned int,unsigned int,btActionInterface*,bt::constraint_info*)>(&::physics::add_rigid_body));
+        _vtable1[8] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btRigidBody*,btActionInterface*,bt::constraint_info*)>(&::physics::remove_rigid_body));
+        _vtable1[9] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btRigidBody*,bool)>(&::physics::pause_rigid_body));
+        _vtable1[10] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btRigidBody*,float,const float[3])>(&::physics::set_rigid_body_mass));
+        _vtable1[11] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btRigidBody*,const double[3])>(&::physics::set_rigid_body_gravity));
+        _vtable1[12] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btRigidBody*,const btTransform&,const double[3])>(&::physics::set_rigid_body_transform));
+        _vtable1[13] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btRigidBody*,double,btTransform&)>(&::physics::predict_rigid_body_transform));
+        _vtable1[14] = reinterpret_cast<ifn_t>(static_cast<btCollisionObject*(policy_intrusive_base::*)(btCollisionShape*,void*,void*)>(&::physics::create_collision_object));
         _vtable1[15] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionObject*&)>(&::physics::destroy_collision_object));
         _vtable1[16] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionObject*,const btTransform&,bool)>(&::physics::update_collision_object));
         _vtable1[17] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionObject*,unsigned int,unsigned int)>(&::physics::set_collision_info));
@@ -75,7 +75,6 @@ private:
         _vtable1[34] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(const double3&,float,coid::dynarray<btCollisionObject*>&)>(&::physics::query_volume_sphere));
         _vtable1[35] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(const double3&,const float4*,uint8,bool,coid::dynarray<btCollisionObject *>&)>(&::physics::query_volume_frustum));
         _vtable1[36] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(const double3&,float)>(&::physics::wake_up_objects_in_radius));
-        _vtable1[37] = reinterpret_cast<ifn_t>(static_cast<bool(policy_intrusive_base::*)(const double3&)>(&::physics::is_point_inside_terrain_ocluder));
         return _vtable1;
     }
 
@@ -87,7 +86,7 @@ private:
         if (_vtable2) return _vtable2;
         ifn_t* vtable1 = get_vtable();
 
-        _vtable2 = new ifn_t[38];
+        _vtable2 = new ifn_t[37];
         _vtable2[0] = vtable1[0];
         _vtable2[1] = vtable1[1];
         _vtable2[2] = vtable1[2];
@@ -125,13 +124,12 @@ private:
         _vtable2[34] = vtable1[34];
         _vtable2[35] = vtable1[35];
         _vtable2[36] = vtable1[36];
-        _vtable2[37] = vtable1[37];
         return _vtable2;
     }
 
 protected:
 
-    COIDNEWDELETE(physics_dispatcher);
+    COIDNEWDELETE("bt::physics_dispatcher");
 
     physics_dispatcher()
     {}
@@ -218,10 +216,10 @@ public:
             on ? (void*)&_generic_interface_creator : nullptr);
 
         interface_register::register_interface_creator(
-            "bt::physics.create@98631184",
+            "bt::physics.create@910203938",
             on ? (void*)&create : nullptr);
         interface_register::register_interface_creator(
-            "bt::physics.get@98631184",
+            "bt::physics.get@910203938",
             on ? (void*)&get : nullptr);
     }
 };
@@ -253,12 +251,12 @@ bool physics::terrain_collisions( const void* context, const double3& center, fl
         return _ifc_host->iface<bt::physics>()->terrain_collisions(context, center, radius, lod_dimension, data, trees, tree_batches, frame);
 }
 
-int physics::terrain_collisions_aabb( const void* context, const double3& center, float3x3 basis, float lod_dimension, coid::dynarray<bt::triangle>& data, coid::dynarray<uint>& trees, coid::slotalloc<bt::tree_batch>& tree_batches, uint frame, bool& is_above_tm, double3& under_contact, float3& under_normal )
+int physics::terrain_collisions_aabb( const void* context, const double3& center, float3x3 basis, float lod_dimension, coid::dynarray<bt::triangle>& data, coid::dynarray<uint>& trees, coid::slotalloc<bt::tree_batch>& tree_batches, uint frame, bool& is_above_tm, double3& under_contact, float3& under_normal, coid::dynarray<bt::terrain_mesh_broadphase*>& broadphases )
 {
 	if (!_ifc_host) 
         throw coid::exception() << "terrain_collisions_aabb" << " handler not implemented";
     else
-        return _ifc_host->iface<bt::physics>()->terrain_collisions_aabb(context, center, basis, lod_dimension, data, trees, tree_batches, frame, is_above_tm, under_contact, under_normal);
+        return _ifc_host->iface<bt::physics>()->terrain_collisions_aabb(context, center, basis, lod_dimension, data, trees, tree_batches, frame, is_above_tm, under_contact, under_normal, broadphases);
 }
 
 float3 physics::tree_collisions( btRigidBody* obj, bt::tree_collision_contex& ctx, float time_step, coid::slotalloc<bt::tree_batch>& tree_batches )
