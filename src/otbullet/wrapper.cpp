@@ -19,7 +19,6 @@
 
 #include "otbullet.hpp"
 #include "physics_cfg.h"
-#include "tm_broadphase.h"
 
 #include <comm/ref_i.h>
 #include <comm/commexception.h>
@@ -228,7 +227,7 @@ bt::terrain_mesh_broadphase* physics::create_broadphase(const double3& min, cons
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::add_collision_object_to_tm_broadphase(bt::terrain_mesh_broadphase * bp, btCollisionObject * co, unsigned int group, unsigned int mask)
+void physics::add_collision_object_to_tm_broadphase(bt::terrain_mesh_broadphase * bp, simple_collider * sc, btCollisionObject * co, unsigned int group, unsigned int mask)
 {
     btTransform trans = co->getWorldTransform();
 
@@ -246,6 +245,8 @@ void physics::add_collision_object_to_tm_broadphase(bt::terrain_mesh_broadphase 
         mask,
         0, 0
     ));
+
+    bp->_colliders.push(sc);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -39,7 +39,7 @@ private:
 
         _vtable1 = new ifn_t[37];
         _vtable1[0] = reinterpret_cast<ifn_t>(static_cast<bt::terrain_mesh_broadphase*(policy_intrusive_base::*)(const double3&,const double3&)>(&::physics::create_broadphase));
-        _vtable1[1] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(bt::terrain_mesh_broadphase*,btCollisionObject*,unsigned int,unsigned int)>(&::physics::add_collision_object_to_tm_broadphase));
+        _vtable1[1] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(bt::terrain_mesh_broadphase*,simple_collider*,btCollisionObject*,unsigned int,unsigned int)>(&::physics::add_collision_object_to_tm_broadphase));
         _vtable1[2] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(double)>(&::physics::step_simulation));
         _vtable1[3] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(const double[3],const double[3],void*)>(&::physics::ray_test));
         _vtable1[4] = reinterpret_cast<ifn_t>(static_cast<btRigidBody*(policy_intrusive_base::*)()>(&::physics::fixed_object));
@@ -216,10 +216,10 @@ public:
             on ? (void*)&_generic_interface_creator : nullptr);
 
         interface_register::register_interface_creator(
-            "bt::physics.create@910203938",
+            "bt::physics.create@3764134528",
             on ? (void*)&create : nullptr);
         interface_register::register_interface_creator(
-            "bt::physics.get@910203938",
+            "bt::physics.get@3764134528",
             on ? (void*)&get : nullptr);
     }
 };

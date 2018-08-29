@@ -270,7 +270,6 @@
     <ClCompile Include="..\..\src\otbullet\sketch_debug_draw.cpp" />
     <ClCompile Include="..\..\src\otbullet\tree_batch.cpp" />
     <ClCompile Include="..\..\src\otbullet\wrapper.cpp" />
-    <ClCompile Include="tm_broadphase.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\comm\_build\msvc\2015\comm_static.vcxproj">
@@ -294,7 +293,6 @@
     <ClInclude Include="..\..\src\otbullet\sketch_debug_draw.h" />
     <ClInclude Include="..\..\src\otbullet\tree_batch.h" />
     <ClInclude Include="physics.h" />
-    <ClInclude Include="tm_broadphase.h" />
     <hpp Include="..\..\src\otbullet\otbullet.hpp">
       <FileType>hpp</FileType>
     </hpp>

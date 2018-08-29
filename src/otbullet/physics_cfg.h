@@ -2,12 +2,17 @@
 
 #include <BulletDynamics/ConstraintSolver/btTypedConstraint.h>
 #include <BulletCollision/CollisionShapes/btCapsuleShape.h>
+#include <BulletCollision/BroadphaseCollision/btAxisSweep3.h>
 #include <ot/glm/glm_types.h>
+
+#include <comm/dynarray.h>
 
 class rigid_body_constraint;
 class terrain_mesh;
 
 class btRigidBody;
+
+class simple_collider;
 
 namespace bt {
 
@@ -177,6 +182,18 @@ public:
     {}
 
     rigid_body_constraint* _constraint;
+};
+
+struct terrain_mesh_broadphase {
+    bt32BitAxisSweep3 _broadphase;
+    coid::dynarray<simple_collider*> _colliders;
+    //terrain_mesh * _tm;
+    bool _dirty;
+
+    terrain_mesh_broadphase(const double3& min, const double3& max) 
+        :_broadphase(btVector3(min.x, min.y, min.z), btVector3(max.x, max.y, max.z), 5000)
+    {}
+
 };
 
 }; //namespace bt
