@@ -18,6 +18,7 @@
     <ClInclude Include="..\..\src\otbullet\physics.h" />
     <ClInclude Include="..\..\src\otbullet\physics.js.h" />
     <ClInclude Include="..\..\src\otbullet\tree_batch.h" />
+    <ClInclude Include="shape_info_cfg.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\otbullet\otbullet.inl" />

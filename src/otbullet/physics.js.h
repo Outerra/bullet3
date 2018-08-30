@@ -19,9 +19,9 @@ class physics
 public:
 
     //@param scriptpath path to js script to bind to
-    static iref<bt::physics> create( const script_handle& script, double r, void* context, const coid::token& bindvar = coid::token(), v8::Handle<v8::Context>* ctx=0 )
+    static iref<bt::physics> create( const ::js::script_handle& script, double r, void* context, const coid::token& bindvar = coid::token(), v8::Handle<v8::Context>* ctx=0 )
     {
-        typedef iref<bt::physics> (*fn_bind)(const script_handle&, double, void*, const coid::token&, v8::Handle<v8::Context>*);
+        typedef iref<bt::physics> (*fn_bind)(const ::js::script_handle&, double, void*, const coid::token&, v8::Handle<v8::Context>*);
         static fn_bind binder = 0;
         static const coid::token ifckey = "bt::physics.create@creator.js";
 
@@ -36,9 +36,9 @@ public:
     }
 
     //@param scriptpath path to js script to bind to
-    static iref<bt::physics> get( const script_handle& script, const coid::token& bindvar = coid::token(), v8::Handle<v8::Context>* ctx=0 )
+    static iref<bt::physics> get( const ::js::script_handle& script, const coid::token& bindvar = coid::token(), v8::Handle<v8::Context>* ctx=0 )
     {
-        typedef iref<bt::physics> (*fn_bind)(const script_handle&, const coid::token&, v8::Handle<v8::Context>*);
+        typedef iref<bt::physics> (*fn_bind)(const ::js::script_handle&, const coid::token&, v8::Handle<v8::Context>*);
         static fn_bind binder = 0;
         static const coid::token ifckey = "bt::physics.get@creator.js";
 

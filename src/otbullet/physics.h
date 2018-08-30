@@ -192,12 +192,14 @@ public:
     static const coid::token& intergen_default_creator_static( EBackend bck ) {
         static const coid::token _dc("bt::physics.get@2633374268");
         static const coid::token _djs("bt::physics@wrapper.js");
+        static const coid::token _djsc("bt::physics@wrapper.jsc");
         static const coid::token _dlua("bt::physics@wrapper.lua");
         static const coid::token _dnone;
 
         switch(bck) {
         case IFC_BACKEND_CXX: return _dc;
         case IFC_BACKEND_JS:  return _djs;
+        case IFC_BACKEND_JSC:  return _djsc;
         case IFC_BACKEND_LUA: return _dlua;
         default: return _dnone;
         }
@@ -217,6 +219,7 @@ public:
     void* intergen_wrapper( EBackend bck ) const override final {
         switch(bck) {
         case IFC_BACKEND_JS: return intergen_wrapper_cache<IFC_BACKEND_JS>();
+        case IFC_BACKEND_JSC: return intergen_wrapper_cache<IFC_BACKEND_JSC>();
         case IFC_BACKEND_LUA: return intergen_wrapper_cache<IFC_BACKEND_LUA>();
         default: return 0;
         }
@@ -277,6 +280,7 @@ inline iref<T> physics::create( T* _subclass_, double r, void* context )
 
     return create(_subclass_, r, context);
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 template<class T>
 inline iref<T> physics::get( T* _subclass_ )

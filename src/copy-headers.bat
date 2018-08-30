@@ -7,6 +7,7 @@ xcopy LinearMath ..\..\..\include\bullet\LinearMath\ /sy /exclude:copy-headers.e
 xcopy *.h ..\..\..\include\bullet\ /y
 xcopy otbullet\physics.h ..\..\..\include\bullet\otbullet\ /y
 xcopy otbullet\physics_cfg.h ..\..\..\include\bullet\otbullet\ /y
+xcopy otbullet\shape_info_cfg.h ..\..\..\include\bullet\otbullet\ /y
 xcopy otbullet\docs\*.html ..\..\..\include\bullet\otbullet\docs\ /sy
 
 rem xcopy ..\bin\Win32\Debug ..\..\..\lib.14\Win32\Debug\ /sy /exclude:copy-headers.exc
