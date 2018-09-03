@@ -463,7 +463,7 @@ namespace ot {
             
             res.refreshContactPoints();
 
-            if (manifold->getNumContacts() == 0 || (tri_count == 0 && manifold->getNumContacts() > 0)) {
+            if (manifold->getNumContacts() == 0 /*|| (tri_count == 0 && manifold->getNumContacts() > 0)*/) {
                 getDispatcher()->releaseManifold(manifold);
                 _manifolds.get_item(rb->getTerrainManifoldHandle());
                 _manifolds.del(_manifolds.get_item(rb->getTerrainManifoldHandle()));

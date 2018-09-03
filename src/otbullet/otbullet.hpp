@@ -21,7 +21,7 @@ namespace bt {
     class constraint_info;
     class physics;
     struct ot_world_physics_stats;
-    class terrain_mesh_broadphase;
+    struct terrain_mesh_broadphase;
 }
 extern bt::physics* BT;
 
@@ -45,6 +45,7 @@ public:
 
     ifc_fn bt::terrain_mesh_broadphase* create_broadphase(const double3& min,const double3& max);
     ifc_fn void add_collision_object_to_tm_broadphase(bt::terrain_mesh_broadphase * bp, simple_collider * sc, btCollisionObject * co, unsigned int group, unsigned int mask);
+    ifc_fn void remove_collision_object_from_tm_broadphase(bt::terrain_mesh_broadphase * bp, simple_collider * sc, btCollisionObject * co);
 
     ifc_fn void step_simulation( double step );
     ifc_fn void ray_test( const double from[3], const double to[3], void* cb);

@@ -250,6 +250,19 @@ void physics::add_collision_object_to_tm_broadphase(bt::terrain_mesh_broadphase 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void physics::remove_collision_object_from_tm_broadphase(bt::terrain_mesh_broadphase * bp, simple_collider * sc, btCollisionObject * co)
+{
+    for (uints i = 0; i < bp->_colliders.size(); i++) {
+        if (bp->_colliders[i] == sc) {
+            bp->_colliders.del(i);
+            break;
+        }
+    }
+
+    bp->_broadphase.destroyProxy(co->getBroadphaseHandle(),nullptr);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void physics::query_volume_sphere(const double3 & pos, float rad, coid::dynarray<btCollisionObject*>& result)
 {
     
