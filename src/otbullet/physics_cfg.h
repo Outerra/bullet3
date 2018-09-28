@@ -102,7 +102,7 @@ struct tree_batch
     uint tree_count;
     tree trees[16];
 
-    uint8 buf[16 * sizeof(tree_collision_info)];
+    __declspec(align(16)) uint8 buf[16 * sizeof(tree_collision_info)];
 
     tree_collision_info* info(int i) { return (tree_collision_info*)buf + i; }
     ~tree_batch() {
