@@ -10,6 +10,7 @@ class btDynamicsWorld;
 class btCollisionShape;
 class btCompoundShape;
 class btCollisionObject;
+class btGhostObject;
 class btRigidBody;
 class btActionInterface;
 class btTransform;
@@ -43,6 +44,8 @@ public:
     ifc_fn void step_simulation( double step );
     ifc_fn void ray_test( const double from[3], const double to[3], void* cb);
 
+	ifc_fn void set_current_frame(uint frame);
+
     ifc_fn btRigidBody* fixed_object();
     ifc_fn btRigidBody* create_rigid_body( float mass, btCollisionShape* shape, void* usr1, void* usr2 );
     ifc_fn void destroy_rigid_body( btRigidBody*& obj );
@@ -57,6 +60,7 @@ public:
 
 
     ifc_fn btCollisionObject* create_collision_object( btCollisionShape* shape, void* usr1, void* usr2 );
+	ifc_fn btGhostObject * create_ghost_object(btCollisionShape* shape, void* usr1, void* usr2);
     ifc_fn void destroy_collision_object( btCollisionObject*& obj );
     ifc_fn void update_collision_object( btCollisionObject* obj, const btTransform& tr, bool update_aabb );
     ifc_fn void set_collision_info( btCollisionObject* obj, unsigned int group, unsigned int mask );
@@ -83,6 +87,8 @@ public:
     ifc_fn void query_volume_sphere(const double3 & pos, float rad, ifc_inout coid::dynarray<btCollisionObject*>& result);
     ifc_fn void query_volume_frustum(const double3 & pos, const float4 * f_planes_norms, uint8 nplanes, bool include_partial, ifc_inout coid::dynarray<btCollisionObject *>& result);
     ifc_fn void wake_up_objects_in_radius(const double3 & pos, float rad);
+
+	ifc_fn bool is_point_inside_terrain_ocluder(const double3& pt);
 
 
     ifc_event bool terrain_collisions(

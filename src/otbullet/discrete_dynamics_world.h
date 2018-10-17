@@ -25,6 +25,7 @@ class btManifoldResult;
 struct skewbox;
 class ot_terrain_contact_common;
 class planet_qtree;
+class btGhostObject;
 
 namespace ot {
 
@@ -159,6 +160,8 @@ protected:
     //void * _relocation_offset;
 
     coid::dynarray<uint> _tree_batches;
+
+	coid::dynarray<btGhostObject*> _terrain_occluders;
 
     double3 _from;
     float3 _ray;
@@ -365,7 +368,9 @@ public:
         }
     }
 
-
+	void add_terrain_occluder(btGhostObject * go) { _terrain_occluders.push(go); }
+	bool is_point_inside_terrain_occluder(const btVector3& pt);
+	void set_potential_collision_flag(btRigidBody * rb);
 
 protected:
 

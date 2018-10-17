@@ -81,6 +81,9 @@ class btSerializer;
 #include "BulletCollision/BroadphaseCollision/btOverlappingPairCache.h"
 #include "LinearMath/btAlignedObjectArray.h"
 
+// added by Cyril
+extern unsigned int gCurrentFrame;
+
 ///CollisionWorld is interface and container for the collision detection
 class btCollisionWorld
 {

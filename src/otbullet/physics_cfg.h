@@ -11,6 +11,13 @@ class btRigidBody;
 
 namespace bt {
 
+enum EOtCollisionFlags {
+	CF_POTENTIAL_TUNNEL_COLLISION = 1,
+	CF_POTENTIAL_OBJECT_COLLISION = 2,
+
+	CF_COUNT
+};
+
 enum EShape {
     SHAPE_NONE = 0,
 

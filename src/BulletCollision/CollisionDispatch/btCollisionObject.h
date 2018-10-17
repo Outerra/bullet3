@@ -128,6 +128,10 @@ public:
     ///users can point to their objects, m_userPointer is not used by Bullet, see setUserPointer/getUserPointer
 
     void*			m_userObjectPointer;
+	
+	/// outerra internal flags
+	unsigned int	m_otFlags = 0;
+	unsigned int	m_last_collision_pair_frame = 0;
 
     union {
         void*		m_userDataExt;

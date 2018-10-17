@@ -8,6 +8,8 @@
 #include <BulletCollision/CollisionShapes/btCapsuleShape.h>
 #include <BulletCollision/CollisionShapes/btConeShape.h>
 
+#include <BulletCollision/CollisionDispatch/btGhostObject.h>
+
 #include <BulletCollision/CollisionDispatch/btDefaultCollisionConfiguration.h>
 
 #include <BulletCollision/BroadphaseCollision/btAxisSweep3.h>
@@ -171,6 +173,7 @@ iref<physics> physics::create(double r, void* context)
     btVector3 worldMax(r,r,r);
 
     _overlappingPairCache = new bt32BitAxisSweep3(worldMin, worldMax);
+	_overlappingPairCache->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
     _constraintSolver = new btSequentialImpulseConstraintSolver();
 
     ot::discrete_dynamics_world * wrld = new ot::discrete_dynamics_world(
@@ -240,6 +243,12 @@ void physics::wake_up_objects_in_radius(const double3 & pos, float rad) {
         obj->setActivationState(ACTIVE_TAG);
         obj->setDeactivationTime(0);
     });
+}
+
+////////////////////////////////////////////////////////////////////////////////
+bool physics::is_point_inside_terrain_ocluder(const double3 & pt)
+{
+	return _world->is_point_inside_terrain_occluder(btVector3(pt.x,pt.y,pt.z));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -336,6 +345,18 @@ btCollisionObject* physics::create_collision_object( btCollisionShape* shape, vo
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+btGhostObject* physics::create_ghost_object(btCollisionShape* shape, void* usr1, void* usr2)
+{
+	btGhostObject* obj = new btGhostObject;
+	obj->setCollisionShape(shape);
+
+	obj->setUserPointer(usr1);
+	obj->m_userDataExt = usr2;
+
+	return obj;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void physics::set_collision_info(btCollisionObject* obj, unsigned int group, unsigned int mask)
 {
 	btBroadphaseProxy* bp = obj->getBroadphaseHandle();
@@ -369,9 +390,15 @@ void physics::add_collision_object( btCollisionObject* obj, unsigned int group, 
         _world->addCollisionObject(obj, group, mask);
     }*/
 
-    _world->addCollisionObject(obj, group, mask);
+	btGhostObject* ghost = btGhostObject::upcast(obj);
+	if (ghost) {
+		obj->setCollisionFlags(obj->getCollisionFlags() | btCollisionObject::CollisionFlags::CF_NO_CONTACT_RESPONSE | btCollisionObject::CollisionFlags::CF_DISABLE_VISUALIZE_OBJECT);
+		_world->add_terrain_occluder(ghost);
+	}
 
- 
+	_world->addCollisionObject(obj, group, mask);
+
+	
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -404,6 +431,11 @@ void physics::ray_test( const double from[3], const double to[3], void* cb)
     btVector3 ato = btVector3(to[0], to[1], to[2]);
 
     _world->rayTest(afrom, ato, *(btCollisionWorld::RayResultCallback*)cb);
+}
+
+void physics::set_current_frame(uint frame)
+{
+	gCurrentFrame = frame;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

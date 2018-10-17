@@ -66,6 +66,7 @@ subject to the following restrictions:
 
 #include <otbullet/shape_info_cfg.h>
 
+unsigned int gCurrentFrame = 0;
 
 
 btCollisionWorld::btCollisionWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache, btCollisionConfiguration* collisionConfiguration)
