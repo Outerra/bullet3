@@ -24,7 +24,7 @@
 
 #include <ot/glm/glm_ext.h>
 
-
+extern unsigned int gOuterraSimulationFrame;
 
 /// tmp ////
 #include <BulletCollision/BroadphaseCollision/btAxisSweep3.h>
@@ -158,7 +158,7 @@ namespace ot {
 
 	}
 
-    void discrete_dynamics_world::process_terrain_broadphases(const coid::dynarray<bt::terrain_mesh_broadphase*>& broadphase, btCollisionObject * col_obj)
+    void discrete_dynamics_world::process_terrain_broadphases(const coid::dynarray<bt::external_broadphase*>& broadphase, btCollisionObject * col_obj)
     {
         btVector3 min, max;
         col_obj->getCollisionShape()->getAabb(col_obj->getWorldTransform() ,min,max);
@@ -169,8 +169,8 @@ namespace ot {
         const btVector3 cen = (max + min) * 0.5;
 
 
-        broadphase.for_each([&](bt::terrain_mesh_broadphase* bp) {
-            query_volume_aabb(&bp->_broadphase,
+        broadphase.for_each([&](bt::external_broadphase* bp) {
+            query_volume_aabb(bp->_broadphase,
                 double3(cen[0],cen[1],cen[2]),
                 double3(half[0], half[1], half[2]),
                 [&](btCollisionObject * co) {
@@ -197,6 +197,14 @@ namespace ot {
         }
     }
 
+    void discrete_dynamics_world::remove_terrain_broadphase_collision_pair(btBroadphasePair& pair)
+    {
+        pair.m_algorithm->~btCollisionAlgorithm();
+        getDispatcher()->freeCollisionAlgorithm(pair.m_algorithm);
+        pair.m_algorithm = 0;
+        _terrain_mesh_broadphase_pairs.del(&pair);
+    }
+
     void discrete_dynamics_world::process_terrain_broadphase_collision_pairs()
     {
         btDispatcherInfo& dispatchInfo = getDispatchInfo();
@@ -214,13 +222,10 @@ namespace ot {
                 (*dispatcher->getNearCallback())(bp, *dispatcher, m_dispatchInfo);
             }
             else {
-                _terrain_mesh_broadphase_pairs.del(&bp);
-
-                //a dalsie
+                remove_terrain_broadphase_collision_pair(bp);
             }
         });
 
-        
 
     }
 
@@ -235,12 +240,17 @@ namespace ot {
 		
 		body->setTerrainManifoldHandle(0xffffffff);
 
+        _terrain_mesh_broadphase_pairs.for_each([&](btBroadphasePair& bp, uint idx) {
+            if (bp.m_pProxy0->m_clientObject == body || bp.m_pProxy1->m_clientObject == body) {
+                remove_terrain_broadphase_collision_pair(bp);
+            }
+        });
+
         btDiscreteDynamicsWorld::removeRigidBody(body);
     }
 
 	void discrete_dynamics_world::ot_terrain_collision_step()
 	{
-
 #ifdef _PROFILING_ENABLED
         static coid::nsec_timer timer;
 #endif // _PROFILING_ENABLED
@@ -252,6 +262,7 @@ namespace ot {
             //_debug_terrain_trees.reset();
             //_debug_terrain_trees_active.reset();
             _debug_trees.reset();
+            _debug_external_broadphases.clear();
         }
 
         //LOCAL_SINGLETON(ot_terrain_contact_common) common_data = new ot_terrain_contact_common(0.00f,this,_pb_wrap);
@@ -325,7 +336,7 @@ namespace ot {
 
             uint tri_count = 0;
 
-            coid::dynarray<bt::terrain_mesh_broadphase*> broadphases;
+            coid::dynarray<bt::external_broadphase*> broadphases;
 
 			for (uints j = 0; j < _cow_internal.size(); j++) {
                 if (_cow_internal[j]._shape->getUserIndex() & 1) { // do not collide with terrain
@@ -404,7 +415,7 @@ namespace ot {
                 double3 under_terrain_contact;
                 float3 under_terrain_normal;
 
-                int col_result = _aabb_intersect(_context, _from, _basis, _lod_dim, _triangles, _tree_batches, _tb_cache, frame_count, is_above_tm, under_terrain_contact, under_terrain_normal, broadphases);
+                int col_result = _aabb_intersect(_context, _from, _basis, _lod_dim, _triangles, _tree_batches, _tb_cache, gOuterraSimulationFrame, is_above_tm, under_terrain_contact, under_terrain_normal, broadphases);
 
                 if (col_result == 0) {
                     //DASSERT(_tree_batches.size() == 0);
@@ -454,7 +465,7 @@ namespace ot {
                 }
 
                 if (_tree_batches.size() > 0) {
-					prepare_tree_collision_pairs(obj, _tree_batches, gCurrentFrame);
+                    prepare_tree_collision_pairs(obj, _tree_batches, gOuterraSimulationFrame);
                 }
 
 				_common_data->process_collision_points();
@@ -473,11 +484,17 @@ namespace ot {
             //// tu budem pisat
 
             process_terrain_broadphases(broadphases, obj);
+
+            if (m_debugDrawer) {
+                broadphases.for_each([&](bt::external_broadphase* bp) {
+                    _debug_external_broadphases.push_if_absent(bp);
+                });
+            }
+
 		}
 
         process_terrain_broadphase_collision_pairs();
 
-        ++frame_count;
         gContactAddedCallback = nullptr;
 	}
 
@@ -754,6 +771,48 @@ namespace ot {
         for (int i = 0; i < _debug_lines.size(); i += 3) {
             m_debugDrawer->drawLine(_debug_lines[i], _debug_lines[i+1], _debug_lines[i + 2]);
         }
+
+        // Debug draw external broadphases
+
+        _debug_external_broadphases.for_each([&](bt::external_broadphase * bp) {
+            
+            btIDebugDraw::DefaultColors defaultColors = getDebugDrawer()->getDefaultColors();
+            if ((getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb)))
+            {
+                
+                for_each_object_in_broadphase(bp->_broadphase, [&](btCollisionObject* colObj) {
+                    if ((colObj->getCollisionFlags() & btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT) == 0)
+                    {
+                        if (getDebugDrawer() && (getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawWireframe))
+                        {
+                            btVector3 color(btScalar(0.4), btScalar(0.4), btScalar(0.4));
+
+                            switch (colObj->getActivationState())
+                            {
+                            case  ACTIVE_TAG:
+                                color = defaultColors.m_activeObject; break;
+                            case ISLAND_SLEEPING:
+                                color = defaultColors.m_deactivatedObject; break;
+                            case WANTS_DEACTIVATION:
+                                color = defaultColors.m_wantsDeactivationObject; break;
+                            case DISABLE_DEACTIVATION:
+                                color = defaultColors.m_disabledDeactivationObject; break;
+                            case DISABLE_SIMULATION:
+                                color = defaultColors.m_disabledSimulationObject; break;
+                            default:
+                            {
+                                color = btVector3(btScalar(.3), btScalar(0.3), btScalar(0.3));
+                            }
+                            };
+
+                            debugDrawObject(colObj->getWorldTransform(), colObj->getCollisionShape(), color);
+                        }
+                    }
+                });
+            }
+        });
+
+
     }
 
     discrete_dynamics_world::discrete_dynamics_world(btDispatcher * dispatcher,

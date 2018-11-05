@@ -37,6 +37,8 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btConvexPolyhedron.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObjectWrapper.h"
 
+unsigned int gOuterraSimulationFrame = 0;
+
 //#define DISABLE_DBVT_COMPOUNDSHAPE_RAYCAST_ACCELERATION
 
 //#define USE_BRUTEFORCE_RAYBROADPHASE 1

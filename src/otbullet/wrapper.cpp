@@ -30,6 +30,8 @@ static btDefaultCollisionConfiguration* _collisionConfiguration = 0;
 
 static physics * _physics = nullptr;
 
+extern uint gOuterraSimulationFrame;
+
 ////////////////////////////////////////////////////////////////////////////////
 #ifdef _LIB
 
@@ -102,7 +104,7 @@ static int _ext_collider_obb(
     bool& is_above_tm,
     double3& under_contact,
     float3& under_normal,
-    coid::dynarray<bt::terrain_mesh_broadphase*>& broadphases)
+    coid::dynarray<bt::external_broadphase*>& broadphases)
 {
     return _physics->terrain_collisions_aabb(planet, center, basis, lod_dimension, data, trees, tree_batches, frame,is_above_tm, under_contact, under_normal, broadphases);
 }
@@ -214,6 +216,13 @@ iref<physics> physics::get()
 	return _physics;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+void physics::set_simulation_frame(uint frame)
+{
+    gOuterraSimulationFrame = frame;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void physics::debug_draw_world() {
     if (_dbg_drawer) {
         _world->debugDrawWorld();
@@ -221,13 +230,13 @@ void physics::debug_draw_world() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bt::terrain_mesh_broadphase* physics::create_broadphase(const double3& min, const double3& max)
+bt::external_broadphase* physics::create_external_broadphase(const double3& min, const double3& max)
 {
-    return new bt::terrain_mesh_broadphase(min,max);
+    return new bt::external_broadphase(min,max);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::add_collision_object_to_tm_broadphase(bt::terrain_mesh_broadphase * bp, simple_collider * sc, btCollisionObject * co, unsigned int group, unsigned int mask)
+void physics::add_collision_object_to_external_broadphase(bt::external_broadphase * bp, btCollisionObject * co, unsigned int group, unsigned int mask)
 {
     btTransform trans = co->getWorldTransform();
 
@@ -236,7 +245,7 @@ void physics::add_collision_object_to_tm_broadphase(bt::terrain_mesh_broadphase 
     co->getCollisionShape()->getAabb(trans, minAabb, maxAabb);
 
     int type = co->getCollisionShape()->getShapeType();
-    co->setBroadphaseHandle(bp->_broadphase.createProxy(
+    co->setBroadphaseHandle(bp->_broadphase->createProxy(
         minAabb,
         maxAabb,
         type,
@@ -246,11 +255,11 @@ void physics::add_collision_object_to_tm_broadphase(bt::terrain_mesh_broadphase 
         0, 0
     ));
 
-    bp->_colliders.push(sc);
+    //bp->_colliders.push(sc);
 }
-
+/*
 ////////////////////////////////////////////////////////////////////////////////
-void physics::remove_collision_object_from_tm_broadphase(bt::terrain_mesh_broadphase * bp, simple_collider * sc, btCollisionObject * co)
+void physics::remove_collision_object_from_external_broadphase(bt::external_broadphase * bp, simple_collider * sc, btCollisionObject * co)
 {
     for (uints i = 0; i < bp->_colliders.size(); i++) {
         if (bp->_colliders[i] == sc) {
@@ -260,7 +269,7 @@ void physics::remove_collision_object_from_tm_broadphase(bt::terrain_mesh_broadp
     }
 
     bp->_broadphase.destroyProxy(co->getBroadphaseHandle(),nullptr);
-}
+}*/
 
 ////////////////////////////////////////////////////////////////////////////////
 void physics::query_volume_sphere(const double3 & pos, float rad, coid::dynarray<btCollisionObject*>& result)

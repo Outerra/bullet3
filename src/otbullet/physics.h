@@ -26,7 +26,7 @@ namespace bt {
     class constraint_info;
     class physics;
     struct ot_world_physics_stats;
-    struct terrain_mesh_broadphase;
+    struct external_broadphase;
 }
 extern bt::physics* BT;
 
@@ -45,12 +45,13 @@ public:
 
     // --- interface methods ---
 
-    bt::terrain_mesh_broadphase* create_broadphase( const double3& min, const double3& max );
+    void set_simulation_frame( uint frame );
 
-    void add_collision_object_to_tm_broadphase( bt::terrain_mesh_broadphase* bp, simple_collider* sc, btCollisionObject* co, unsigned int group, unsigned int mask );
+    bt::external_broadphase* create_external_broadphase( const double3& min, const double3& max );
 
-    void remove_collision_object_from_tm_broadphase( bt::terrain_mesh_broadphase* bp, simple_collider* sc, btCollisionObject* co );
+    void add_collision_object_to_external_broadphase( bt::external_broadphase* bp, btCollisionObject* co, unsigned int group, unsigned int mask );
 
+    
     void step_simulation( double step );
 
     void ray_test( const double from[3], const double to[3], void* cb );
@@ -130,7 +131,7 @@ protected:
 
     virtual bool terrain_collisions( const void* context, const double3& center, float radius, float lod_dimension, coid::dynarray<bt::triangle>& data, coid::dynarray<uint>& trees, coid::slotalloc<bt::tree_batch>& tree_batches, uint frame ){ throw coid::exception("handler not implemented"); }
 
-    virtual int terrain_collisions_aabb( const void* context, const double3& center, float3x3 basis, float lod_dimension, coid::dynarray<bt::triangle>& data, coid::dynarray<uint>& trees, coid::slotalloc<bt::tree_batch>& tree_batches, uint frame, bool& is_above_tm, double3& under_contact, float3& under_normal, coid::dynarray<bt::terrain_mesh_broadphase*>& broadphases ){ throw coid::exception("handler not implemented"); }
+    virtual int terrain_collisions_aabb( const void* context, const double3& center, float3x3 basis, float lod_dimension, coid::dynarray<bt::triangle>& data, coid::dynarray<uint>& trees, coid::slotalloc<bt::tree_batch>& tree_batches, uint frame, bool& is_above_tm, double3& under_contact, float3& under_normal, coid::dynarray<bt::external_broadphase*>& broadphases ){ throw coid::exception("handler not implemented"); }
 
     virtual float3 tree_collisions( btRigidBody* obj, bt::tree_collision_contex& ctx, float time_step, coid::slotalloc<bt::tree_batch>& tree_batches ){ throw coid::exception("handler not implemented"); }
 
@@ -179,7 +180,7 @@ public:
     }
 
     ///Interface revision hash
-    static const int HASHID = 2365495060;
+    static const int HASHID = 3823137645;
     
     ///Interface name (full ns::class string)
     static const coid::tokenhash& IFCNAME() {
@@ -198,7 +199,7 @@ public:
     }
 
     static const coid::token& intergen_default_creator_static( EBackend bck ) {
-        static const coid::token _dc("bt::physics.get@2365495060");
+        static const coid::token _dc("bt::physics.get@3823137645");
         static const coid::token _djs("bt::physics@wrapper.js");
         static const coid::token _djsc("bt::physics@wrapper.jsc");
         static const coid::token _dlua("bt::physics@wrapper.lua");
@@ -253,7 +254,7 @@ public:
         type.consume("struct ");
 
         coid::charstr tmp = "bt::physics";
-        tmp << "@client-2365495060" << '.' << type;
+        tmp << "@client-3823137645" << '.' << type;
 
         coid::interface_register::register_interface_creator(tmp, cc);
         return 0;
@@ -275,14 +276,14 @@ inline iref<T> physics::create( T* _subclass_, double r, void* context )
     typedef iref<T> (*fn_creator)(physics*, double, void*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.create@2365495060";
+    static const coid::token ifckey = "bt::physics.create@3823137645";
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
             coid::interface_register::get_interface_creator(ifckey));
 
     if (!create) {
-        log_mismatch("create", "bt::physics.create", "@2365495060");
+        log_mismatch("create", "bt::physics.create", "@3823137645");
         return 0;
     }
 
@@ -296,14 +297,14 @@ inline iref<T> physics::get( T* _subclass_ )
     typedef iref<T> (*fn_creator)(physics*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.get@2365495060";
+    static const coid::token ifckey = "bt::physics.get@3823137645";
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
             coid::interface_register::get_interface_creator(ifckey));
 
     if (!create) {
-        log_mismatch("get", "bt::physics.get", "@2365495060");
+        log_mismatch("get", "bt::physics.get", "@3823137645");
         return 0;
     }
 
@@ -313,14 +314,14 @@ inline iref<T> physics::get( T* _subclass_ )
 #pragma warning(push)
 #pragma warning(disable : 4191)
 
-inline bt::terrain_mesh_broadphase* physics::create_broadphase( const double3& min, const double3& max )
-{ return VT_CALL(bt::terrain_mesh_broadphase*,(const double3&,const double3&),0)(min,max); }
+inline void physics::set_simulation_frame( uint frame )
+{ return VT_CALL(void,(uint),0)(frame); }
 
-inline void physics::add_collision_object_to_tm_broadphase( bt::terrain_mesh_broadphase* bp, simple_collider* sc, btCollisionObject* co, unsigned int group, unsigned int mask )
-{ return VT_CALL(void,(bt::terrain_mesh_broadphase*,simple_collider*,btCollisionObject*,unsigned int,unsigned int),1)(bp,sc,co,group,mask); }
+inline bt::external_broadphase* physics::create_external_broadphase( const double3& min, const double3& max )
+{ return VT_CALL(bt::external_broadphase*,(const double3&,const double3&),1)(min,max); }
 
-inline void physics::remove_collision_object_from_tm_broadphase( bt::terrain_mesh_broadphase* bp, simple_collider* sc, btCollisionObject* co )
-{ return VT_CALL(void,(bt::terrain_mesh_broadphase*,simple_collider*,btCollisionObject*),2)(bp,sc,co); }
+inline void physics::add_collision_object_to_external_broadphase( bt::external_broadphase* bp, btCollisionObject* co, unsigned int group, unsigned int mask )
+{ return VT_CALL(void,(bt::external_broadphase*,btCollisionObject*,unsigned int,unsigned int),2)(bp,co,group,mask); }
 
 inline void physics::step_simulation( double step )
 { return VT_CALL(void,(double),3)(step); }

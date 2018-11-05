@@ -184,16 +184,30 @@ public:
     rigid_body_constraint* _constraint;
 };
 
-struct terrain_mesh_broadphase {
-    bt32BitAxisSweep3 _broadphase;
-    coid::dynarray<simple_collider*> _colliders;
-    //terrain_mesh * _tm;
+struct external_broadphase {
+    struct broadphase_entry {
+        btCollisionObject * _collision_object = nullptr;
+        uint _collision_mask = 0;
+        uint _collision_group = 0;
+        bool _invalid_proxy = false;
+
+        broadphase_entry(btCollisionObject * col_obj, uint col_mask, uint col_group, bool invalid_proxy) 
+            : _collision_object(col_obj)
+            , _collision_mask(col_mask)
+            , _collision_group(col_group)
+            , _invalid_proxy(invalid_proxy)
+        {}
+    };
+
+    bt32BitAxisSweep3 * _broadphase;
+    coid::dynarray<broadphase_entry> _entries;
     bool _dirty;
 
-    terrain_mesh_broadphase(const double3& min, const double3& max) 
-        :_broadphase(btVector3(min.x, min.y, min.z), btVector3(max.x, max.y, max.z), 5000)
-        , _dirty(false)
-    {}
+    external_broadphase(const double3& min, const double3& max) 
+        : _dirty(false)
+    {
+        _broadphase = new bt32BitAxisSweep3(btVector3(min.x, min.y, min.z), btVector3(max.x, max.y, max.z), 5000);
+    }
 
 };
 

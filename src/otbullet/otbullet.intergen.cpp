@@ -38,9 +38,9 @@ private:
         if (_vtable1) return _vtable1;
 
         _vtable1 = new ifn_t[38];
-        _vtable1[0] = reinterpret_cast<ifn_t>(static_cast<bt::terrain_mesh_broadphase*(policy_intrusive_base::*)(const double3&,const double3&)>(&::physics::create_broadphase));
-        _vtable1[1] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(bt::terrain_mesh_broadphase*,simple_collider*,btCollisionObject*,unsigned int,unsigned int)>(&::physics::add_collision_object_to_tm_broadphase));
-        _vtable1[2] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(bt::terrain_mesh_broadphase*,simple_collider*,btCollisionObject*)>(&::physics::remove_collision_object_from_tm_broadphase));
+        _vtable1[0] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(uint)>(&::physics::set_simulation_frame));
+        _vtable1[1] = reinterpret_cast<ifn_t>(static_cast<bt::external_broadphase*(policy_intrusive_base::*)(const double3&,const double3&)>(&::physics::create_external_broadphase));
+        _vtable1[2] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(bt::external_broadphase*,btCollisionObject*,unsigned int,unsigned int)>(&::physics::add_collision_object_to_external_broadphase));
         _vtable1[3] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(double)>(&::physics::step_simulation));
         _vtable1[4] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(const double[3],const double[3],void*)>(&::physics::ray_test));
         _vtable1[5] = reinterpret_cast<ifn_t>(static_cast<btRigidBody*(policy_intrusive_base::*)()>(&::physics::fixed_object));
@@ -131,7 +131,7 @@ private:
 
 protected:
 
-    COIDNEWDELETE("bt::physics_dispatcher");
+    COIDNEWDELETE(physics_dispatcher);
 
     physics_dispatcher()
     {}
@@ -218,10 +218,10 @@ public:
             on ? (void*)&_generic_interface_creator : nullptr);
 
         interface_register::register_interface_creator(
-            "bt::physics.create@2365495060",
+            "bt::physics.create@3823137645",
             on ? (void*)&create : nullptr);
         interface_register::register_interface_creator(
-            "bt::physics.get@2365495060",
+            "bt::physics.get@3823137645",
             on ? (void*)&get : nullptr);
     }
 };
@@ -253,7 +253,7 @@ bool physics::terrain_collisions( const void* context, const double3& center, fl
         return _ifc_host->iface<bt::physics>()->terrain_collisions(context, center, radius, lod_dimension, data, trees, tree_batches, frame);
 }
 
-int physics::terrain_collisions_aabb( const void* context, const double3& center, float3x3 basis, float lod_dimension, coid::dynarray<bt::triangle>& data, coid::dynarray<uint>& trees, coid::slotalloc<bt::tree_batch>& tree_batches, uint frame, bool& is_above_tm, double3& under_contact, float3& under_normal, coid::dynarray<bt::terrain_mesh_broadphase*>& broadphases )
+int physics::terrain_collisions_aabb( const void* context, const double3& center, float3x3 basis, float lod_dimension, coid::dynarray<bt::triangle>& data, coid::dynarray<uint>& trees, coid::slotalloc<bt::tree_batch>& tree_batches, uint frame, bool& is_above_tm, double3& under_contact, float3& under_normal, coid::dynarray<bt::external_broadphase*>& broadphases )
 {
 	if (!_ifc_host) 
         throw coid::exception() << "terrain_collisions_aabb" << " handler not implemented";
