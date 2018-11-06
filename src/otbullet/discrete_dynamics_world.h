@@ -171,6 +171,8 @@ protected:
 
     coid::dynarray<bt::external_broadphase*> _debug_external_broadphases;
 
+    coid::slotalloc_pool<bt::external_broadphase> _external_broadphase_pool;
+
     double3 _from;
     float3 _ray;
     float _rad;
@@ -189,16 +191,19 @@ protected:
     coid::local<ot_terrain_contact_common> _common_data;
 
 public:
+    bt::external_broadphase * create_external_broadphase(const double3& min, const double3& max);
+
 #ifdef _DEBUG
     void dump_triangle_list_to_obj(const char * fname,float off_x, float off_y, float off_z, float rx, float ry, float rz, float rw);
 #endif
     void process_terrain_broadphases(const coid::dynarray<bt::external_broadphase*>& broadphase, btCollisionObject * col_obj);
-    void update_terrain_mesh_broadphase();
+    void update_terrain_mesh_broadphase(bt::external_broadphase* bp);
     void add_terrain_broadphase_collision_pair(btCollisionObject * obj1, btCollisionObject * obj2);
     void remove_terrain_broadphase_collision_pair(btBroadphasePair& pair);
     void process_terrain_broadphase_collision_pairs();
 
     virtual void removeRigidBody(btRigidBody* body) override;
+    virtual void removeCollisionObject(btCollisionObject* collisionObject) override;
 
     virtual void debugDrawWorld() override;
 
@@ -313,7 +318,7 @@ public:
     }
 
 
-    template<typename fn> //void(*fn)(btCollisionObject * obj);
+    template<typename fn> //void(*fn)(btBroadphaseProxy * proxy);
     void query_volume_aabb(bt32BitAxisSweep3 * broadphase, const double3& aabb_cen, const double3& aabb_half, fn process_fn)
     {
         static coid::dynarray<const btDbvtNode *> _processing_stack(1024);
@@ -349,7 +354,7 @@ public:
                     //add_debug_aabb(bt_node_aabb_cen - bt_node_aabb_half, bt_node_aabb_cen + bt_node_aabb_half, btVector3(1, 0, 0));
                     if (cur_node->data) {
                         btDbvtProxy* dat = reinterpret_cast<btDbvtProxy*>(cur_node->data);
-                        process_fn(reinterpret_cast<btCollisionObject*>(dat->m_clientObject));
+                        process_fn(reinterpret_cast<btCollisionObject*>(dat->m_clientObject)->getBroadphaseHandle());
                     }
                 }
                 else {

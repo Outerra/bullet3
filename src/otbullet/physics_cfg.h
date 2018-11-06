@@ -189,22 +189,20 @@ struct external_broadphase {
         btCollisionObject * _collision_object = nullptr;
         uint _collision_mask = 0;
         uint _collision_group = 0;
-        bool _invalid_proxy = false;
 
-        broadphase_entry(btCollisionObject * col_obj, uint col_mask, uint col_group, bool invalid_proxy) 
+        broadphase_entry(btCollisionObject * col_obj, uint col_mask, uint col_group) 
             : _collision_object(col_obj)
             , _collision_mask(col_mask)
             , _collision_group(col_group)
-            , _invalid_proxy(invalid_proxy)
         {}
     };
 
     bt32BitAxisSweep3 * _broadphase;
     coid::dynarray<broadphase_entry> _entries;
-    bool _dirty;
+    bool _dirty = false;
+    uint _revision = 0;
 
     external_broadphase(const double3& min, const double3& max) 
-        : _dirty(false)
     {
         _broadphase = new bt32BitAxisSweep3(btVector3(min.x, min.y, min.z), btVector3(max.x, max.y, max.z), 5000);
     }

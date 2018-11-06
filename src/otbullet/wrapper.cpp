@@ -232,7 +232,7 @@ void physics::debug_draw_world() {
 ////////////////////////////////////////////////////////////////////////////////
 bt::external_broadphase* physics::create_external_broadphase(const double3& min, const double3& max)
 {
-    return new bt::external_broadphase(min,max);
+    return _world->create_external_broadphase(min,max);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

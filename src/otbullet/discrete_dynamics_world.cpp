@@ -38,6 +38,27 @@ const float g_sigma_coef = 1.f;
 
 #include <fstream>
 
+bt::external_broadphase * ot::discrete_dynamics_world::create_external_broadphase(const double3& min, const double3& max)
+{
+    bt::external_broadphase * result = nullptr;
+    bool is_new = false;
+
+    result = _external_broadphase_pool.add_uninit(&is_new);
+
+    if (is_new) {
+        new (result) bt::external_broadphase(min,max);
+    }
+    else {
+        result->_dirty = false;
+        result->_revision = 0;
+        result->_entries.clear();
+        delete result->_broadphase;
+        result->_broadphase = new bt32BitAxisSweep3(btVector3(min.x, min.y, min.z), btVector3(max.x, max.y, max.z), 5000);
+    }
+
+    return result;
+}
+
 void ot::discrete_dynamics_world::dump_triangle_list_to_obj(const char * fname, float off_x, float off_y, float off_z, float rx, float ry, float rz, float rw) {
     coid::charstr buf;
     uint vtx_count = 0;
@@ -159,9 +180,9 @@ namespace ot {
 	}
 
     void discrete_dynamics_world::process_terrain_broadphases(const coid::dynarray<bt::external_broadphase*>& broadphase, btCollisionObject * col_obj)
-    {
+    {   
         btVector3 min, max;
-        col_obj->getCollisionShape()->getAabb(col_obj->getWorldTransform() ,min,max);
+        col_obj->getCollisionShape()->getAabb(col_obj->getWorldTransform(), min, max);
 
         //add_debug_aabb(min, max,btVector3(1,1,1));
 
@@ -170,13 +191,58 @@ namespace ot {
 
 
         broadphase.for_each([&](bt::external_broadphase* bp) {
+            if (bp->_dirty) {
+                update_terrain_mesh_broadphase(bp);
+            }
+            
             query_volume_aabb(bp->_broadphase,
                 double3(cen[0],cen[1],cen[2]),
                 double3(half[0], half[1], half[2]),
-                [&](btCollisionObject * co) {
-                add_terrain_broadphase_collision_pair(co, col_obj);
+                [&](btBroadphaseProxy * proxy) {
+
+                add_debug_aabb(proxy->m_aabbMin, proxy->m_aabbMax,btVector3(1,0,0));
+
+                if (proxy->m_ot_revision == bp->_revision) {
+                    add_terrain_broadphase_collision_pair(static_cast<btCollisionObject*>(proxy->m_clientObject), col_obj);
+                }
+                else {
+                    bp->_broadphase->destroyProxy(proxy,getDispatcher());
+                }
             });
         });
+    }
+
+    void discrete_dynamics_world::update_terrain_mesh_broadphase(bt::external_broadphase * bp)
+    {
+        bp->_entries.for_each([&](bt::external_broadphase::broadphase_entry& entry) {
+            btBroadphaseProxy * proxy = entry._collision_object->getBroadphaseHandle();
+            
+            btVector3 min, max;
+            entry._collision_object->getCollisionShape()->getAabb(entry._collision_object->getWorldTransform(), min, max);
+
+            if (bp->_broadphase->ownsProxy(proxy)) {
+                bp->_broadphase->setAabb(proxy, min, max, getDispatcher());
+            }
+            else {
+
+                proxy = bp->_broadphase->createProxy(
+                    min,
+                    max,
+                    entry._collision_object->getCollisionShape()->getShapeType(),
+                    entry._collision_object,
+                    entry._collision_group,
+                    entry._collision_mask,
+                    0, 0
+                );
+                entry._collision_object->setBroadphaseHandle(proxy);
+            }
+
+            proxy->m_ot_revision = gOuterraSimulationFrame;
+        });
+
+        bp->_revision = gOuterraSimulationFrame;
+        bp->_entries.clear();
+        bp->_dirty = false;
     }
 
     void discrete_dynamics_world::add_terrain_broadphase_collision_pair(btCollisionObject * obj1, btCollisionObject * obj2)
@@ -199,9 +265,11 @@ namespace ot {
 
     void discrete_dynamics_world::remove_terrain_broadphase_collision_pair(btBroadphasePair& pair)
     {
-        pair.m_algorithm->~btCollisionAlgorithm();
-        getDispatcher()->freeCollisionAlgorithm(pair.m_algorithm);
-        pair.m_algorithm = 0;
+        if (pair.m_algorithm) {
+            pair.m_algorithm->~btCollisionAlgorithm();
+            getDispatcher()->freeCollisionAlgorithm(pair.m_algorithm);
+            pair.m_algorithm = 0;
+        }
         _terrain_mesh_broadphase_pairs.del(&pair);
     }
 
@@ -247,6 +315,27 @@ namespace ot {
         });
 
         btDiscreteDynamicsWorld::removeRigidBody(body);
+    }
+
+    void discrete_dynamics_world::removeCollisionObject(btCollisionObject * collisionObject)
+    {
+        _terrain_mesh_broadphase_pairs.for_each([&](btBroadphasePair& bp, uint idx) {
+            if (bp.m_pProxy0->m_clientObject == collisionObject || bp.m_pProxy1->m_clientObject == collisionObject) {
+                remove_terrain_broadphase_collision_pair(bp);
+            }
+        });
+
+        bt::external_broadphase* broadphase = _external_broadphase_pool.find_if([&](bt::external_broadphase& bp) {
+            return bp._broadphase->ownsProxy(collisionObject->getBroadphaseHandle());
+       });
+
+        if (broadphase) {
+            broadphase->_broadphase->destroyProxy(collisionObject->getBroadphaseHandle(),getDispatcher());
+            collisionObject->setBroadphaseHandle(nullptr);
+        }
+
+        btDiscreteDynamicsWorld::removeCollisionObject(collisionObject);
+
     }
 
 	void discrete_dynamics_world::ot_terrain_collision_step()
