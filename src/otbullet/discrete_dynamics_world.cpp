@@ -38,27 +38,6 @@ const float g_sigma_coef = 1.f;
 
 #include <fstream>
 
-bt::external_broadphase * ot::discrete_dynamics_world::create_external_broadphase(const double3& min, const double3& max)
-{
-    bt::external_broadphase * result = nullptr;
-    bool is_new = false;
-
-    result = _external_broadphase_pool.add_uninit(&is_new);
-
-    if (is_new) {
-        new (result) bt::external_broadphase(min,max);
-    }
-    else {
-        result->_dirty = false;
-        result->_revision = 0;
-        result->_entries.clear();
-        delete result->_broadphase;
-        result->_broadphase = new bt32BitAxisSweep3(btVector3(min.x, min.y, min.z), btVector3(max.x, max.y, max.z), 5000);
-    }
-
-    return result;
-}
-
 void ot::discrete_dynamics_world::dump_triangle_list_to_obj(const char * fname, float off_x, float off_y, float off_z, float rx, float ry, float rz, float rw) {
     coid::charstr buf;
     uint vtx_count = 0;
@@ -101,6 +80,27 @@ namespace ot {
                 return 0.0;
             };
     };
+
+    bt::external_broadphase * discrete_dynamics_world::create_external_broadphase(const double3& min, const double3& max)
+    {
+        bt::external_broadphase * result = nullptr;
+        bool is_new = false;
+
+        result = _external_broadphase_pool.add_uninit(&is_new);
+
+        if (is_new) {
+            new (result) bt::external_broadphase(min, max);
+        }
+        else {
+            result->_dirty = false;
+            result->_revision = 0;
+            result->_entries.clear();
+            delete result->_broadphase;
+            result->_broadphase = new bt32BitAxisSweep3(btVector3(min.x, min.y, min.z), btVector3(max.x, max.y, max.z), 5000);
+        }
+
+        return result;
+    }
 
 
     void discrete_dynamics_world::internalSingleStepSimulation(btScalar timeStep)
