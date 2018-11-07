@@ -92,19 +92,19 @@ void ot::discrete_dynamics_world::dump_triangle_list_to_obj(const char * fname, 
 
 namespace ot {
 
-	class is_inside_callback : public btCollisionWorld::ContactResultCallback {
-		public:
-			bool is_inside = false;
+    class is_inside_callback : public btCollisionWorld::ContactResultCallback {
+        public:
+            bool is_inside = false;
 
-			virtual	btScalar	addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) {
-				is_inside = true;
-				return 0.0;
-			};
-	};
+            virtual	btScalar	addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) {
+                is_inside = true;
+                return 0.0;
+            };
+    };
 
 
-	void discrete_dynamics_world::internalSingleStepSimulation(btScalar timeStep)
-	{
+    void discrete_dynamics_world::internalSingleStepSimulation(btScalar timeStep)
+    {
 #ifdef _PROFILING_ENABLED
         static coid::nsec_timer timer;
         static coid::nsec_timer timer1;
@@ -115,69 +115,69 @@ namespace ot {
 #endif // _PROFILING_ENABLED
 
         if (0 != m_internalPreTickCallback) {
-			(*m_internalPreTickCallback)(this, timeStep);
-		}
+            (*m_internalPreTickCallback)(this, timeStep);
+        }
         
-		///apply gravity, predict motion
-		predictUnconstraintMotion(timeStep);
+        ///apply gravity, predict motion
+        predictUnconstraintMotion(timeStep);
 
-		btDispatcherInfo& dispatchInfo = getDispatchInfo();
+        btDispatcherInfo& dispatchInfo = getDispatchInfo();
 
-		dispatchInfo.m_timeStep = timeStep;
-		dispatchInfo.m_stepCount = 0;
-		dispatchInfo.m_debugDraw = getDebugDrawer();
+        dispatchInfo.m_timeStep = timeStep;
+        dispatchInfo.m_stepCount = 0;
+        dispatchInfo.m_debugDraw = getDebugDrawer();
 
 
-		createPredictiveContacts(timeStep);
+        createPredictiveContacts(timeStep);
 
-		///perform collision detection
-		performDiscreteCollisionDetection();
+        ///perform collision detection
+        performDiscreteCollisionDetection();
 
 #ifdef _PROFILING_ENABLED
         _stats.before_ot_phase_time_ms = timer.time_ns() * 1e-6f;
 #endif // _PROFILING_ENABLED
 
-		//perform outerra terrain collision detecion
+        //perform outerra terrain collision detecion
 
 //		ot_terrain_collision_step_cleanup();
-		ot_terrain_collision_step();
-		process_tree_collisions(timeStep);
+        ot_terrain_collision_step();
+        process_tree_collisions(timeStep);
 
 #ifdef _PROFILING_ENABLED
         timer.reset();
 #endif // _PROFILING_ENABLED
 
-		calculateSimulationIslands();
+        calculateSimulationIslands();
 
 
-		getSolverInfo().m_timeStep = timeStep;
+        getSolverInfo().m_timeStep = timeStep;
 
 
 
-		///solve contact and other joint constraints
-		solveConstraints(getSolverInfo());
+        ///solve contact and other joint constraints
+        solveConstraints(getSolverInfo());
 
-		///CallbackTriggers();
+        ///CallbackTriggers();
 
-		///integrate transforms
+        ///integrate transforms
 
-		integrateTransforms(timeStep);
+        integrateTransforms(timeStep);
 
-		///update vehicle simulation
-		updateActions(timeStep);
+        ///update vehicle simulation
+        updateActions(timeStep);
 
-		updateActivationState(timeStep);
+        updateActivationState(timeStep);
 
-		if (0 != m_internalTickCallback) {
-			(*m_internalTickCallback)(this, timeStep);
-		}
+        if (0 != m_internalTickCallback) {
+            (*m_internalTickCallback)(this, timeStep);
+        }
 
 #ifdef _PROFILING_ENABLED
         _stats.after_ot_phase_time_ms = timer.time_ns() * 1e-6f;
         _stats.total_time_ms = timer1.time_ns() * 1e-6f;
 #endif // _PROFILING_ENABLED
 
-	}
+    }
 
     void discrete_dynamics_world::process_terrain_broadphases(const coid::dynarray<bt::external_broadphase*>& broadphase, btCollisionObject * col_obj)
     {   
@@ -305,8 +305,8 @@ namespace ot {
             _manifolds.del(m_ptr);
             m_dispatcher1->releaseManifold(*m_ptr);
         }
-		
-		body->setTerrainManifoldHandle(0xffffffff);
+        
+        body->setTerrainManifoldHandle(0xffffffff);
 
         _terrain_mesh_broadphase_pairs.for_each([&](btBroadphasePair& bp, uint idx) {
             if (bp.m_pProxy0->m_clientObject == body || bp.m_pProxy1->m_clientObject == body) {
@@ -338,8 +338,8 @@ namespace ot {
 
     }
 
-	void discrete_dynamics_world::ot_terrain_collision_step()
-	{
+    void discrete_dynamics_world::ot_terrain_collision_step()
+    {
 #ifdef _PROFILING_ENABLED
         static coid::nsec_timer timer;
 #endif // _PROFILING_ENABLED
@@ -358,25 +358,25 @@ namespace ot {
         if(!_common_data)
             _common_data = new ot_terrain_contact_common(0.00f,this,_pb_wrap);
 
-		for (int i = 0; i < m_collisionObjects.size(); i++) {
-			_cow_internal.clear();
+        for (int i = 0; i < m_collisionObjects.size(); i++) {
+            _cow_internal.clear();
             _compound_processing_stack.clear();
-			btCollisionObject * obj = m_collisionObjects[i];
-			btRigidBody * rb = btRigidBody::upcast(obj);
+            btCollisionObject * obj = m_collisionObjects[i];
+            btRigidBody * rb = btRigidBody::upcast(obj);
 
         /*    btVector3 dbg_min, dbg_max;
             rb->getCollisionShape()->getAabb(rb->getWorldTransform(), dbg_min, dbg_max);
             add_debug_aabb(dbg_min, dbg_max, btVector3(1, 1, 1));
 
 */
-			if (!rb || (obj->getCollisionShape()->getShapeType() != SPHERE_SHAPE_PROXYTYPE &&
-					obj->getCollisionShape()->getShapeType() != CAPSULE_SHAPE_PROXYTYPE &&
-					!obj->getCollisionShape()->isConvex() &&
-					obj->getCollisionShape()->getShapeType() != COMPOUND_SHAPE_PROXYTYPE))
-			{
-				continue;
-			}
-           
+            if (!rb || (obj->getCollisionShape()->getShapeType() != SPHERE_SHAPE_PROXYTYPE &&
+                obj->getCollisionShape()->getShapeType() != CAPSULE_SHAPE_PROXYTYPE &&
+                !obj->getCollisionShape()->isConvex() &&
+                obj->getCollisionShape()->getShapeType() != COMPOUND_SHAPE_PROXYTYPE))
+            {
+                continue;
+            }
+
             if (rb->getActivationState() == ISLAND_SLEEPING) {
                 continue;
             }
@@ -393,32 +393,32 @@ namespace ot {
             else {
                 manifold = *_manifolds.get_item(rb->getTerrainManifoldHandle());
             }
- 
 
-			btCollisionObjectWrapper planet_wrapper(0, _planet_body->getCollisionShape(), _planet_body, btTransform::getIdentity(), -1, -1);
-			btCollisionObjectWrapper collider_wrapper(0, obj->getCollisionShape(), obj, obj->getWorldTransform(), -1, -1);
-			btManifoldResult res(&collider_wrapper, &planet_wrapper);
-			
-			if (obj->getCollisionShape()->getShapeType() == COMPOUND_SHAPE_PROXYTYPE) {
-				btCompoundShape * cs = reinterpret_cast<btCompoundShape *>(obj->getCollisionShape());
-				new (_compound_processing_stack.add_uninit(1)) compound_processing_entry(cs, obj->getWorldTransform());
-				compound_processing_entry curr;
-				while (_compound_processing_stack.pop(curr)) {
-					if (curr._shape->getShapeType() == COMPOUND_SHAPE_PROXYTYPE) {
-						btCompoundShape * curr_cs = reinterpret_cast<btCompoundShape *>(curr._shape);
-						for (int j = 0; j < curr_cs->getNumChildShapes(); j++) {
-							new (_compound_processing_stack.add_uninit(1)) compound_processing_entry(curr_cs->getChildShape(j),curr._world_trans * curr_cs->getChildTransform(j));
-						}
-					}
-					else {
-						new (_cow_internal.add_uninit(1)) btCollisionObjectWrapperCtorArgs(&collider_wrapper,curr._shape,obj,curr._world_trans,-1,-1);
-					}
-				}
-			}
-			else {
-				new (_cow_internal.add_uninit(1)) btCollisionObjectWrapperCtorArgs(0, obj->getCollisionShape(), obj, obj->getWorldTransform(), -1, -1);
 
-			}
+            btCollisionObjectWrapper planet_wrapper(0, _planet_body->getCollisionShape(), _planet_body, btTransform::getIdentity(), -1, -1);
+            btCollisionObjectWrapper collider_wrapper(0, obj->getCollisionShape(), obj, obj->getWorldTransform(), -1, -1);
+            btManifoldResult res(&collider_wrapper, &planet_wrapper);
+
+            if (obj->getCollisionShape()->getShapeType() == COMPOUND_SHAPE_PROXYTYPE) {
+                btCompoundShape * cs = reinterpret_cast<btCompoundShape *>(obj->getCollisionShape());
+                new (_compound_processing_stack.add_uninit(1)) compound_processing_entry(cs, obj->getWorldTransform());
+                compound_processing_entry curr;
+                while (_compound_processing_stack.pop(curr)) {
+                    if (curr._shape->getShapeType() == COMPOUND_SHAPE_PROXYTYPE) {
+                        btCompoundShape * curr_cs = reinterpret_cast<btCompoundShape *>(curr._shape);
+                        for (int j = 0; j < curr_cs->getNumChildShapes(); j++) {
+                            new (_compound_processing_stack.add_uninit(1)) compound_processing_entry(curr_cs->getChildShape(j), curr._world_trans * curr_cs->getChildTransform(j));
+                        }
+                    }
+                    else {
+                        new (_cow_internal.add_uninit(1)) btCollisionObjectWrapperCtorArgs(&collider_wrapper, curr._shape, obj, curr._world_trans, -1, -1);
+                    }
+                }
+            }
+            else {
+                new (_cow_internal.add_uninit(1)) btCollisionObjectWrapperCtorArgs(0, obj->getCollisionShape(), obj, obj->getWorldTransform(), -1, -1);
+
+            }
 
 
             res.setPersistentManifold(manifold);
@@ -427,99 +427,99 @@ namespace ot {
 
             coid::dynarray<bt::external_broadphase*> broadphases;
 
-			for (uints j = 0; j < _cow_internal.size(); j++) {
+            for (uints j = 0; j < _cow_internal.size(); j++) {
                 if (_cow_internal[j]._shape->getUserIndex() & 1) { // do not collide with terrain
                     continue;
                 }
- 				btCollisionObjectWrapper internal_obj_wrapper(_cow_internal[j]._parent,
-					_cow_internal[j]._shape,
-					obj,
-					_cow_internal[j]._worldTransform,
-					_cow_internal[j]._partId,
-					_cow_internal[j]._index);
+                btCollisionObjectWrapper internal_obj_wrapper(_cow_internal[j]._parent,
+                    _cow_internal[j]._shape,
+                    obj,
+                    _cow_internal[j]._worldTransform,
+                    _cow_internal[j]._partId,
+                    _cow_internal[j]._index);
 
 
                 _common_data->set_internal_obj_wrapper(&internal_obj_wrapper);
 
-				btVector3 sc = internal_obj_wrapper.getWorldTransform().getOrigin();
-				//int face = ot::xyz_to_cubeface(&sc.m_floats[0]);
-				//int levs = 0;
-				//float dist;
-				//terrain_mesh::auxdata & aux = terrain_mesh::aux();
-				_from = double3(sc.x(), sc.y(), sc.z());
-				//_col_shape = bt::csSphere;
+                btVector3 sc = internal_obj_wrapper.getWorldTransform().getOrigin();
+                //int face = ot::xyz_to_cubeface(&sc.m_floats[0]);
+                //int levs = 0;
+                //float dist;
+                //terrain_mesh::auxdata & aux = terrain_mesh::aux();
+                _from = double3(sc.x(), sc.y(), sc.z());
+                //_col_shape = bt::csSphere;
 
-				if (internal_obj_wrapper.getCollisionShape()->getShapeType() == SPHERE_SHAPE_PROXYTYPE) {
-					const btSphereShape * sph = reinterpret_cast<const btSphereShape*>(internal_obj_wrapper.getCollisionShape());
-					_rad = float(sph->getRadius() + 0.02);
+                if (internal_obj_wrapper.getCollisionShape()->getShapeType() == SPHERE_SHAPE_PROXYTYPE) {
+                    const btSphereShape * sph = reinterpret_cast<const btSphereShape*>(internal_obj_wrapper.getCollisionShape());
+                    _rad = float(sph->getRadius() + 0.02);
                     _lod_dim = _rad;
-					_common_data->prepare_sphere_collision(&res, _from, float(sph->getRadius()), 0.02f);
+                    _common_data->prepare_sphere_collision(&res, _from, float(sph->getRadius()), 0.02f);
                     gContactAddedCallback = friction_combiner_cbk;
-				}
-				else if (internal_obj_wrapper.getCollisionShape()->getShapeType() == CAPSULE_SHAPE_PROXYTYPE) {
-					const btCapsuleShape * caps = reinterpret_cast<const btCapsuleShape*>(internal_obj_wrapper.getCollisionShape());
-					float cap_rad = float(caps->getRadius());
-					float cap_hheight = float(caps->getHalfHeight());
-					_rad = cap_rad + cap_hheight + 0.04f;
+                }
+                else if (internal_obj_wrapper.getCollisionShape()->getShapeType() == CAPSULE_SHAPE_PROXYTYPE) {
+                    const btCapsuleShape * caps = reinterpret_cast<const btCapsuleShape*>(internal_obj_wrapper.getCollisionShape());
+                    float cap_rad = float(caps->getRadius());
+                    float cap_hheight = float(caps->getHalfHeight());
+                    _rad = cap_rad + cap_hheight + 0.04f;
                     _lod_dim = cap_rad;
 
-					btVector3 main_axis = internal_obj_wrapper.getWorldTransform().getBasis().getColumn(caps->getUpAxis());
-					btVector3 p0 = sc + (main_axis * cap_hheight);
-					btVector3 p1 = sc - (main_axis * cap_hheight);
+                    btVector3 main_axis = internal_obj_wrapper.getWorldTransform().getBasis().getColumn(caps->getUpAxis());
+                    btVector3 p0 = sc + (main_axis * cap_hheight);
+                    btVector3 p1 = sc - (main_axis * cap_hheight);
 
-					_common_data->prepare_capsule_collision(&res, glm::dvec3(p0.x(), p0.y(), p0.z()), glm::dvec3(p1.x(), p1.y(), p1.z()), cap_rad, float(caps->getMargin()));
+                    _common_data->prepare_capsule_collision(&res, glm::dvec3(p0.x(), p0.y(), p0.z()), glm::dvec3(p1.x(), p1.y(), p1.z()), cap_rad, float(caps->getMargin()));
                     gContactAddedCallback = friction_combiner_cbk;
-				}
-				else if (internal_obj_wrapper.getCollisionShape()->isConvex()) {
-					btTransform t = internal_obj_wrapper.getWorldTransform();
-					btQuaternion q = t.getRotation();
-					btVector3 p = t.getOrigin();
+                }
+                else if (internal_obj_wrapper.getCollisionShape()->isConvex()) {
+                    btTransform t = internal_obj_wrapper.getWorldTransform();
+                    btQuaternion q = t.getRotation();
+                    btVector3 p = t.getOrigin();
                     btVector3 min;
                     btVector3 max;
-					btScalar rad;
-					internal_obj_wrapper.getCollisionShape()->getBoundingSphere(min, rad);
+                    btScalar rad;
+                    internal_obj_wrapper.getCollisionShape()->getBoundingSphere(min, rad);
                     internal_obj_wrapper.getCollisionShape()->getAabb(t, min, max);
 
                     _rad = (float)rad;
 
                     min = (max - min) * 0.5;
                     _lod_dim = min[min.minAxis()];
-					_common_data->prepare_bt_convex_collision(&res, &internal_obj_wrapper);
+                    _common_data->prepare_bt_convex_collision(&res, &internal_obj_wrapper);
                     gContactAddedCallback = GJK_contact_added;
-				}
-				else {
-					continue;
-				}
+                }
+                else {
+                    continue;
+                }
 
                 _common_data->set_bounding_sphere_rad(_rad);
 
-				_triangles.clear();
+                _triangles.clear();
                 _tree_batches.clear();
 
                 get_obb(internal_obj_wrapper.getCollisionShape(), internal_obj_wrapper.getWorldTransform(), _from, _basis);
 
                 //_relocation_offset = _tb_cache.get_array().ptr();
-                
+
                 bool is_above_tm = false;
                 double3 under_terrain_contact;
                 float3 under_terrain_normal;
 
-                int col_result = _aabb_intersect(_context, _from, _basis, _lod_dim, _triangles, _tree_batches, _tb_cache, gOuterraSimulationFrame, is_above_tm, under_terrain_contact, under_terrain_normal, broadphases);
+                int col_result = _aabb_intersect(_context, _from, _basis, _lod_dim, _triangles, _tree_batches, _tb_cache, gCurrentFrame, is_above_tm, under_terrain_contact, under_terrain_normal,broadphases);
 
                 if (col_result == 0) {
                     //DASSERT(_tree_batches.size() == 0);
                     continue;
                 }
-/*                
-                if (_relocation_offset != _tb_cache.get_array().ptr()) {
-                    coidlog_warning("discrete_dynamics_world", "Tree baches slot allocator rebased. Tree batches count: " << _tb_cache.count());
-                    repair_tree_batches();
-                    repair_tree_collision_pairs();
-                }*/
+                /*
+                                if (_relocation_offset != _tb_cache.get_array().ptr()) {
+                                    coidlog_warning("discrete_dynamics_world", "Tree baches slot allocator rebased. Tree batches count: " << _tb_cache.count());
+                                    repair_tree_batches();
+                                    repair_tree_collision_pairs();
+                                }*/
 
                 tri_count += uint(_triangles.size());
 
-				if (_triangles.size() > 0) {
+                if (_triangles.size() > 0) {
 
                     if (m_debugDrawer) {
                         _triangles.for_each([&](const bt::triangle& t) {
@@ -539,7 +539,7 @@ namespace ot {
                         gContactAddedCallback = plane_contact_added;
                         _common_data->collide_object_plane(_elevation_above_terrain);
                     }
-                    
+
 #ifdef _PROFILING_ENABLED
                     _stats.triangles_processed_count += _triangles.size();
                     _stats.triangle_processing_time_ms += timer.time_ns() * 0.000001f;
@@ -557,10 +557,10 @@ namespace ot {
                     prepare_tree_collision_pairs(obj, _tree_batches, gOuterraSimulationFrame);
                 }
 
-				_common_data->process_collision_points();
-			}
+                _common_data->process_collision_points();
+            }
             int before = res.getPersistentManifold()->getNumContacts();
-            
+
             res.refreshContactPoints();
 
             if (manifold->getNumContacts() == 0 /*|| (tri_count == 0 && manifold->getNumContacts() > 0)*/) {
@@ -580,12 +580,11 @@ namespace ot {
                 });
             }
 
-		}
+        }
 
         process_terrain_broadphase_collision_pairs();
-
         gContactAddedCallback = nullptr;
-	}
+    }
 
     void discrete_dynamics_world::prepare_tree_collision_pairs(btCollisionObject * cur_obj, const coid::dynarray<uint>& tree_batches_cache, uint32 frame)
     {        
@@ -900,42 +899,94 @@ namespace ot {
                 });
             }
         });
-
-
     }
 
+
+
     discrete_dynamics_world::discrete_dynamics_world(btDispatcher * dispatcher,
-		btBroadphaseInterface * pairCache, 
-		btConstraintSolver * constraintSolver, 
-		btCollisionConfiguration * collisionConfiguration,
+        btBroadphaseInterface * pairCache, 
+        btConstraintSolver * constraintSolver, 
+        btCollisionConfiguration * collisionConfiguration,
         fn_ext_collision ext_collider,
         fn_process_tree_collision ext_tree_col,
         fn_terrain_ray_intersect ext_terrain_ray_intersect,
         fn_elevation_above_terrain ext_elevation_above_terrain,
-		const void* context)
-		: btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver,collisionConfiguration)
+        const void* context)
+        : btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver,collisionConfiguration)
         , _sphere_intersect(ext_collider)
         , _tree_collision(ext_tree_col)
         , _terrain_ray_intersect(ext_terrain_ray_intersect)
         , _elevation_above_terrain(ext_elevation_above_terrain)
-		, _context(context)
+        , _context(context)
         , _debug_terrain_triangles(1024)
         , _debug_trees(1024)
         , _tb_cache(1024)
         , _terrain_mesh_broadphase_pairs(1024)
         //, _relocation_offset(0)
-	{
-		btTriangleShape * ts = new btTriangleShape();
-		ts->setMargin(0.0f);
+    {
+        btTriangleShape * ts = new btTriangleShape();
+        ts->setMargin(0.0f);
         btRigidBody::btRigidBodyConstructionInfo info(0, 0, ts);
 
-		_planet_body = new btRigidBody(info);
-		_planet_body->setRestitution(0.0f);
+        _planet_body = new btRigidBody(info);
+        _planet_body->setRestitution(0.0f);
         _planet_body->setCollisionFlags(_planet_body->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
 
-		_cow_internal.reserve(128,false);
-		_compound_processing_stack.reserve(128, false);
-	}
+        _cow_internal.reserve(128,false);
+        _compound_processing_stack.reserve(128, false);
+    }
+
+    void discrete_dynamics_world::add_debug_aabb(const btVector3 & min, const btVector3 & max, const btVector3& color)
+    {
+        btVector3 v0 = btVector3(min[0], min[1], min[2]);
+        btVector3 v1 = btVector3(max[0], min[1], min[2]);
+        btVector3 v2 = btVector3(max[0], max[1], min[2]);
+        btVector3 v3 = btVector3(min[0], max[1], min[2]);
+        
+        btVector3 v4 = btVector3(min[0], min[1], max[2]);
+        btVector3 v5 = btVector3(max[0], min[1], max[2]);
+        btVector3 v6 = btVector3(max[0], max[1], max[2]);
+        btVector3 v7 = btVector3(min[0], max[1], max[2]);
+
+        _debug_lines.push(v0);
+        _debug_lines.push(v1);
+        _debug_lines.push(color);
+        _debug_lines.push(v1);
+        _debug_lines.push(v2);
+        _debug_lines.push(color);
+        _debug_lines.push(v2);
+        _debug_lines.push(v3);
+        _debug_lines.push(color);
+        _debug_lines.push(v3);
+        _debug_lines.push(v0);
+        _debug_lines.push(color);
+        
+        _debug_lines.push(v4);
+        _debug_lines.push(v5);
+        _debug_lines.push(color);
+        _debug_lines.push(v5);
+        _debug_lines.push(v6);
+        _debug_lines.push(color);
+        _debug_lines.push(v6);
+        _debug_lines.push(v7);
+        _debug_lines.push(color);
+        _debug_lines.push(v7);
+        _debug_lines.push(v4);
+        _debug_lines.push(color);
+
+        _debug_lines.push(v0);
+        _debug_lines.push(v4);
+        _debug_lines.push(color);
+        _debug_lines.push(v1);
+        _debug_lines.push(v5);
+        _debug_lines.push(color);
+        _debug_lines.push(v2);
+        _debug_lines.push(v6);
+        _debug_lines.push(color);
+        _debug_lines.push(v3);
+        _debug_lines.push(v7);
+        _debug_lines.push(color);
+            }
 
     void discrete_dynamics_world::add_debug_aabb(const btVector3 & min, const btVector3 & max, const btVector3& color)
     {
