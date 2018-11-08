@@ -224,7 +224,6 @@ namespace ot {
                 bp->_broadphase->setAabb(proxy, min, max, getDispatcher());
             }
             else {
-
                 proxy = bp->_broadphase->createProxy(
                     min,
                     max,
@@ -235,6 +234,14 @@ namespace ot {
                     0, 0
                 );
                 entry._collision_object->setBroadphaseHandle(proxy);
+
+                btGhostObject* ghost = btGhostObject::upcast(entry._collision_object);
+                if (ghost) {
+                    entry._collision_object->setCollisionFlags(entry._collision_object->getCollisionFlags() | 
+                        btCollisionObject::CollisionFlags::CF_NO_CONTACT_RESPONSE | 
+                        btCollisionObject::CollisionFlags::CF_DISABLE_VISUALIZE_OBJECT);
+                    add_terrain_occluder(ghost);
+                }
             }
 
             proxy->m_ot_revision = gOuterraSimulationFrame;
@@ -260,6 +267,11 @@ namespace ot {
             new(pair)btBroadphasePair();
             pair->m_pProxy0 = obj1->getBroadphaseHandle();
             pair->m_pProxy1 = obj2->getBroadphaseHandle();
+
+            btGhostObject * ghost = btGhostObject::upcast(obj1);
+            if (ghost) {
+                ghost->addOverlappingObjectInternal(obj2->getBroadphaseHandle());
+            }
         }
     }
 
@@ -270,6 +282,12 @@ namespace ot {
             getDispatcher()->freeCollisionAlgorithm(pair.m_algorithm);
             pair.m_algorithm = 0;
         }
+
+        btGhostObject * ghost = btGhostObject::upcast(reinterpret_cast<btCollisionObject*>(pair.m_pProxy0->m_clientObject));
+        if (ghost) {
+            ghost->removeOverlappingObjectInternal(pair.m_pProxy1,getDispatcher());
+        }
+
         _terrain_mesh_broadphase_pairs.del(&pair);
     }
 
