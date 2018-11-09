@@ -189,6 +189,7 @@ namespace ot {
         const btVector3 half = (max - min) * 0.5;
         const btVector3 cen = (max + min) * 0.5;
 
+        uint col_obj_mask = col_obj->getBroadphaseHandle()->m_collisionFilterMask;
 
         broadphase.for_each([&](bt::external_broadphase* bp) {
             if (bp->_dirty) {
@@ -272,6 +273,8 @@ namespace ot {
             if (ghost) {
                 ghost->addOverlappingObjectInternal(obj2->getBroadphaseHandle());
             }
+
+            obj2->m_otFlags |= bt::CF_POTENTIAL_OBJECT_COLLISION;
         }
     }
 
@@ -535,6 +538,25 @@ namespace ot {
                                     repair_tree_collision_pairs();
                                 }*/
 
+                
+                process_terrain_broadphases(broadphases, obj);
+
+                bool is_potentially_inside_tunnel = false;
+                // terrain ocluders 
+                _terrain_occluders.for_each([&](const btGhostObject* go) {
+                    int num_op = go->getNumOverlappingObjects();
+                    for (int i = 0; i < num_op; i++) {
+                        const btCollisionObject* overlappig_obj = go->getOverlappingObject(i);
+                        if (overlappig_obj == obj) {
+                            is_potentially_inside_tunnel = true;
+                        }
+                    }
+                });
+
+                obj->m_otFlags = (is_potentially_inside_tunnel)
+                    ? obj->m_otFlags | (bt::EOtCollisionFlags::CF_POTENTIAL_TUNNEL_COLLISION)
+                    : obj->m_otFlags & ~bt::EOtCollisionFlags::CF_POTENTIAL_TUNNEL_COLLISION;
+                
                 tri_count += uint(_triangles.size());
 
                 if (_triangles.size() > 0) {
@@ -564,7 +586,7 @@ namespace ot {
 #endif // _PROFILING_ENABLED
 
                 }
-                else if (col_result == -1) {
+                else if (col_result == -1 && !is_potentially_inside_tunnel) {
                     gContactAddedCallback = nullptr;
                     res.addContactPoint(btVector3(under_terrain_normal.x, under_terrain_normal.y, under_terrain_normal.z),
                         btVector3(_from.x, _from.y, _from.z),
@@ -581,7 +603,25 @@ namespace ot {
 
             res.refreshContactPoints();
 
-            if (manifold->getNumContacts() == 0 /*|| (tri_count == 0 && manifold->getNumContacts() > 0)*/) {
+
+            //
+            if (obj->m_otFlags & bt::EOtCollisionFlags::CF_POTENTIAL_TUNNEL_COLLISION) {
+                btPersistentManifold* man = res.getPersistentManifold();
+                int num_contacts = man->getNumContacts();
+                for (int j = 0; j < num_contacts; j++) {
+                    btManifoldPoint& pt = man->getContactPoint(j);
+                    
+                    if (is_point_inside_terrain_occluder(pt.getPositionWorldOnA())) {
+                        man->removeContactPoint(j);
+                        j--;
+                        num_contacts--;
+                    }
+                }
+            }
+
+            //DASSERT(manifold->getNumContacts() == 0);
+
+            if (manifold->getNumContacts() == 0 /*|| (tri_count == 0)*/) {
                 getDispatcher()->releaseManifold(manifold);
                 _manifolds.get_item(rb->getTerrainManifoldHandle());
                 _manifolds.del(_manifolds.get_item(rb->getTerrainManifoldHandle()));
@@ -589,9 +629,6 @@ namespace ot {
             }
 
             //// tu budem pisat
-
-            process_terrain_broadphases(broadphases, obj);
-
             if (m_debugDrawer) {
                 broadphases.for_each([&](bt::external_broadphase* bp) {
                     _debug_external_broadphases.push_if_absent(bp);

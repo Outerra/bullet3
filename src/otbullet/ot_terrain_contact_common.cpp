@@ -7,11 +7,13 @@
 #include <BulletCollision/CollisionDispatch/btCollisionWorld.h>
 #include <ot/glm/coal.h>
 
+#include "discrete_dynamics_world.h"
+
 #include <ot/world.h>
 
 const bt::triangle* current_processed_triangle = nullptr;
 
-ot_terrain_contact_common::ot_terrain_contact_common(float triangle_collision_margin, btCollisionWorld * world, btCollisionObjectWrapper * planet_body_wrap)
+ot_terrain_contact_common::ot_terrain_contact_common(float triangle_collision_margin, ot::discrete_dynamics_world * world, btCollisionObjectWrapper * planet_body_wrap)
 	:_curr_collider(ctCount)
 	,_triangle_collision_margin(triangle_collision_margin)
 	,_curr_algo(0)

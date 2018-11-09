@@ -15,6 +15,9 @@ class btCollisionWorld;
 class btRigidBody;
 class btCollisionAlgorithm;
 
+namespace ot {
+    class discrete_dynamics_world;
+}
 ////////////////////////////////////////////////////////////////////////
 
 struct cached_edge {
@@ -103,7 +106,7 @@ public:
 
     COIDNEWDELETE(ot_terrain_contact_common);
 
-	ot_terrain_contact_common(float triangle_collision_margin, btCollisionWorld * world, btCollisionObjectWrapper * planet_body_wrap);
+	ot_terrain_contact_common(float triangle_collision_margin, ot::discrete_dynamics_world * world, btCollisionObjectWrapper * planet_body_wrap);
     ~ot_terrain_contact_common();
 
 	void set_terrain_mesh_offset(const glm::dvec3 & offset);
@@ -134,7 +137,7 @@ private:
 	typedef void(ot_terrain_contact_common::*CollisionAlgorithm)(const bt::triangle &);
 	btCollisionObjectWrapper * _planet_body_wrap;
 	btManifoldResult * _manifold;
-	btCollisionWorld * _collision_world;
+    ot::discrete_dynamics_world * _collision_world;
 	coid::dynarray<bt::triangle> _triangle_cache;
 	coid::dynarray<contact_point> _contact_point_cache;
 
