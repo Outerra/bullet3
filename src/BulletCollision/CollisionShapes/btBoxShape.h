@@ -31,6 +31,10 @@ btBoxShape : public btPolyhedralConvexShape
 public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
+    virtual btCollisionShape* getClone() const override {
+        return new btBoxShape(*this);
+    };
+
 	btVector3 getHalfExtentsWithMargin() const
 	{
 		btVector3 halfExtents = getHalfExtentsWithoutMargin();

@@ -332,6 +332,12 @@ btCollisionShape* physics::create_shape( bt::EShape sh, const float hvec[3] )
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+ifc_fn btCollisionShape * physics::clone_shape(const btCollisionShape * shape)
+{
+    return shape->getClone();
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void physics::destroy_shape( btCollisionShape*& shape )
 {
     delete shape;
@@ -352,14 +358,22 @@ void physics::close_convex_shape( btCollisionShape* shape )
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void physics::set_collision_shape_local_scaling(btCollisionShape * shape, const float3 & scale)
+{
+    shape->setLocalScaling(btVector3(scale[0], scale[1], scale[2]));
+}
+
+////////////////////////////////////////////////////////////////////////////////
 btCompoundShape* physics::create_compound_shape()
 {
-    return new btCompoundShape;
+    btCompoundShape * res = new btCompoundShape();
+    return res;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void physics::add_child_shape( btCompoundShape* group, btCollisionShape* child, const btTransform& tr )
 {
+    //child->setLocalScaling(btVector3(1.0, 0.5, 1.0));
     group->addChildShape(tr, child);
 }
 

@@ -82,24 +82,24 @@ struct tree_collision_pair
 
 ///
 struct raw_collision_pair {
-	btCollisionObject * _obj1;
-	btCollisionObject * _obj2;
-	raw_collision_pair()
-		:_obj1(0), _obj2(0) {}
-	raw_collision_pair(btCollisionObject * obj1, btCollisionObject * obj2)
-		:_obj1(obj1), _obj2(obj2) {}
+    btCollisionObject * _obj1;
+    btCollisionObject * _obj2;
+    raw_collision_pair()
+        :_obj1(0), _obj2(0) {}
+    raw_collision_pair(btCollisionObject * obj1, btCollisionObject * obj2)
+        :_obj1(obj1), _obj2(obj2) {}
 };
 
 ///
 struct compound_processing_entry {
-	btCollisionShape * _shape;
-	btTransform _world_trans;
-	compound_processing_entry(btCollisionShape * shape, const btTransform & world_trans)
-		:_shape(shape)
-		,_world_trans(world_trans) 
-	{};
-	compound_processing_entry() {
-	}
+    btCollisionShape * _shape;
+    btTransform _world_trans;
+    compound_processing_entry(btCollisionShape * shape, const btTransform & world_trans)
+        :_shape(shape)
+        ,_world_trans(world_trans) 
+    {};
+    compound_processing_entry() {
+    }
 };
 
 struct p_treebatch_key_extractor {
@@ -133,33 +133,33 @@ struct tree_key_extractor {
 class discrete_dynamics_world : public btDiscreteDynamicsWorld
 {
 protected:
-	struct btCollisionObjectWrapperCtorArgs {
-		const btCollisionObjectWrapper* _parent;
-		const btCollisionShape* _shape;
-		const btCollisionObject* _collisionObject;
-		const btTransform _worldTransform;
-		int _partId;
-		int _index;
-		btCollisionObjectWrapperCtorArgs(const btCollisionObjectWrapper* parent, const btCollisionShape* shape, const btCollisionObject* collisionObject, const btTransform& worldTransform, int partId, int index)
-			:_parent(parent)
-			, _shape(shape)
+    struct btCollisionObjectWrapperCtorArgs {
+        const btCollisionObjectWrapper* _parent;
+        const btCollisionShape* _shape;
+        const btCollisionObject* _collisionObject;
+        const btTransform _worldTransform;
+        int _partId;
+        int _index;
+        btCollisionObjectWrapperCtorArgs(const btCollisionObjectWrapper* parent, const btCollisionShape* shape, const btCollisionObject* collisionObject, const btTransform& worldTransform, int partId, int index)
+            :_parent(parent)
+            , _shape(shape)
             , _collisionObject(collisionObject)
-			, _worldTransform(worldTransform)
-			, _partId(partId)
-			, _index(index)
-		{};
-	private:
-		btCollisionObjectWrapperCtorArgs();
-	};
-	const void* _context;
+            , _worldTransform(worldTransform)
+            , _partId(partId)
+            , _index(index)
+        {};
+    private:
+        btCollisionObjectWrapperCtorArgs();
+    };
+    const void* _context;
 
-	btRigidBody * _planet_body;
-	btCollisionObjectWrapper * _pb_wrap;
-	coid::slotalloc<btPersistentManifold *> _manifolds;
+    btRigidBody * _planet_body;
+    btCollisionObjectWrapper * _pb_wrap;
+    coid::slotalloc<btPersistentManifold *> _manifolds;
 	//coid::slotalloc<tree_batch> _tree_cache;
-	coid::slotalloc<tree_collision_pair> _tree_collision_pairs;
-	coid::dynarray<btCollisionObjectWrapperCtorArgs> _cow_internal;
-	coid::dynarray<compound_processing_entry> _compound_processing_stack;
+    coid::slotalloc<tree_collision_pair> _tree_collision_pairs;
+    coid::dynarray<btCollisionObjectWrapperCtorArgs> _cow_internal;
+    coid::dynarray<compound_processing_entry> _compound_processing_stack;
 
     coid::dynarray<bt::triangle> _triangles;
     coid::slotalloc<bt::tree_batch> _tb_cache;
@@ -201,6 +201,8 @@ public:
     void add_terrain_broadphase_collision_pair(btCollisionObject * obj1, btCollisionObject * obj2);
     void remove_terrain_broadphase_collision_pair(btBroadphasePair& pair);
     void process_terrain_broadphase_collision_pairs();
+
+    void rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback) const override;
 
     virtual void removeRigidBody(btRigidBody* body) override;
     virtual void removeCollisionObject(btCollisionObject* collisionObject) override;
@@ -250,15 +252,15 @@ public:
     fn_terrain_ray_intersect _terrain_ray_intersect;
     fn_elevation_above_terrain _elevation_above_terrain;
 
-	discrete_dynamics_world(btDispatcher* dispatcher,
-		btBroadphaseInterface* pairCache,
-		btConstraintSolver* constraintSolver,
-		btCollisionConfiguration* collisionConfiguration,
+    discrete_dynamics_world(btDispatcher* dispatcher,
+        btBroadphaseInterface* pairCache,
+        btConstraintSolver* constraintSolver,
+        btCollisionConfiguration* collisionConfiguration,
         fn_ext_collision ext_collider, 
         fn_process_tree_collision ext_tree_col,
         fn_terrain_ray_intersect ext_terrain_ray_intersect,
         fn_elevation_above_terrain ext_elevation_above_terrain,
-		const void* context = 0);
+        const void* context = 0);
 
     const bt::ot_world_physics_stats & get_stats() const {
         return _stats;
@@ -438,6 +440,10 @@ public:
         }
     }
 
+    void add_terrain_occluder(btGhostObject * go) { _terrain_occluders.push(go); }
+    void remove_terrain_occluder(btGhostObject * go);
+    bool is_point_inside_terrain_occluder(const btVector3& pt);
+    void set_potential_collision_flag(btRigidBody * rb);
     template<class fn> // void (*fn)(btCollisionObject * obj)
     void for_each_object_in_broadphase(bt32BitAxisSweep3 * broadphase, fn process_fn) {
         static coid::dynarray<const btDbvtNode *> _processing_stack(1024);
@@ -482,9 +488,9 @@ public:
 
 protected:
 
-	virtual void internalSingleStepSimulation(btScalar timeStep) override;
+    virtual void internalSingleStepSimulation(btScalar timeStep) override;
 
-	void ot_terrain_collision_step();
+    void ot_terrain_collision_step();
 
     void prepare_tree_collision_pairs(btCollisionObject * cur_obj, const coid::dynarray<uint>& trees_cache, uint32 frame);
     void build_tb_collision_info(bt::tree_batch * tb);

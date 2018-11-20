@@ -82,9 +82,11 @@ public:
     ifc_fn void destroy_compound_shape( ifc_inout btCompoundShape*& shape );
 
     ifc_fn btCollisionShape* create_shape( bt::EShape sh, const float hvec[3] );
+    ifc_fn btCollisionShape* clone_shape(const btCollisionShape * shape);
     ifc_fn void add_convex_point( btCollisionShape* shape, const float point[3] );
     ifc_fn void close_convex_shape( btCollisionShape* shape );
     ifc_fn void destroy_shape( ifc_inout btCollisionShape*& shape );
+    ifc_fn void set_collision_shape_local_scaling(btCollisionShape * shape, const float3& scale);
 
     ifc_fn bt::ot_world_physics_stats get_stats();
     ifc_fn bt::ot_world_physics_stats* get_stats_ptr();

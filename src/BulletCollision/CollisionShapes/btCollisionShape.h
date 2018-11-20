@@ -43,6 +43,9 @@ public:
 	{
 	}
 
+    ///getClone returns clone of btCollisionShape
+    virtual btCollisionShape* getClone() const = 0;
+
 	///getAabb returns the axis aligned bounding box in the coordinate frame of the given transform t.
 	virtual void getAabb(const btTransform& t,btVector3& aabbMin,btVector3& aabbMax) const =0;
 

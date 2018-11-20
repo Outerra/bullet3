@@ -31,6 +31,10 @@ protected:
 public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
+    virtual btCollisionShape* getClone() const override {
+        return new btCylinderShape(*this);
+    };
+
 	btVector3 getHalfExtentsWithMargin() const
 	{
 		btVector3 halfExtents = getHalfExtentsWithoutMargin();

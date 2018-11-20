@@ -1049,8 +1049,8 @@ void	btCollisionWorld::rayTest(const btVector3& rayFromWorld, const btVector3& r
 		rayCB.process(m_collisionObjects[i]->getBroadphaseHandle());
 	}	
 #endif //USE_BRUTEFORCE_RAYBROADPHASE
-    
 
+    
 }
 
 struct btSingleSweepCallback : public btBroadphaseRayCallback
