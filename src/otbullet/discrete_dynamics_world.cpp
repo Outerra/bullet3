@@ -1079,54 +1079,56 @@ namespace ot {
 
     void discrete_dynamics_world::add_debug_aabb(const btVector3 & min, const btVector3 & max, const btVector3& color)
     {
-        btVector3 v0 = btVector3(min[0], min[1], min[2]);
-        btVector3 v1 = btVector3(max[0], min[1], min[2]);
-        btVector3 v2 = btVector3(max[0], max[1], min[2]);
-        btVector3 v3 = btVector3(min[0], max[1], min[2]);
+        if (m_debugDrawer) {
+            btVector3 v0 = btVector3(min[0], min[1], min[2]);
+            btVector3 v1 = btVector3(max[0], min[1], min[2]);
+            btVector3 v2 = btVector3(max[0], max[1], min[2]);
+            btVector3 v3 = btVector3(min[0], max[1], min[2]);
 
-        btVector3 v4 = btVector3(min[0], min[1], max[2]);
-        btVector3 v5 = btVector3(max[0], min[1], max[2]);
-        btVector3 v6 = btVector3(max[0], max[1], max[2]);
-        btVector3 v7 = btVector3(min[0], max[1], max[2]);
+            btVector3 v4 = btVector3(min[0], min[1], max[2]);
+            btVector3 v5 = btVector3(max[0], min[1], max[2]);
+            btVector3 v6 = btVector3(max[0], max[1], max[2]);
+            btVector3 v7 = btVector3(min[0], max[1], max[2]);
 
-        _debug_lines.push(v0);
-        _debug_lines.push(v1);
-        _debug_lines.push(color);
-        _debug_lines.push(v1);
-        _debug_lines.push(v2);
-        _debug_lines.push(color);
-        _debug_lines.push(v2);
-        _debug_lines.push(v3);
-        _debug_lines.push(color);
-        _debug_lines.push(v3);
-        _debug_lines.push(v0);
-        _debug_lines.push(color);
+            _debug_lines.push(v0);
+            _debug_lines.push(v1);
+            _debug_lines.push(color);
+            _debug_lines.push(v1);
+            _debug_lines.push(v2);
+            _debug_lines.push(color);
+            _debug_lines.push(v2);
+            _debug_lines.push(v3);
+            _debug_lines.push(color);
+            _debug_lines.push(v3);
+            _debug_lines.push(v0);
+            _debug_lines.push(color);
 
-        _debug_lines.push(v4);
-        _debug_lines.push(v5);
-        _debug_lines.push(color);
-        _debug_lines.push(v5);
-        _debug_lines.push(v6);
-        _debug_lines.push(color);
-        _debug_lines.push(v6);
-        _debug_lines.push(v7);
-        _debug_lines.push(color);
-        _debug_lines.push(v7);
-        _debug_lines.push(v4);
-        _debug_lines.push(color);
+            _debug_lines.push(v4);
+            _debug_lines.push(v5);
+            _debug_lines.push(color);
+            _debug_lines.push(v5);
+            _debug_lines.push(v6);
+            _debug_lines.push(color);
+            _debug_lines.push(v6);
+            _debug_lines.push(v7);
+            _debug_lines.push(color);
+            _debug_lines.push(v7);
+            _debug_lines.push(v4);
+            _debug_lines.push(color);
 
-        _debug_lines.push(v0);
-        _debug_lines.push(v4);
-        _debug_lines.push(color);
-        _debug_lines.push(v1);
-        _debug_lines.push(v5);
-        _debug_lines.push(color);
-        _debug_lines.push(v2);
-        _debug_lines.push(v6);
-        _debug_lines.push(color);
-        _debug_lines.push(v3);
-        _debug_lines.push(v7);
-        _debug_lines.push(color);
+            _debug_lines.push(v0);
+            _debug_lines.push(v4);
+            _debug_lines.push(color);
+            _debug_lines.push(v1);
+            _debug_lines.push(v5);
+            _debug_lines.push(color);
+            _debug_lines.push(v2);
+            _debug_lines.push(v6);
+            _debug_lines.push(color);
+            _debug_lines.push(v3);
+            _debug_lines.push(v7);
+            _debug_lines.push(color);
+        }
     }
 
 }// end namespace ot
