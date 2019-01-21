@@ -19,7 +19,7 @@ static_assert( std::is_base_of<policy_intrusive_base, physics>::value, "class 'p
 static_assert( std::is_base_of<policy_intrusive_base, physics>::value, "class 'physics' must be derived from policy_intrusive_base");
 
 ////////////////////////////////////////////////////////////////////////////////
-// interface physics of class physics
+// interface bt::physics of class physics
 
 namespace bt {
 
@@ -37,7 +37,7 @@ private:
     {
         if (_vtable1) return _vtable1;
 
-        _vtable1 = new ifn_t[43];
+        _vtable1 = new ifn_t[44];
         _vtable1[0] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(uint)>(&::physics::set_simulation_frame));
         _vtable1[1] = reinterpret_cast<ifn_t>(static_cast<bt::external_broadphase*(policy_intrusive_base::*)(const double3&,const double3&)>(&::physics::create_external_broadphase));
         _vtable1[2] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(bt::external_broadphase*,btCollisionObject*,unsigned int,unsigned int)>(&::physics::add_collision_object_to_external_broadphase));
@@ -63,24 +63,25 @@ private:
         _vtable1[22] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionObject*)>(&::physics::remove_collision_object));
         _vtable1[23] = reinterpret_cast<ifn_t>(static_cast<btCompoundShape*(policy_intrusive_base::*)()>(&::physics::create_compound_shape));
         _vtable1[24] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCompoundShape*,btCollisionShape*,const btTransform&)>(&::physics::add_child_shape));
-        _vtable1[25] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCompoundShape*,int,const btTransform&)>(&::physics::update_child));
-        _vtable1[26] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCompoundShape*)>(&::physics::recalc_compound_shape));
-        _vtable1[27] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCompoundShape*&)>(&::physics::destroy_compound_shape));
-        _vtable1[28] = reinterpret_cast<ifn_t>(static_cast<btCollisionShape*(policy_intrusive_base::*)(bt::EShape,const float[3])>(&::physics::create_shape));
-        _vtable1[29] = reinterpret_cast<ifn_t>(static_cast<btCollisionShape*(policy_intrusive_base::*)(const btCollisionShape*)>(&::physics::clone_shape));
-        _vtable1[30] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionShape*,const float[3])>(&::physics::add_convex_point));
-        _vtable1[31] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionShape*)>(&::physics::close_convex_shape));
-        _vtable1[32] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionShape*&)>(&::physics::destroy_shape));
-        _vtable1[33] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionShape*,const float3&)>(&::physics::set_collision_shape_local_scaling));
-        _vtable1[34] = reinterpret_cast<ifn_t>(static_cast<bt::ot_world_physics_stats(policy_intrusive_base::*)()>(&::physics::get_stats));
-        _vtable1[35] = reinterpret_cast<ifn_t>(static_cast<bt::ot_world_physics_stats*(policy_intrusive_base::*)()>(&::physics::get_stats_ptr));
-        _vtable1[36] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btIDebugDraw*)>(&::physics::set_debug_draw_enabled));
-        _vtable1[37] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(int)>(&::physics::set_debug_drawer_mode));
-        _vtable1[38] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)()>(&::physics::debug_draw_world));
-        _vtable1[39] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(const double3&,float,coid::dynarray<btCollisionObject*>&)>(&::physics::query_volume_sphere));
-        _vtable1[40] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(const double3&,const float4*,uint8,bool,coid::dynarray<btCollisionObject *>&)>(&::physics::query_volume_frustum));
-        _vtable1[41] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(const double3&,float)>(&::physics::wake_up_objects_in_radius));
-        _vtable1[42] = reinterpret_cast<ifn_t>(static_cast<bool(policy_intrusive_base::*)(const double3&)>(&::physics::is_point_inside_terrain_ocluder));
+        _vtable1[25] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCompoundShape*,btCollisionShape*)>(&::physics::remove_child_shape));
+        _vtable1[26] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCompoundShape*,btCollisionShape*,const btTransform&)>(&::physics::update_child));
+        _vtable1[27] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCompoundShape*)>(&::physics::recalc_compound_shape));
+        _vtable1[28] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCompoundShape*&)>(&::physics::destroy_compound_shape));
+        _vtable1[29] = reinterpret_cast<ifn_t>(static_cast<btCollisionShape*(policy_intrusive_base::*)(bt::EShape,const float[3])>(&::physics::create_shape));
+        _vtable1[30] = reinterpret_cast<ifn_t>(static_cast<btCollisionShape*(policy_intrusive_base::*)(const btCollisionShape*)>(&::physics::clone_shape));
+        _vtable1[31] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionShape*,const float[3])>(&::physics::add_convex_point));
+        _vtable1[32] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionShape*)>(&::physics::close_convex_shape));
+        _vtable1[33] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionShape*&)>(&::physics::destroy_shape));
+        _vtable1[34] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionShape*,const float3&)>(&::physics::set_collision_shape_local_scaling));
+        _vtable1[35] = reinterpret_cast<ifn_t>(static_cast<bt::ot_world_physics_stats(policy_intrusive_base::*)()>(&::physics::get_stats));
+        _vtable1[36] = reinterpret_cast<ifn_t>(static_cast<bt::ot_world_physics_stats*(policy_intrusive_base::*)()>(&::physics::get_stats_ptr));
+        _vtable1[37] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btIDebugDraw*)>(&::physics::set_debug_draw_enabled));
+        _vtable1[38] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(int)>(&::physics::set_debug_drawer_mode));
+        _vtable1[39] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)()>(&::physics::debug_draw_world));
+        _vtable1[40] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(const double3&,float,coid::dynarray<btCollisionObject*>&)>(&::physics::query_volume_sphere));
+        _vtable1[41] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(const double3&,const float4*,uint8,bool,coid::dynarray<btCollisionObject *>&)>(&::physics::query_volume_frustum));
+        _vtable1[42] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(const double3&,float)>(&::physics::wake_up_objects_in_radius));
+        _vtable1[43] = reinterpret_cast<ifn_t>(static_cast<bool(policy_intrusive_base::*)(const double3&)>(&::physics::is_point_inside_terrain_ocluder));
         return _vtable1;
     }
 
@@ -92,7 +93,7 @@ private:
         if (_vtable2) return _vtable2;
         ifn_t* vtable1 = get_vtable();
 
-        _vtable2 = new ifn_t[43];
+        _vtable2 = new ifn_t[44];
         _vtable2[0] = vtable1[0];
         _vtable2[1] = vtable1[1];
         _vtable2[2] = vtable1[2];
@@ -136,15 +137,43 @@ private:
         _vtable2[40] = vtable1[40];
         _vtable2[41] = vtable1[41];
         _vtable2[42] = vtable1[42];
+        _vtable2[43] = vtable1[43];
         return _vtable2;
+    }
+
+    bool assign_safe(intergen_interface* p, iref<physics>* pout)
+    {
+        ::physics* hostptr = host<::physics>();
+        if (!hostptr)
+            return false;
+
+        coid::clean_ptr<intergen_interface>& ifcvar = hostptr->_ifc_host;
+        coid::comm_mutex& mx = share_lock();
+        if (ifcvar == p)
+            return true;
+
+        GUARDTHIS(mx);
+        //assign only if nobody assigned before us
+        bool succ = !ifcvar || !p;
+        if (succ) {
+            ifcvar = p;
+            _cleaner = p ? &_cleaner_callback : 0;
+        }
+        else if (pout)
+            pout->add_refcount(static_cast<physics*>(ifcvar.get()));
+
+        return succ;
     }
 
 protected:
 
     COIDNEWDELETE(physics_dispatcher);
 
-    physics_dispatcher()
-    {}
+    physics_dispatcher() {
+    }
+    
+    virtual ~physics_dispatcher() {
+    }
 
     bool intergen_bind_capture( coid::binstring* capture, uint instid ) override
     {
@@ -167,16 +196,15 @@ protected:
 
     ///Cleanup routine called from ~physics()
     static void _cleaner_callback( physics* m, intergen_interface* ifc ) {
-         ::physics* host = m->host<::physics>();
-        if (host) host->_ifc_host.assign_safe(ifc);
+        static_cast<physics_dispatcher*>(m)->assign_safe(ifc, 0);
     }
 
-    static iref<physics> _generic_interface_creator( ::physics* host, physics* __here__)
+    static iref<physics> _generic_interface_creator(::physics* host, physics* __here__)
     {
         iref<physics> rval;
         //an active interface (with events)
         if (host->_ifc_host && !__here__)
-            rval.create(static_cast<physics_dispatcher*>(host->_ifc_host.get()));
+            rval = intergen_active_interface(host);
 
         if (rval.is_empty()) {
             //interface not taken from host
@@ -190,12 +218,8 @@ protected:
 
             //try assigning to the host (MT guard)
             // if that fails, the interface will be passive (no events)
-            if (host->_ifc_host.assign_safe(rval.get()))
-                static_cast<physics_dispatcher*>(rval.get())->_cleaner = &_cleaner_callback;
-            else if (!__here__)
-                rval.create(static_cast<physics_dispatcher*>(host->_ifc_host.get()));
+            dispatcher->assign_safe(rval.get(), __here__ ? 0 : &rval);
         }
-
 
         return rval;
     }
@@ -206,7 +230,7 @@ public:
 
     static iref<physics> create( physics* __here__, double r, void* context )
     {
-        iref< ::physics> __host__ = ::physics::create(r, context);
+        iref<::physics> __host__ = ::physics::create(r, context);
         if (!__host__)
             return 0;
         return _generic_interface_creator(__host__.get(), __here__);
@@ -214,7 +238,7 @@ public:
 
     static iref<physics> get( physics* __here__ )
     {
-        iref< ::physics> __host__ = ::physics::get();
+        iref<::physics> __host__ = ::physics::get();
         if (!__host__)
             return 0;
         return _generic_interface_creator(__host__.get(), __here__);
@@ -228,10 +252,10 @@ public:
             on ? (void*)&_generic_interface_creator : nullptr);
 
         interface_register::register_interface_creator(
-            "bt::physics.create@3489924142",
+            "bt::physics.create@40731848",
             on ? (void*)&create : nullptr);
         interface_register::register_interface_creator(
-            "bt::physics.get@3489924142",
+            "bt::physics.get@40731848",
             on ? (void*)&get : nullptr);
     }
 };
@@ -241,6 +265,16 @@ uint16 physics_dispatcher::_instid = 0xffffU;
 intergen_interface::ifn_t* physics_dispatcher::_vtable2 = 0;
 intergen_interface::ifn_t* physics_dispatcher::_vtable1 = 0;
 
+iref<physics> physics::intergen_active_interface(::physics* host)
+{
+    coid::comm_mutex& mx = share_lock();
+    
+    GUARDTHIS(mx);
+    iref<physics> rval;
+    rval.add_refcount(static_cast<physics*>(host->_ifc_host.get()));
+    
+    return rval;
+}
 
 //auto-register the available interface creators
 LOCAL_SINGLETON_DEF(ifc_autoregger) physics_autoregger = new ifc_autoregger(&physics_dispatcher::register_interfaces);
@@ -257,7 +291,7 @@ void* force_register_physics() {
 
 bool physics::terrain_collisions( const void* context, const double3& center, float radius, float lod_dimension, coid::dynarray<bt::triangle>& data, coid::dynarray<uint>& trees, coid::slotalloc<bt::tree_batch>& tree_batches, uint frame )
 {
-	if (!_ifc_host) 
+    if (!_ifc_host) 
         throw coid::exception() << "terrain_collisions" << " handler not implemented";
     else
         return _ifc_host->iface<bt::physics>()->terrain_collisions(context, center, radius, lod_dimension, data, trees, tree_batches, frame);
@@ -265,7 +299,7 @@ bool physics::terrain_collisions( const void* context, const double3& center, fl
 
 int physics::terrain_collisions_aabb( const void* context, const double3& center, float3x3 basis, float lod_dimension, coid::dynarray<bt::triangle>& data, coid::dynarray<uint>& trees, coid::slotalloc<bt::tree_batch>& tree_batches, uint frame, bool& is_above_tm, double3& under_contact, float3& under_normal, coid::dynarray<bt::external_broadphase*>& broadphases )
 {
-	if (!_ifc_host) 
+    if (!_ifc_host) 
         throw coid::exception() << "terrain_collisions_aabb" << " handler not implemented";
     else
         return _ifc_host->iface<bt::physics>()->terrain_collisions_aabb(context, center, basis, lod_dimension, data, trees, tree_batches, frame, is_above_tm, under_contact, under_normal, broadphases);
@@ -273,7 +307,7 @@ int physics::terrain_collisions_aabb( const void* context, const double3& center
 
 float3 physics::tree_collisions( btRigidBody* obj, bt::tree_collision_contex& ctx, float time_step, coid::slotalloc<bt::tree_batch>& tree_batches )
 {
-	if (!_ifc_host) 
+    if (!_ifc_host) 
         throw coid::exception() << "tree_collisions" << " handler not implemented";
     else
         return _ifc_host->iface<bt::physics>()->tree_collisions(obj, ctx, time_step, tree_batches);
@@ -281,7 +315,7 @@ float3 physics::tree_collisions( btRigidBody* obj, bt::tree_collision_contex& ct
 
 float physics::terrain_ray_intersect( const void* context, const double3& from, const float3& dir, const float2& minmaxlen, float3* norm, double3* pos )
 {
-	if (!_ifc_host) 
+    if (!_ifc_host) 
         throw coid::exception() << "terrain_ray_intersect" << " handler not implemented";
     else
         return _ifc_host->iface<bt::physics>()->terrain_ray_intersect(context, from, dir, minmaxlen, norm, pos);
@@ -289,7 +323,7 @@ float physics::terrain_ray_intersect( const void* context, const double3& from, 
 
 float physics::elevation_above_terrain( const double3& pos, float maxlen, float3* norm, double3* hitpoint )
 {
-	if (!_ifc_host) 
+    if (!_ifc_host) 
         throw coid::exception() << "elevation_above_terrain" << " handler not implemented";
     else
         return _ifc_host->iface<bt::physics>()->elevation_above_terrain(pos, maxlen, norm, hitpoint);
@@ -297,7 +331,7 @@ float physics::elevation_above_terrain( const double3& pos, float maxlen, float3
 
 void physics::add_static_collider( const void* context, btCollisionObject* obj, const double3& cen, const float3x3& basis )
 {
-	if (!_ifc_host) 
+    if (!_ifc_host) 
         throw coid::exception() << "add_static_collider" << " handler not implemented";
     else
         return _ifc_host->iface<bt::physics>()->add_static_collider(context, obj, cen, basis);
@@ -305,7 +339,7 @@ void physics::add_static_collider( const void* context, btCollisionObject* obj, 
 
 void physics::log( const coid::token& text )
 {
-	if (!_ifc_host) 
+    if (!_ifc_host) 
         throw coid::exception() << "log" << " handler not implemented";
     else
         return _ifc_host->iface<bt::physics>()->log(text);

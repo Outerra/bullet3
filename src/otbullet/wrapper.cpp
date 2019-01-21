@@ -373,13 +373,27 @@ btCompoundShape* physics::create_compound_shape()
 ////////////////////////////////////////////////////////////////////////////////
 void physics::add_child_shape( btCompoundShape* group, btCollisionShape* child, const btTransform& tr )
 {
-    //child->setLocalScaling(btVector3(1.0, 0.5, 1.0));
     group->addChildShape(tr, child);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::update_child( btCompoundShape* group, int index, const btTransform& tr )
+void physics::remove_child_shape(btCompoundShape* group, btCollisionShape* child)
 {
+    group->removeChildShape(child);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void physics::update_child( btCompoundShape* group, btCollisionShape * child, const btTransform& tr )
+{
+    int index = -1;
+    const int num_children = group->getNumChildShapes();
+    for (int i = 0; i < num_children; i++) {
+        if (group->getChildShape(i) == child) {
+            index = i;
+            break;
+        }
+    }
+    
     group->updateChildTransform(index, tr, false);
 }
 
