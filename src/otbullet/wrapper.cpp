@@ -398,6 +398,21 @@ void physics::update_child( btCompoundShape* group, btCollisionShape * child, co
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void physics::get_child_transform(btCompoundShape * group, btCollisionShape * child, btTransform& tr) 
+{
+    int index = -1;
+    const int num_children = group->getNumChildShapes();
+    for (int i = 0; i < num_children; i++) {
+        if (group->getChildShape(i) == child) {
+            index = i;
+            break;
+        }
+    }
+
+    tr = group->getChildTransform(index);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void physics::recalc_compound_shape( btCompoundShape* shape )
 {
     shape->recalculateLocalAabb();

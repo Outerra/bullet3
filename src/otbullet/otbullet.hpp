@@ -79,6 +79,7 @@ public:
     ifc_fn void add_child_shape( btCompoundShape* group, btCollisionShape* child, const btTransform& tr );
     ifc_fn void remove_child_shape(btCompoundShape* group, btCollisionShape* child);
     ifc_fn void update_child( btCompoundShape* group, btCollisionShape * child, const btTransform& tr );
+    ifc_fn void get_child_transform(btCompoundShape * group, btCollisionShape * child, btTransform& tr);
     ifc_fn void recalc_compound_shape( btCompoundShape* shape );
     ifc_fn void destroy_compound_shape( ifc_inout btCompoundShape*& shape );
 
