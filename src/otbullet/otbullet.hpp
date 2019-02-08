@@ -25,6 +25,10 @@ namespace bt {
 }
 extern bt::physics* BT;
 
+namespace coid {
+    class taskmaster;
+}
+
 //}ifc
 
 namespace ot {
@@ -40,7 +44,7 @@ public:
     ///Interface for the physics module
     ifc_class_var(bt::physics, "", _ifc_host);
 
-    ifc_fn static iref<physics> create( double r, void* context );
+    ifc_fn static iref<physics> create( double r, void* context, coid::taskmaster* tm );
 	ifc_fn static iref<physics> get();
 
     ifc_fn void set_simulation_frame(uint frame);

@@ -13,6 +13,7 @@
 #include <comm/hash/slothash.h>
 #include <comm/alloc/slotalloc.h>
 #include <comm/local.h>
+#include <comm/taskmaster.h>
 
 #include <BulletCollision/BroadphaseCollision/btAxisSweep3.h>
 
@@ -152,6 +153,7 @@ protected:
         btCollisionObjectWrapperCtorArgs();
     };
     const void* _context;
+    coid::taskmaster * _task_master;
 
     btRigidBody * _planet_body;
     btCollisionObjectWrapper * _pb_wrap;
@@ -260,7 +262,8 @@ public:
         fn_process_tree_collision ext_tree_col,
         fn_terrain_ray_intersect ext_terrain_ray_intersect,
         fn_elevation_above_terrain ext_elevation_above_terrain,
-        const void* context = 0);
+        const void* context = 0,
+        coid::taskmaster * tm = 0);
 
     const bt::ot_world_physics_stats & get_stats() const {
         return _stats;

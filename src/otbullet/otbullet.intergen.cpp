@@ -230,9 +230,9 @@ public:
 
     // creator methods
 
-    static iref<physics> create( physics* __here__, double r, void* context )
+    static iref<physics> create( physics* __here__, double r, void* context, coid::taskmaster* tm )
     {
-        iref<::physics> __host__ = ::physics::create(r, context);
+        iref<::physics> __host__ = ::physics::create(r, context, tm);
         if (!__host__)
             return 0;
         return _generic_interface_creator(__host__.get(), __here__);
@@ -254,10 +254,10 @@ public:
             on ? (void*)&_generic_interface_creator : nullptr);
 
         interface_register::register_interface_creator(
-            "bt::physics.create@3472131838",
+            "bt::physics.create@798636131",
             on ? (void*)&create : nullptr);
         interface_register::register_interface_creator(
-            "bt::physics.get@3472131838",
+            "bt::physics.get@798636131",
             on ? (void*)&get : nullptr);
     }
 };

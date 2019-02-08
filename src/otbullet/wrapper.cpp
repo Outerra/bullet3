@@ -22,6 +22,7 @@
 
 #include <comm/ref_i.h>
 #include <comm/commexception.h>
+#include <comm/taskmaster.h>
 
 static btBroadphaseInterface* _overlappingPairCache = 0;
 static btCollisionDispatcher* _dispatcher = 0;
@@ -166,7 +167,7 @@ void set_debug_drawer_enabled(btIDebugDraw * debug_draw) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-iref<physics> physics::create(double r, void* context)
+iref<physics> physics::create(double r, void* context, coid::taskmaster* tm)
 {
     _physics = new physics;
 

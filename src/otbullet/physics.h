@@ -33,6 +33,10 @@ namespace bt {
 }
 extern bt::physics* BT;
 
+namespace coid {
+    class taskmaster;
+}
+
 
 class physics;
 
@@ -176,12 +180,12 @@ public:
 public:
     // --- creators ---
 
-    static iref<physics> create( double r, void* context ) {
-        return create<physics>(0, r, context);
+    static iref<physics> create( double r, void* context, coid::taskmaster* tm ) {
+        return create<physics>(0, r, context, tm);
     }
 
     template<class T>
-    static iref<T> create( T* _subclass_, double r, void* context );
+    static iref<T> create( T* _subclass_, double r, void* context, coid::taskmaster* tm );
 
     static iref<physics> get() {
         return get<physics>(0);
@@ -198,7 +202,7 @@ public:
     }
 
     ///Interface revision hash
-    static const int HASHID = 3472131838;
+    static const int HASHID = 798636131;
 
     ///Interface name (full ns::class string)
     static const coid::tokenhash& IFCNAME() {
@@ -217,7 +221,7 @@ public:
     }
 
     static const coid::token& intergen_default_creator_static( EBackend bck ) {
-        static const coid::token _dc("bt::physics.get@3472131838");
+        static const coid::token _dc("bt::physics.get@798636131");
         static const coid::token _djs("bt::physics@wrapper.js");
         static const coid::token _djsc("bt::physics@wrapper.jsc");
         static const coid::token _dlua("bt::physics@wrapper.lua");
@@ -275,7 +279,7 @@ public:
         type.consume("struct ");
 
         coid::charstr tmp = "bt::physics";
-        tmp << "@client-3472131838" << '.' << type;
+        tmp << "@client-798636131" << '.' << type;
 
         coid::interface_register::register_interface_creator(tmp, cc);
         return 0;
@@ -297,23 +301,23 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 template<class T>
-inline iref<T> physics::create( T* _subclass_, double r, void* context )
+inline iref<T> physics::create( T* _subclass_, double r, void* context, coid::taskmaster* tm )
 {
-    typedef iref<T> (*fn_creator)(physics*, double, void*);
+    typedef iref<T> (*fn_creator)(physics*, double, void*, coid::taskmaster*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.create@3472131838";
+    static const coid::token ifckey = "bt::physics.create@798636131";
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
             coid::interface_register::get_interface_creator(ifckey));
 
     if (!create) {
-        log_mismatch("create", "bt::physics.create", "@3472131838");
+        log_mismatch("create", "bt::physics.create", "@798636131");
         return 0;
     }
 
-    return create(_subclass_, r, context);
+    return create(_subclass_, r, context, tm);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -323,14 +327,14 @@ inline iref<T> physics::get( T* _subclass_ )
     typedef iref<T> (*fn_creator)(physics*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.get@3472131838";
+    static const coid::token ifckey = "bt::physics.get@798636131";
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
             coid::interface_register::get_interface_creator(ifckey));
 
     if (!create) {
-        log_mismatch("get", "bt::physics.get", "@3472131838");
+        log_mismatch("get", "bt::physics.get", "@798636131");
         return 0;
     }
 

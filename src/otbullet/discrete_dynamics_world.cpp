@@ -164,7 +164,7 @@ namespace ot {
         integrateTransforms(timeStep);
 
         ///update vehicle simulation
-        updateActions(timeStep);
+        //updateActions(timeStep);
 
         updateActivationState(timeStep);
 
@@ -997,7 +997,8 @@ namespace ot {
         fn_process_tree_collision ext_tree_col,
         fn_terrain_ray_intersect ext_terrain_ray_intersect,
         fn_elevation_above_terrain ext_elevation_above_terrain,
-        const void* context)
+        const void* context,
+        coid::taskmaster * tm)
         : btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver,collisionConfiguration)
         , _sphere_intersect(ext_collider)
         , _tree_collision(ext_tree_col)
@@ -1008,6 +1009,7 @@ namespace ot {
         , _debug_trees(1024)
         , _tb_cache(1024)
         , _terrain_mesh_broadphase_pairs(1024)
+        , _task_master(tm)
         //, _relocation_offset(0)
     {
         btTriangleShape * ts = new btTriangleShape();
