@@ -15,6 +15,8 @@
 #include <BulletCollision/BroadphaseCollision/btAxisSweep3.h>
 #include <BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.h>
 
+#include <BulletDynamics/ConstraintSolver/btPoint2PointConstraint.h>
+
 #include <LinearMath/btIDebugDraw.h>
 
 #include "otbullet.hpp"
@@ -299,6 +301,12 @@ void physics::wake_up_objects_in_radius(const double3 & pos, float rad) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void physics::wake_up_object(btCollisionObject* obj) {
+    obj->setActivationState(ACTIVE_TAG);
+    obj->setDeactivationTime(0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 bool physics::is_point_inside_terrain_ocluder(const double3 & pt)
 {
 	return _world->is_point_inside_terrain_occluder(btVector3(pt.x,pt.y,pt.z));
@@ -492,9 +500,9 @@ void physics::add_collision_object( btCollisionObject* obj, unsigned int group, 
 		_world->add_terrain_occluder(ghost);
 	}
 
-    _world->addCollisionObject(obj, group, mask);
+	_world->addCollisionObject(obj, group, mask);
 
- 
+	
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -566,3 +574,18 @@ void physics::set_debug_drawer_mode(int debug_mode) {
         _dbg_drawer->setDebugMode(debug_mode);
     }
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+btTypedConstraint* physics::add_constraint_ball_socket(btDynamicsWorld * world, btRigidBody* rb_a, const btVector3& pivot_a, btRigidBody* rb_b, const btVector3& pivot_b, bool disable_collision) {
+    btPoint2PointConstraint * p2p = new btPoint2PointConstraint(*rb_a,*rb_b,pivot_a,pivot_b);
+    _physics->_world->addConstraint(p2p,disable_collision);
+    return p2p;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void physics::remove_constraint(btDynamicsWorld * world, btTypedConstraint * constraint) {
+    _physics->_world->removeConstraint(constraint);
+}
+

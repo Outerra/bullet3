@@ -16,6 +16,7 @@ class btActionInterface;
 class btTransform;
 class btIDebugDraw;
 class btManifoldPoint;
+class btTypedConstraint;
 
 namespace bt {
     class constraint_info;
@@ -103,9 +104,13 @@ public:
     ifc_fn void query_volume_sphere(const double3 & pos, float rad, ifc_inout coid::dynarray<btCollisionObject*>& result);
     ifc_fn void query_volume_frustum(const double3 & pos, const float4 * f_planes_norms, uint8 nplanes, bool include_partial, ifc_inout coid::dynarray<btCollisionObject *>& result);
     ifc_fn void wake_up_objects_in_radius(const double3 & pos, float rad);
+    ifc_fn void wake_up_object(btCollisionObject* obj);
 
 	ifc_fn bool is_point_inside_terrain_ocluder(const double3& pt);
 
+    /// CONSTAINTS
+    ifc_fn btTypedConstraint* add_constraint_ball_socket(btDynamicsWorld * world, btRigidBody* rb_a,const btVector3& pivot_a, btRigidBody* rb_b, const btVector3& pivot_b, bool disable_collision);
+    ifc_fn void remove_constraint(btDynamicsWorld * world, btTypedConstraint * constraint);
 
     ifc_event bool terrain_collisions(
         const void* context,

@@ -24,6 +24,7 @@ class btActionInterface;
 class btTransform;
 class btIDebugDraw;
 class btManifoldPoint;
+class btTypedConstraint;
 
 namespace bt {
     class constraint_info;
@@ -141,7 +142,14 @@ public:
 
     void wake_up_objects_in_radius( const double3& pos, float rad );
 
+    void wake_up_object( btCollisionObject* obj );
+
     bool is_point_inside_terrain_ocluder( const double3& pt );
+
+    /// CONSTAINTS
+    btTypedConstraint* add_constraint_ball_socket( btDynamicsWorld* world, btRigidBody* rb_a, const btVector3& pivot_a, btRigidBody* rb_b, const btVector3& pivot_b, bool disable_collision );
+
+    void remove_constraint( btDynamicsWorld* world, btTypedConstraint* constraint );
 
 
 protected:
@@ -202,7 +210,7 @@ public:
     }
 
     ///Interface revision hash
-    static const int HASHID = 798636131;
+    static const int HASHID = 3149025556;
 
     ///Interface name (full ns::class string)
     static const coid::tokenhash& IFCNAME() {
@@ -221,7 +229,7 @@ public:
     }
 
     static const coid::token& intergen_default_creator_static( EBackend bck ) {
-        static const coid::token _dc("bt::physics.get@798636131");
+        static const coid::token _dc("bt::physics.get@3149025556");
         static const coid::token _djs("bt::physics@wrapper.js");
         static const coid::token _djsc("bt::physics@wrapper.jsc");
         static const coid::token _dlua("bt::physics@wrapper.lua");
@@ -279,7 +287,7 @@ public:
         type.consume("struct ");
 
         coid::charstr tmp = "bt::physics";
-        tmp << "@client-798636131" << '.' << type;
+        tmp << "@client-3149025556" << '.' << type;
 
         coid::interface_register::register_interface_creator(tmp, cc);
         return 0;
@@ -306,14 +314,14 @@ inline iref<T> physics::create( T* _subclass_, double r, void* context, coid::ta
     typedef iref<T> (*fn_creator)(physics*, double, void*, coid::taskmaster*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.create@798636131";
+    static const coid::token ifckey = "bt::physics.create@3149025556";
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
             coid::interface_register::get_interface_creator(ifckey));
 
     if (!create) {
-        log_mismatch("create", "bt::physics.create", "@798636131");
+        log_mismatch("create", "bt::physics.create", "@3149025556");
         return 0;
     }
 
@@ -327,14 +335,14 @@ inline iref<T> physics::get( T* _subclass_ )
     typedef iref<T> (*fn_creator)(physics*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.get@798636131";
+    static const coid::token ifckey = "bt::physics.get@3149025556";
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
             coid::interface_register::get_interface_creator(ifckey));
 
     if (!create) {
-        log_mismatch("get", "bt::physics.get", "@798636131");
+        log_mismatch("get", "bt::physics.get", "@3149025556");
         return 0;
     }
 
@@ -476,8 +484,17 @@ inline void physics::query_volume_frustum( const double3& pos, const float4* f_p
 inline void physics::wake_up_objects_in_radius( const double3& pos, float rad )
 { return VT_CALL(void,(const double3&,float),43)(pos,rad); }
 
+inline void physics::wake_up_object( btCollisionObject* obj )
+{ return VT_CALL(void,(btCollisionObject*),44)(obj); }
+
 inline bool physics::is_point_inside_terrain_ocluder( const double3& pt )
-{ return VT_CALL(bool,(const double3&),44)(pt); }
+{ return VT_CALL(bool,(const double3&),45)(pt); }
+
+inline btTypedConstraint* physics::add_constraint_ball_socket( btDynamicsWorld* world, btRigidBody* rb_a, const btVector3& pivot_a, btRigidBody* rb_b, const btVector3& pivot_b, bool disable_collision )
+{ return VT_CALL(btTypedConstraint*,(btDynamicsWorld*,btRigidBody*,const btVector3&,btRigidBody*,const btVector3&,bool),46)(world,rb_a,pivot_a,rb_b,pivot_b,disable_collision); }
+
+inline void physics::remove_constraint( btDynamicsWorld* world, btTypedConstraint* constraint )
+{ return VT_CALL(void,(btDynamicsWorld*,btTypedConstraint*),47)(world,constraint); }
 
 #pragma warning(pop)
 
