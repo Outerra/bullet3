@@ -164,7 +164,7 @@ namespace ot {
         integrateTransforms(timeStep);
 
         ///update vehicle simulation
-        //updateActions(timeStep);
+        updateActions(timeStep);
 
         updateActivationState(timeStep);
 
@@ -360,7 +360,7 @@ namespace ot {
         
         body->setTerrainManifoldHandle(0xffffffff);
 
-        _terrain_mesh_broadphase_pairs.for_each([&](btBroadphasePair& bp, uint idx) {
+        _terrain_mesh_broadphase_pairs.for_each([&](btBroadphasePair& bp, uints idx) {
             if (bp.m_pProxy0->m_clientObject == body || bp.m_pProxy1->m_clientObject == body) {
                 remove_terrain_broadphase_collision_pair(bp);
             }
@@ -371,7 +371,7 @@ namespace ot {
 
     void discrete_dynamics_world::removeCollisionObject(btCollisionObject * collisionObject)
     {
-        _terrain_mesh_broadphase_pairs.for_each([&](btBroadphasePair& bp, uint idx) {
+        _terrain_mesh_broadphase_pairs.for_each([&](btBroadphasePair& bp, uints idx) {
             if (bp.m_pProxy0->m_clientObject == collisionObject || bp.m_pProxy1->m_clientObject == collisionObject) {
                 remove_terrain_broadphase_collision_pair(bp);
             }
@@ -439,7 +439,7 @@ namespace ot {
                 btPersistentManifold ** manifold_h_ptr = _manifolds.add();
                 *manifold_h_ptr = manifold;
                 uints manifold_handle = _manifolds.get_item_id(manifold_h_ptr);
-                rb->setTerrainManifoldHandle(manifold_handle);
+                rb->setTerrainManifoldHandle((uint)manifold_handle);
                 manifold->setContactBreakingThreshold(obj->getCollisionShape()->getContactBreakingThreshold(gContactBreakingThreshold));
             }
             else {
@@ -556,7 +556,7 @@ namespace ot {
                 double3 under_terrain_contact;
                 float3 under_terrain_normal;
 
-                int col_result = _aabb_intersect(_context, _from, _basis, _lod_dim, _triangles, _tree_batches, _tb_cache, gCurrentFrame, is_above_tm, under_terrain_contact, under_terrain_normal,broadphases);
+                int col_result = _aabb_intersect(m_context, _from, _basis, _lod_dim, _triangles, _tree_batches, _tb_cache, gCurrentFrame, is_above_tm, under_terrain_contact, under_terrain_normal,broadphases);
 
                 if (col_result == 0) {
                     //DASSERT(_tree_batches.size() == 0);
@@ -1004,7 +1004,6 @@ namespace ot {
         , _tree_collision(ext_tree_col)
         , _terrain_ray_intersect(ext_terrain_ray_intersect)
         , _elevation_above_terrain(ext_elevation_above_terrain)
-        , _context(context)
         , _debug_terrain_triangles(1024)
         , _debug_trees(1024)
         , _tb_cache(1024)
@@ -1012,6 +1011,8 @@ namespace ot {
         , _task_master(tm)
         //, _relocation_offset(0)
     {
+        setContext((void*)context);
+
         btTriangleShape * ts = new btTriangleShape();
         ts->setMargin(0.0f);
         btRigidBody::btRigidBodyConstructionInfo info(0, 0, ts);

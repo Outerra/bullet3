@@ -27,7 +27,6 @@ class btBroadphaseInterface;
 class btManifoldResult;
 struct skewbox;
 class ot_terrain_contact_common;
-class planet_qtree;
 class btGhostObject;
 
 namespace bt {
@@ -152,7 +151,7 @@ protected:
     private:
         btCollisionObjectWrapperCtorArgs();
     };
-    const void* _context;
+
     coid::taskmaster * _task_master;
 
     btRigidBody * _planet_body;
@@ -268,8 +267,6 @@ public:
     const bt::ot_world_physics_stats & get_stats() const {
         return _stats;
     }
-
-    const void * get_context() { return _context; }
 
     void get_obb(const btCollisionShape * cs, const btTransform& t, double3& cen, float3x3& basis);
 

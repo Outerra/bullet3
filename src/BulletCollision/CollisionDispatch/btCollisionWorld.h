@@ -98,6 +98,9 @@ protected:
 
 	btIDebugDraw*	m_debugDrawer;
 
+    ///world context
+    void* m_context;
+
 	///m_forceUpdateAllAabbs can be set to false as an optimization to only update active object AABBs
 	///it is true by default, because it is error-prone (setting the position of static objects wouldn't update their AABB)
 	bool m_forceUpdateAllAabbs;
@@ -111,6 +114,16 @@ public:
 	btCollisionWorld(btDispatcher* dispatcher,btBroadphaseInterface* broadphasePairCache, btCollisionConfiguration* collisionConfiguration);
 
 	virtual ~btCollisionWorld();
+
+    void setContext(void* ctx)
+    {
+        m_context = ctx;
+    }
+
+    void* getContext() const
+    {
+        return m_context;
+    }
 
 	void	setBroadphase(btBroadphaseInterface*	pairCache)
 	{
