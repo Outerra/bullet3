@@ -4,8 +4,8 @@ Copyright (c) 2003-2013 Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -26,18 +26,18 @@ subject to the following restrictions:
  * @section install_sec Installation
  *
  * @subsection step1 Step 1: Download
- * You can download the Bullet Physics Library from the github repository: https://github.com/bulletphysics/bullet3/releases 
+ * You can download the Bullet Physics Library from the github repository: https://github.com/bulletphysics/bullet3/releases
  *
  * @subsection step2 Step 2: Building
  * Bullet has multiple build systems, including premake, cmake and autotools. Premake and cmake support all platforms.
- * Premake is included in the Bullet/build folder for Windows, Mac OSX and Linux. 
- * Under Windows you can click on Bullet/build/vs2010.bat to create Microsoft Visual Studio projects. 
+ * Premake is included in the Bullet/build folder for Windows, Mac OSX and Linux.
+ * Under Windows you can click on Bullet/build/vs2010.bat to create Microsoft Visual Studio projects.
  * On Mac OSX and Linux you can open a terminal and generate Makefile, codeblocks or Xcode4 projects:
  * cd Bullet/build
  * ./premake4_osx gmake or ./premake4_linux gmake or ./premake4_linux64 gmake or (for Mac) ./premake4_osx xcode4
  * cd Bullet/build/gmake
  * make
- * 
+ *
  * An alternative to premake is cmake. You can download cmake from http://www.cmake.org
  * cmake can autogenerate projectfiles for Microsoft Visual Studio, Apple Xcode, KDevelop and Unix Makefiles.
  * The easiest is to run the CMake cmake-gui graphical user interface and choose the options and generate projectfiles.
@@ -46,12 +46,12 @@ subject to the following restrictions:
  * cmake . -G Xcode
  * cmake . -G "Unix Makefiles"
  * Although cmake is recommended, you can also use autotools for UNIX: ./autogen.sh ./configure to create a Makefile and then run make.
- * 
+ *
  * @subsection step3 Step 3: Testing demos
  * Try to run and experiment with BasicDemo executable as a starting point.
  * Bullet can be used in several ways, as Full Rigid Body simulation, as Collision Detector Library or Low Level / Snippets like the GJK Closest Point calculation.
  * The Dependencies can be seen in this documentation under Directories
- * 
+ *
  * @subsection step4 Step 4: Integrating in your application, full Rigid Body and Soft Body simulation
  * Check out BasicDemo how to create a btDynamicsWorld, btRigidBody and btCollisionShape, Stepping the simulation and synchronizing your graphics object transform.
  * Check out SoftDemo how to use soft body dynamics, using btSoftRigidDynamicsWorld.
@@ -63,9 +63,9 @@ subject to the following restrictions:
  *
  * @section copyright Copyright
  * For up-to-data information and copyright and contributors list check out the Bullet_User_Manual.pdf
- * 
+ *
  */
- 
+
 #ifndef BT_COLLISION_WORLD_H
 #define BT_COLLISION_WORLD_H
 
@@ -89,7 +89,7 @@ class btCollisionWorld
 {
 protected:
 	btAlignedObjectArray<btCollisionObject*>	m_collisionObjects;
-	
+
 	btDispatcher*	m_dispatcher1;
 
 	btDispatcherInfo	m_dispatchInfo;
@@ -98,8 +98,8 @@ protected:
 
 	btIDebugDraw*	m_debugDrawer;
 
-    ///world context
-    void* m_context;
+	///world context
+	void* m_context;
 
 	///m_forceUpdateAllAabbs can be set to false as an optimization to only update active object AABBs
 	///it is true by default, because it is error-prone (setting the position of static objects wouldn't update their AABB)
@@ -115,15 +115,15 @@ public:
 
 	virtual ~btCollisionWorld();
 
-    void setContext(void* ctx)
-    {
-        m_context = ctx;
-    }
+	void setContext(void* ctx)
+	{
+		m_context = ctx;
+	}
 
-    void* getContext() const
-    {
-        return m_context;
-    }
+	void* getContext() const
+	{
+		return m_context;
+	}
 
 	void	setBroadphase(btBroadphaseInterface*	pairCache)
 	{
@@ -183,14 +183,14 @@ public:
 	{
 		int	m_shapePart;
 		int	m_triangleIndex;
-		
+
 		//const btCollisionShape*	m_shapeTemp;
 		//const btTransform*	m_shapeLocalTransform;
 	};
 
 	struct	LocalRayResult
 	{
-		LocalRayResult(const btCollisionObject*	collisionObject, 
+		LocalRayResult(const btCollisionObject*	collisionObject,
 			LocalShapeInfo*	localShapeInfo,
 			const btVector3&		hitNormalLocal,
 			btScalar hitFraction)
@@ -205,7 +205,7 @@ public:
 		LocalShapeInfo*			m_localShapeInfo;
 		btVector3				m_hitNormalLocal;
 		btScalar				m_hitFraction;
-        unsigned short          m_otMeshId;         /// outerra package mesh id
+		unsigned short          m_otMeshId;         /// outerra package mesh id
 
 	};
 
@@ -247,83 +247,83 @@ public:
 		virtual	btScalar	addSingleResult(LocalRayResult& rayResult,bool normalInWorldSpace) = 0;
 	};
 
-    struct btSingleRayCallback : public btBroadphaseRayCallback
-    {
+	struct btSingleRayCallback : public btBroadphaseRayCallback
+	{
 
-        btVector3	m_rayFromWorld;
-        btVector3	m_rayToWorld;
-        btTransform	m_rayFromTrans;
-        btTransform	m_rayToTrans;
-        btVector3	m_hitNormal;
+		btVector3	m_rayFromWorld;
+		btVector3	m_rayToWorld;
+		btTransform	m_rayFromTrans;
+		btTransform	m_rayToTrans;
+		btVector3	m_hitNormal;
 
-        const btCollisionWorld*	m_world;
-        btCollisionWorld::RayResultCallback&	m_resultCallback;
+		const btCollisionWorld*	m_world;
+		btCollisionWorld::RayResultCallback&	m_resultCallback;
 
-        btSingleRayCallback(const btVector3& rayFromWorld, const btVector3& rayToWorld, const btCollisionWorld* world, btCollisionWorld::RayResultCallback& resultCallback)
-            :m_rayFromWorld(rayFromWorld),
-            m_rayToWorld(rayToWorld),
-            m_world(world),
-            m_resultCallback(resultCallback)
-        {
-            m_rayFromTrans.setIdentity();
-            m_rayFromTrans.setOrigin(m_rayFromWorld);
-            m_rayToTrans.setIdentity();
-            m_rayToTrans.setOrigin(m_rayToWorld);
+		btSingleRayCallback(const btVector3& rayFromWorld, const btVector3& rayToWorld, const btCollisionWorld* world, btCollisionWorld::RayResultCallback& resultCallback)
+			:m_rayFromWorld(rayFromWorld),
+			m_rayToWorld(rayToWorld),
+			m_world(world),
+			m_resultCallback(resultCallback)
+		{
+			m_rayFromTrans.setIdentity();
+			m_rayFromTrans.setOrigin(m_rayFromWorld);
+			m_rayToTrans.setIdentity();
+			m_rayToTrans.setOrigin(m_rayToWorld);
 
-            btVector3 rayDir = (rayToWorld - rayFromWorld);
+			btVector3 rayDir = (rayToWorld - rayFromWorld);
 
-            rayDir.normalize();
-            ///what about division by zero? --> just set rayDirection[i] to INF/BT_LARGE_FLOAT
-            m_rayDirectionInverse[0] = rayDir[0] == btScalar(0.0) ? btScalar(BT_LARGE_FLOAT) : btScalar(1.0) / rayDir[0];
-            m_rayDirectionInverse[1] = rayDir[1] == btScalar(0.0) ? btScalar(BT_LARGE_FLOAT) : btScalar(1.0) / rayDir[1];
-            m_rayDirectionInverse[2] = rayDir[2] == btScalar(0.0) ? btScalar(BT_LARGE_FLOAT) : btScalar(1.0) / rayDir[2];
-            m_signs[0] = m_rayDirectionInverse[0] < 0.0;
-            m_signs[1] = m_rayDirectionInverse[1] < 0.0;
-            m_signs[2] = m_rayDirectionInverse[2] < 0.0;
+			rayDir.normalize();
+			///what about division by zero? --> just set rayDirection[i] to INF/BT_LARGE_FLOAT
+			m_rayDirectionInverse[0] = rayDir[0] == btScalar(0.0) ? btScalar(BT_LARGE_FLOAT) : btScalar(1.0) / rayDir[0];
+			m_rayDirectionInverse[1] = rayDir[1] == btScalar(0.0) ? btScalar(BT_LARGE_FLOAT) : btScalar(1.0) / rayDir[1];
+			m_rayDirectionInverse[2] = rayDir[2] == btScalar(0.0) ? btScalar(BT_LARGE_FLOAT) : btScalar(1.0) / rayDir[2];
+			m_signs[0] = m_rayDirectionInverse[0] < 0.0;
+			m_signs[1] = m_rayDirectionInverse[1] < 0.0;
+			m_signs[2] = m_rayDirectionInverse[2] < 0.0;
 
-            m_lambda_max = rayDir.dot(m_rayToWorld - m_rayFromWorld);
+			m_lambda_max = rayDir.dot(m_rayToWorld - m_rayFromWorld);
 
-        }
+		}
 
 
 
-        virtual bool	process(const btBroadphaseProxy* proxy)
-        {
-            ///terminate further ray tests, once the closestHitFraction reached zero
-            if (m_resultCallback.m_closestHitFraction == btScalar(0.f))
-                return false;
+		virtual bool	process(const btBroadphaseProxy* proxy)
+		{
+			///terminate further ray tests, once the closestHitFraction reached zero
+			if (m_resultCallback.m_closestHitFraction == btScalar(0.f))
+				return false;
 
-            btCollisionObject*	collisionObject = (btCollisionObject*)proxy->m_clientObject;
+			btCollisionObject*	collisionObject = (btCollisionObject*)proxy->m_clientObject;
 
-            //only perform raycast if filterMask matches
-            if (m_resultCallback.needsCollision(collisionObject->getBroadphaseHandle()))
-            {
-                //RigidcollisionObject* collisionObject = ctrl->GetRigidcollisionObject();
-                //btVector3 collisionObjectAabbMin,collisionObjectAabbMax;
+			//only perform raycast if filterMask matches
+			if (m_resultCallback.needsCollision(collisionObject->getBroadphaseHandle()))
+			{
+				//RigidcollisionObject* collisionObject = ctrl->GetRigidcollisionObject();
+				//btVector3 collisionObjectAabbMin,collisionObjectAabbMax;
 #if 0
 #ifdef RECALCULATE_AABB
-                btVector3 collisionObjectAabbMin, collisionObjectAabbMax;
-                collisionObject->getCollisionShape()->getAabb(collisionObject->getWorldTransform(), collisionObjectAabbMin, collisionObjectAabbMax);
+				btVector3 collisionObjectAabbMin, collisionObjectAabbMax;
+				collisionObject->getCollisionShape()->getAabb(collisionObject->getWorldTransform(), collisionObjectAabbMin, collisionObjectAabbMax);
 #else
-            //getBroadphase()->getAabb(collisionObject->getBroadphaseHandle(),collisionObjectAabbMin,collisionObjectAabbMax);
-                const btVector3& collisionObjectAabbMin = collisionObject->getBroadphaseHandle()->m_aabbMin;
-                const btVector3& collisionObjectAabbMax = collisionObject->getBroadphaseHandle()->m_aabbMax;
+			//getBroadphase()->getAabb(collisionObject->getBroadphaseHandle(),collisionObjectAabbMin,collisionObjectAabbMax);
+				const btVector3& collisionObjectAabbMin = collisionObject->getBroadphaseHandle()->m_aabbMin;
+				const btVector3& collisionObjectAabbMax = collisionObject->getBroadphaseHandle()->m_aabbMax;
 #endif
 #endif
-                //btScalar hitLambda = m_resultCallback.m_closestHitFraction;
-                //culling already done by broadphase
-                //if (btRayAabb(m_rayFromWorld,m_rayToWorld,collisionObjectAabbMin,collisionObjectAabbMax,hitLambda,m_hitNormal))
-                {
-                    m_world->rayTestSingle(m_rayFromTrans, m_rayToTrans,
-                        collisionObject,
-                        collisionObject->getCollisionShape(),
-                        collisionObject->getWorldTransform(),
-                        m_resultCallback);
-                }
-            }
-            return true;
-        }
-    };
+				//btScalar hitLambda = m_resultCallback.m_closestHitFraction;
+				//culling already done by broadphase
+				//if (btRayAabb(m_rayFromWorld,m_rayToWorld,collisionObjectAabbMin,collisionObjectAabbMax,hitLambda,m_hitNormal))
+				{
+					m_world->rayTestSingle(m_rayFromTrans, m_rayToTrans,
+						collisionObject,
+						collisionObject->getCollisionShape(),
+						collisionObject->getWorldTransform(),
+						m_resultCallback);
+				}
+			}
+			return true;
+		}
+	};
 
 	struct	ClosestRayResultCallback : public RayResultCallback
 	{
@@ -338,12 +338,12 @@ public:
 
 		btVector3	m_hitNormalWorld;
 		btVector3	m_hitPointWorld;
-			
+
 		virtual	btScalar	addSingleResult(LocalRayResult& rayResult,bool normalInWorldSpace)
 		{
 			//caller already does the filter on the m_closestHitFraction
 			btAssert(rayResult.m_hitFraction <= m_closestHitFraction);
-			
+
 			m_closestHitFraction = rayResult.m_hitFraction;
 			m_collisionObject = rayResult.m_collisionObject;
 			if (normalInWorldSpace)
@@ -376,7 +376,7 @@ public:
 		btAlignedObjectArray<btVector3>	m_hitNormalWorld;
 		btAlignedObjectArray<btVector3>	m_hitPointWorld;
 		btAlignedObjectArray<btScalar> m_hitFractions;
-			
+
 		virtual	btScalar	addSingleResult(LocalRayResult& rayResult,bool normalInWorldSpace)
 		{
 			m_collisionObject = rayResult.m_collisionObject;
@@ -402,7 +402,7 @@ public:
 
 	struct LocalConvexResult
 	{
-		LocalConvexResult(const btCollisionObject*	hitCollisionObject, 
+		LocalConvexResult(const btCollisionObject*	hitCollisionObject,
 			LocalShapeInfo*	localShapeInfo,
 			const btVector3&		hitNormalLocal,
 			const btVector3&		hitPointLocal,
@@ -428,7 +428,7 @@ public:
 		btScalar	m_closestHitFraction;
 		int m_collisionFilterGroup;
 		int m_collisionFilterMask;
-		
+
 		ConvexResultCallback()
 			:m_closestHitFraction(btScalar(1.)),
 			m_collisionFilterGroup(btBroadphaseProxy::DefaultFilter),
@@ -439,7 +439,7 @@ public:
 		virtual ~ConvexResultCallback()
 		{
 		}
-		
+
 		bool	hasHit() const
 		{
 			return (m_closestHitFraction < btScalar(1.));
@@ -470,12 +470,12 @@ public:
 		btVector3	m_hitNormalWorld;
 		btVector3	m_hitPointWorld;
 		const btCollisionObject*	m_hitCollisionObject;
-		
+
 		virtual	btScalar	addSingleResult(LocalConvexResult& convexResult,bool normalInWorldSpace)
 		{
 //caller already does the filter on the m_closestHitFraction
 			btAssert(convexResult.m_hitFraction <= m_closestHitFraction);
-						
+
 			m_closestHitFraction = convexResult.m_hitFraction;
 			m_hitCollisionObject = convexResult.m_hitCollisionObject;
 			if (normalInWorldSpace)
@@ -498,7 +498,7 @@ public:
 		int m_collisionFilterGroup;
 		int m_collisionFilterMask;
 		btScalar m_closestDistanceThreshold;
-		
+
 		ContactResultCallback()
 			:m_collisionFilterGroup(btBroadphaseProxy::DefaultFilter),
 			  m_collisionFilterMask(btBroadphaseProxy::AllFilter),
@@ -509,7 +509,7 @@ public:
 		virtual ~ContactResultCallback()
 		{
 		}
-		
+
 		virtual bool needsCollision(btBroadphaseProxy* proxy0) const
 		{
 			bool collides = (proxy0->m_collisionFilterGroup & m_collisionFilterMask) != 0;
@@ -527,7 +527,7 @@ public:
 
 	/// rayTest performs a raycast on all objects in the btCollisionWorld, and calls the resultCallback
 	/// This allows for several queries: first hit, all hits, any hit, dependent on the value returned by the callback.
-	virtual void rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback) const; 
+	virtual void rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback) const;
 
 	/// convexTest performs a swept convex cast on all objects in the btCollisionWorld, and calls the resultCallback
 	/// This allows for several queries: first hit, all hits, any hit, dependent on the value return by the callback.
@@ -592,7 +592,7 @@ public:
 	{
 		return m_dispatchInfo;
 	}
-	
+
 	bool	getForceUpdateAllAabbs() const
 	{
 		return m_forceUpdateAllAabbs;

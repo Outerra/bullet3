@@ -38,7 +38,7 @@ namespace ot {
 struct tree_flex_inf {
     float3 _flex;
     uint16 _tree_iden;
-    tree_flex_inf(float3 flex, uint16 iden) 
+    tree_flex_inf(float3 flex, uint16 iden)
         :_flex(flex)
         , _tree_iden(iden)
     {}
@@ -49,7 +49,7 @@ struct tree_collision_pair
 {
     btCollisionObject* obj;
     uint tree_col_info;
-    
+
     bool reused;
     btPersistentManifold * manifold;
 
@@ -62,7 +62,7 @@ struct tree_collision_pair
     tree_collision_pair()
         : obj(0)
         , tree_col_info(-1)
-        
+
         , reused(false)
         , manifold(0)
     {}
@@ -76,7 +76,7 @@ struct tree_collision_pair
     void init_with (btCollisionObject* col_obj, uint bid, uint8 tid,const bt::tree& tree_props) {
         obj = col_obj;
         tree_col_info = bid << 4 | (tid & 0xf);
-        tc_ctx.tree_identifier = tree_props.identifier; 
+        tc_ctx.tree_identifier = tree_props.identifier;
     }
 };
 
@@ -96,7 +96,7 @@ struct compound_processing_entry {
     btTransform _world_trans;
     compound_processing_entry(btCollisionShape * shape, const btTransform & world_trans)
         :_shape(shape)
-        ,_world_trans(world_trans) 
+        ,_world_trans(world_trans)
     {};
     compound_processing_entry() {
     }
@@ -111,7 +111,7 @@ struct p_treebatch_key_extractor {
 
 struct tree_key_extractor {
     typedef uint16 ret_type;
-   
+
     ret_type operator()(const bt::tree* t) const {
         return t->identifier;
     }
@@ -119,7 +119,7 @@ struct tree_key_extractor {
     ret_type operator()(const bt::tree& t) const {
         return t.identifier;
     }
-    
+
     ret_type operator()(const tree_flex_inf* t) const {
         return t->_tree_iden;
     }
@@ -188,7 +188,7 @@ protected:
     coid::slothash<tree_flex_inf, uint16, tree_key_extractor> _debug_terrain_trees_active;
     */
     coid::dynarray<uint> _debug_trees;
- 
+
     coid::local<ot_terrain_contact_common> _common_data;
 
 public:
@@ -257,7 +257,7 @@ public:
         btBroadphaseInterface* pairCache,
         btConstraintSolver* constraintSolver,
         btCollisionConfiguration* collisionConfiguration,
-        fn_ext_collision ext_collider, 
+        fn_ext_collision ext_collider,
         fn_process_tree_collision ext_tree_col,
         fn_terrain_ray_intersect ext_terrain_ray_intersect,
         fn_elevation_above_terrain ext_elevation_above_terrain,

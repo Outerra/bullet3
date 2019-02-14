@@ -46,18 +46,18 @@ public:
     ifc_class_var(bt::physics, "", _ifc_host);
 
     ifc_fn static iref<physics> create( double r, void* context, coid::taskmaster* tm );
-	ifc_fn static iref<physics> get();
+    ifc_fn static iref<physics> get();
 
     ifc_fn void set_simulation_frame(uint frame);
 
     ifc_fn bt::external_broadphase* create_external_broadphase(const double3& min,const double3& max);
     ifc_fn void add_collision_object_to_external_broadphase(bt::external_broadphase * bp, btCollisionObject * co, unsigned int group, unsigned int mask);
     //ifc_fn void remove_collision_object_from_external_broadphase(bt::external_broadphase * bp, simple_collider * sc, btCollisionObject * co);
-    
+
     ifc_fn void step_simulation( double step );
     ifc_fn void ray_test( const double from[3], const double to[3], void* cb);
 
-	ifc_fn void set_current_frame(uint frame);
+    ifc_fn void set_current_frame(uint frame);
 
     ifc_fn btRigidBody* fixed_object();
     ifc_fn btRigidBody* create_rigid_body( float mass, btCollisionShape* shape, void* usr1, void* usr2 );
@@ -73,7 +73,7 @@ public:
 
 
     ifc_fn btCollisionObject* create_collision_object( btCollisionShape* shape, void* usr1, void* usr2 );
-	ifc_fn btGhostObject * create_ghost_object(btCollisionShape* shape, void* usr1, void* usr2);
+    ifc_fn btGhostObject * create_ghost_object(btCollisionShape* shape, void* usr1, void* usr2);
     ifc_fn void destroy_collision_object( btCollisionObject*& obj );
     ifc_fn void update_collision_object( btCollisionObject* obj, const btTransform& tr, bool update_aabb );
     ifc_fn void set_collision_info( btCollisionObject* obj, unsigned int group, unsigned int mask );
@@ -106,7 +106,7 @@ public:
     ifc_fn void wake_up_objects_in_radius(const double3 & pos, float rad);
     ifc_fn void wake_up_object(btCollisionObject* obj);
 
-	ifc_fn bool is_point_inside_terrain_ocluder(const double3& pt);
+    ifc_fn bool is_point_inside_terrain_ocluder(const double3& pt);
 
     /// CONSTAINTS
     ifc_fn btTypedConstraint* add_constraint_ball_socket(btDynamicsWorld * world, btRigidBody* rb_a,const btVector3& pivot_a, btRigidBody* rb_b, const btVector3& pivot_b, bool disable_collision);
@@ -130,7 +130,7 @@ public:
         coid::dynarray<bt::triangle>& data,
         coid::dynarray<uint>& trees,
         coid::slotalloc<bt::tree_batch>& tree_batches,
-        uint frame, 
+        uint frame,
         bool& is_above_tm,
         double3& under_contact,
         float3& under_normal,
@@ -138,7 +138,7 @@ public:
 
     ifc_event float3 tree_collisions(btRigidBody * obj,
         bt::tree_collision_contex & ctx,
-        float time_step, 
+        float time_step,
         coid::slotalloc<bt::tree_batch>& tree_batches);
 
     ifc_event float terrain_ray_intersect(
@@ -149,9 +149,9 @@ public:
         float3* norm,
         double3* pos);
 
-    ifc_event float elevation_above_terrain(const double3& pos, 
-        float maxlen, 
-        float3* norm, 
+    ifc_event float elevation_above_terrain(const double3& pos,
+        float maxlen,
+        float3* norm,
         double3* hitpoint);
 
     ifc_event void add_static_collider(const void * context, btCollisionObject * obj, const double3& cen, const float3x3& basis);
@@ -163,5 +163,5 @@ private:
     ot::discrete_dynamics_world* _world;
     btIDebugDraw * _dbg_drawer;
     int _dbg_draw_mode;
-    
+
 };

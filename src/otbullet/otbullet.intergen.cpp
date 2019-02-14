@@ -15,8 +15,7 @@ static_assert(intergen_interface::VERSION == 7, "interface must be rebuilt with 
 
 using namespace coid;
 
-static_assert( std::is_base_of<policy_intrusive_base, physics>::value, "class 'physics' must be derived from policy_intrusive_base");
-static_assert( std::is_base_of<policy_intrusive_base, physics>::value, "class 'physics' must be derived from policy_intrusive_base");
+static_assert( std::is_base_of<policy_intrusive_base, ::physics>::value, "class 'physics' must be derived from policy_intrusive_base");
 
 ////////////////////////////////////////////////////////////////////////////////
 // interface bt::physics of class physics

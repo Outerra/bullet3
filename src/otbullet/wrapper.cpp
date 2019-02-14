@@ -39,11 +39,11 @@ extern uint gOuterraSimulationFrame;
 #ifdef _LIB
 
 extern bool _ext_collider(const void* context,
-	const double3& center,
-	float radius,
+    const double3& center,
+    float radius,
     float lod_dimension,
-	coid::dynarray<bt::triangle>& data,
-	coid::dynarray<uint>& trees,
+    coid::dynarray<bt::triangle>& data,
+    coid::dynarray<uint>& trees,
     coid::slotalloc<bt::tree_batch>& tree_batches,
     uint frame );
 
@@ -76,7 +76,7 @@ extern static float _ext_elevation_above_terrain(
 
 
 
-extern float3 _ext_tree_col(btRigidBody * obj, 
+extern float3 _ext_tree_col(btRigidBody * obj,
         bt::tree_collision_contex & ctx,
     float time_step,
     coid::slotalloc<bt::tree_batch>& tree_baFBtches);
@@ -132,7 +132,7 @@ static float _ext_elevation_above_terrain(
     const double3& pos,
     float maxlen,
     float3* norm,
-    double3* hitpoint) 
+    double3* hitpoint)
 {
     return _physics->elevation_above_terrain(
         pos,
@@ -179,7 +179,7 @@ iref<physics> physics::create(double r, void* context, coid::taskmaster* tm)
     btVector3 worldMax(r,r,r);
 
     _overlappingPairCache = new bt32BitAxisSweep3(worldMin, worldMax,10000);
-	_overlappingPairCache->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+    _overlappingPairCache->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
     _constraintSolver = new btSequentialImpulseConstraintSolver();
 
     ot::discrete_dynamics_world * wrld = new ot::discrete_dynamics_world(
@@ -191,7 +191,7 @@ iref<physics> physics::create(double r, void* context, coid::taskmaster* tm)
         &_ext_tree_col,
         &_ext_terrain_ray_intersect,
         &_ext_elevation_above_terrain,
-		context
+        context
         );
 
     wrld->setGravity(btVector3(0, 0, 0));
@@ -203,7 +203,7 @@ iref<physics> physics::create(double r, void* context, coid::taskmaster* tm)
     _physics->_world->setForceUpdateAllAabbs(false);
 
     _physics->_dbg_drawer = nullptr;
-   
+
     // default mode
     _physics->_dbg_draw_mode = btIDebugDraw::DBG_DrawContactPoints | btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawConstraints | btIDebugDraw::DBG_DrawConstraintLimits;
 
@@ -212,11 +212,11 @@ iref<physics> physics::create(double r, void* context, coid::taskmaster* tm)
 
 iref<physics> physics::get()
 {
-	if (!_physics) {
-		throw coid::exception("Bullet not initialized yet!");
-	}
+    if (!_physics) {
+        throw coid::exception("Bullet not initialized yet!");
+    }
 
-	return _physics;
+    return _physics;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -277,7 +277,7 @@ void physics::remove_collision_object_from_external_broadphase(bt::external_broa
 ////////////////////////////////////////////////////////////////////////////////
 void physics::query_volume_sphere(const double3 & pos, float rad, coid::dynarray<btCollisionObject*>& result)
 {
-    
+
     _world->query_volume_sphere(pos, rad, [&](btCollisionObject* obj) {
         result.push(obj);
     });
@@ -286,7 +286,7 @@ void physics::query_volume_sphere(const double3 & pos, float rad, coid::dynarray
 ////////////////////////////////////////////////////////////////////////////////
 void physics::query_volume_frustum(const double3 & pos,const float4 * f_planes_norms, uint8 nplanes, bool include_partial, coid::dynarray<btCollisionObject*>& result)
 {
-    
+
     _world->query_volume_frustum(pos, f_planes_norms, nplanes, include_partial, [&](btCollisionObject* obj) {
         result.push(obj);
     });
@@ -309,7 +309,7 @@ void physics::wake_up_object(btCollisionObject* obj) {
 ////////////////////////////////////////////////////////////////////////////////
 bool physics::is_point_inside_terrain_ocluder(const double3 & pt)
 {
-	return _world->is_point_inside_terrain_occluder(btVector3(pt.x,pt.y,pt.z));
+    return _world->is_point_inside_terrain_occluder(btVector3(pt.x,pt.y,pt.z));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -402,12 +402,12 @@ void physics::update_child( btCompoundShape* group, btCollisionShape * child, co
             break;
         }
     }
-    
+
     group->updateChildTransform(index, tr, false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::get_child_transform(btCompoundShape * group, btCollisionShape * child, btTransform& tr) 
+void physics::get_child_transform(btCompoundShape * group, btCollisionShape * child, btTransform& tr)
 {
     int index = -1;
     const int num_children = group->getNumChildShapes();
@@ -451,23 +451,23 @@ btCollisionObject* physics::create_collision_object( btCollisionShape* shape, vo
 ////////////////////////////////////////////////////////////////////////////////
 btGhostObject* physics::create_ghost_object(btCollisionShape* shape, void* usr1, void* usr2)
 {
-	btGhostObject* obj = new btGhostObject;
-	obj->setCollisionShape(shape);
+    btGhostObject* obj = new btGhostObject;
+    obj->setCollisionShape(shape);
 
-	obj->setUserPointer(usr1);
-	obj->m_userDataExt = usr2;
+    obj->setUserPointer(usr1);
+    obj->m_userDataExt = usr2;
 
-	return obj;
+    return obj;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void physics::set_collision_info(btCollisionObject* obj, unsigned int group, unsigned int mask)
 {
-	btBroadphaseProxy* bp = obj->getBroadphaseHandle();
-	if (bp) {
-		bp->m_collisionFilterGroup = group;
-		bp->m_collisionFilterMask = mask;
-	}
+    btBroadphaseProxy* bp = obj->getBroadphaseHandle();
+    if (bp) {
+        bp->m_collisionFilterGroup = group;
+        bp->m_collisionFilterMask = mask;
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -494,15 +494,15 @@ void physics::add_collision_object( btCollisionObject* obj, unsigned int group, 
         _world->addCollisionObject(obj, group, mask);
     }*/
 
-	btGhostObject* ghost = btGhostObject::upcast(obj);
-	if (ghost) {
-		obj->setCollisionFlags(obj->getCollisionFlags() | btCollisionObject::CollisionFlags::CF_NO_CONTACT_RESPONSE | btCollisionObject::CollisionFlags::CF_DISABLE_VISUALIZE_OBJECT);
-		_world->add_terrain_occluder(ghost);
-	}
+    btGhostObject* ghost = btGhostObject::upcast(obj);
+    if (ghost) {
+        obj->setCollisionFlags(obj->getCollisionFlags() | btCollisionObject::CollisionFlags::CF_NO_CONTACT_RESPONSE | btCollisionObject::CollisionFlags::CF_DISABLE_VISUALIZE_OBJECT);
+        _world->add_terrain_occluder(ghost);
+    }
 
-	_world->addCollisionObject(obj, group, mask);
+    _world->addCollisionObject(obj, group, mask);
 
-	
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -539,7 +539,7 @@ void physics::ray_test( const double from[3], const double to[3], void* cb)
 
 void physics::set_current_frame(uint frame)
 {
-	gCurrentFrame = frame;
+    gCurrentFrame = frame;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -47,7 +47,7 @@ void ot::discrete_dynamics_world::dump_triangle_list_to_obj(const char * fname, 
 
     _triangles.for_each([&](const bt::triangle& t) {
         float4 off(t.parent_offset_p->x - off_x, t.parent_offset_p->y - off_y, t.parent_offset_p->z - off_z,0);
-        
+
         float4 p = q * (float4(t.a,1) + off);
         buf << "v " << t.a.x << " " << t.a.y << " " << t.a.z << "\n";
 
@@ -117,7 +117,7 @@ namespace ot {
         if (0 != m_internalPreTickCallback) {
             (*m_internalPreTickCallback)(this, timeStep);
         }
-        
+
         ///apply gravity, predict motion
         predictUnconstraintMotion(timeStep);
 
@@ -180,7 +180,7 @@ namespace ot {
     }
 
     void discrete_dynamics_world::process_terrain_broadphases(const coid::dynarray<bt::external_broadphase*>& broadphase, btCollisionObject * col_obj)
-    {   
+    {
         btVector3 min, max;
         col_obj->getCollisionShape()->getAabb(col_obj->getWorldTransform(), min, max);
 
@@ -195,7 +195,7 @@ namespace ot {
             if (bp->_dirty) {
                 update_terrain_mesh_broadphase(bp);
             }
-            
+
             query_volume_aabb(bp->_broadphase,
                 double3(cen[0],cen[1],cen[2]),
                 double3(half[0], half[1], half[2]),
@@ -275,7 +275,7 @@ namespace ot {
     }
 
     void discrete_dynamics_world::add_terrain_broadphase_collision_pair(btCollisionObject * obj1, btCollisionObject * obj2)
-    {        
+    {
         btBroadphasePair * pair = _terrain_mesh_broadphase_pairs.find_if([&](const btBroadphasePair& bp) {
             if (bp.m_pProxy0->m_clientObject == obj1 && bp.m_pProxy1->m_clientObject == obj2) {
                 return true;
@@ -357,7 +357,7 @@ namespace ot {
             _manifolds.del(m_ptr);
             m_dispatcher1->releaseManifold(*m_ptr);
         }
-        
+
         body->setTerrainManifoldHandle(0xffffffff);
 
         _terrain_mesh_broadphase_pairs.for_each([&](btBroadphasePair& bp, uints idx) {
@@ -396,7 +396,7 @@ namespace ot {
         static coid::nsec_timer timer;
 #endif // _PROFILING_ENABLED
 
-        
+
         if (m_debugDrawer) {
             _debug_terrain_triangles.clear();
             _debug_lines.clear();
@@ -569,11 +569,11 @@ namespace ot {
                                     repair_tree_collision_pairs();
                                 }*/
 
-                
+
                 process_terrain_broadphases(broadphases, obj);
 
                 bool is_potentially_inside_tunnel = false;
-                // terrain ocluders 
+                // terrain ocluders
                 _terrain_occluders.for_each([&](const btGhostObject* go) {
                     int num_op = go->getNumOverlappingObjects();
                     for (int i = 0; i < num_op; i++) {
@@ -587,7 +587,7 @@ namespace ot {
                 obj->m_otFlags = (is_potentially_inside_tunnel)
                     ? obj->m_otFlags | (bt::EOtCollisionFlags::CF_POTENTIAL_TUNNEL_COLLISION)
                     : obj->m_otFlags & ~bt::EOtCollisionFlags::CF_POTENTIAL_TUNNEL_COLLISION;
-                
+
                 tri_count += uint(_triangles.size());
 
                 if (_triangles.size() > 0) {
@@ -641,7 +641,7 @@ namespace ot {
                 int num_contacts = man->getNumContacts();
                 for (int j = 0; j < num_contacts; j++) {
                     btManifoldPoint& pt = man->getContactPoint(j);
-                    
+
                     if (is_point_inside_terrain_occluder(pt.getPositionWorldOnA())) {
                         man->removeContactPoint(j);
                         j--;
@@ -673,7 +673,7 @@ namespace ot {
     }
 
     void discrete_dynamics_world::prepare_tree_collision_pairs(btCollisionObject * cur_obj, const coid::dynarray<uint>& tree_batches_cache, uint32 frame)
-    {        
+    {
         for (uints i = 0; i < tree_batches_cache.size(); i++) {
             uint bid = tree_batches_cache[i];
             bt::tree_batch * tb = _tb_cache.get_item(bid) ;
@@ -707,7 +707,7 @@ namespace ot {
                         cached_tcp->init_with(cur_obj, bid, j, tb->trees[j]);
                         cached_tcp->manifold = getDispatcher()->getNewManifold(cached_tcp->obj, &tb->info(j)->obj);
                     }
-                    
+
                     cached_tcp->reused = true;
                 }
             }
@@ -770,7 +770,7 @@ namespace ot {
             res.refreshContactPoints();
 
             if (!tcp.tc_ctx.collision_started) {
-                if (manifold->getNumContacts()){ 
+                if (manifold->getNumContacts()){
                     btManifoldPoint& min_cp = manifold->getContactPoint(0);
                     for (int i = 1; i < manifold->getNumContacts(); i++) {
                         btManifoldPoint& tmp_cp = manifold->getContactPoint(i);
@@ -782,7 +782,7 @@ namespace ot {
                         manifold->clearManifold();
                         return;
                     }
-                    
+
                     const float l = float(tree_col_info->shape.getHalfHeight() + min_cp.m_localPointB[tree_col_info->shape.getUpAxis()]);
                     const float dp = float(rb_obj->getLinearVelocity().length() / (rb_obj->getInvMass()));
 
@@ -793,7 +793,7 @@ namespace ot {
                         tcp.tc_ctx.custom_handling = true;
                         tcp.tc_ctx.braking_force = (tree_inf->sig_max * tree_inf->I) / (l*tree_inf->radius);
                         tcp.tc_ctx.force_apply_pt = min_cp.m_localPointA;
-                        tcp.tc_ctx.force_dir = -rb_obj->getLinearVelocity().normalized();  
+                        tcp.tc_ctx.force_dir = -rb_obj->getLinearVelocity().normalized();
                         tcp.tc_ctx.orig_tree_dir = rb_obj->getWorldTransform().getOrigin().normalized();
                         tcp.tc_ctx.l = l;
                      }
@@ -848,7 +848,7 @@ namespace ot {
     {
         _tree_collision_pairs.for_each([&](tree_collision_pair& tcp) {
             bt::tree_collision_info* tci = get_tree_collision_info(tcp);
-            DASSERT((void*)&tci->obj >= (void*)_tb_cache.get_array().ptr() && 
+            DASSERT((void*)&tci->obj >= (void*)_tb_cache.get_array().ptr() &&
                 (void*)&tci->obj < (void*)_tb_cache.get_array().ptre());
             DASSERT((void*)tci->obj.getCollisionShape() >= (void*)_tb_cache.get_array().ptr() &&
                 (void*)tci->obj.getCollisionShape() < (void*)_tb_cache.get_array().ptre());
@@ -902,19 +902,19 @@ namespace ot {
         btVector3 cl_white(1, 1, 1);
 
         for (uints i = 0; i < _debug_terrain_triangles.size(); i++) {
-            btVector3 parent_offset(_debug_terrain_triangles[i].parent_offset_p->x, 
-                _debug_terrain_triangles[i].parent_offset_p->y, 
+            btVector3 parent_offset(_debug_terrain_triangles[i].parent_offset_p->x,
+                _debug_terrain_triangles[i].parent_offset_p->y,
                 _debug_terrain_triangles[i].parent_offset_p->z);
-            
+
             btVector3 a(_debug_terrain_triangles[i].a.x ,
-                _debug_terrain_triangles[i].a.y, 
+                _debug_terrain_triangles[i].a.y,
                 _debug_terrain_triangles[i].a.z);
-            
-            btVector3 b(_debug_terrain_triangles[i].b.x, 
-                _debug_terrain_triangles[i].b.y, 
+
+            btVector3 b(_debug_terrain_triangles[i].b.x,
+                _debug_terrain_triangles[i].b.y,
                 _debug_terrain_triangles[i].b.z);
-            
-            btVector3 c(_debug_terrain_triangles[i].c.x, 
+
+            btVector3 c(_debug_terrain_triangles[i].c.x,
                 _debug_terrain_triangles[i].c.y,
                 _debug_terrain_triangles[i].c.z);
 
@@ -929,11 +929,11 @@ namespace ot {
 
         _debug_trees.for_each([&](uint tid) {
 
-                
-                
+
+
                // const tree_flex_inf* tfi = _debug_terrain_trees_active.find_value(t->identifier);
                 //float3 displacement = (tfi) ? tfi->_flex : float3(0);
-                
+
                 bt::tree* t = get_tree(tid);
                 btVector3 bt_p1(t->pos.x, t->pos.y, t->pos.z);
                 btVector3 bt_norm(bt_p1.normalized());
@@ -949,11 +949,11 @@ namespace ot {
         // Debug draw external broadphases
 
         _debug_external_broadphases.for_each([&](bt::external_broadphase * bp) {
-            
+
             btIDebugDraw::DefaultColors defaultColors = getDebugDrawer()->getDefaultColors();
             if ((getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb)))
             {
-                
+
                 for_each_object_in_broadphase(bp->_broadphase, [&](btCollisionObject* colObj) {
                     if ((colObj->getCollisionFlags() & btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT) == 0)
                     {
@@ -990,8 +990,8 @@ namespace ot {
 
 
     discrete_dynamics_world::discrete_dynamics_world(btDispatcher * dispatcher,
-        btBroadphaseInterface * pairCache, 
-        btConstraintSolver * constraintSolver, 
+        btBroadphaseInterface * pairCache,
+        btConstraintSolver * constraintSolver,
         btCollisionConfiguration * collisionConfiguration,
         fn_ext_collision ext_collider,
         fn_process_tree_collision ext_tree_col,
@@ -1034,7 +1034,7 @@ namespace ot {
         btTransform point_transform;
         point_transform.setIdentity();
         point_transform.setOrigin(pt);
-        
+
         btVector3 v4 = btVector3(min[0], min[1], max[2]);
         btVector3 v5 = btVector3(max[0], min[1], max[2]);
         btVector3 v6 = btVector3(max[0], max[1], max[2]);
@@ -1052,7 +1052,7 @@ namespace ot {
         _debug_lines.push(v3);
         _debug_lines.push(v0);
         _debug_lines.push(color);
-        
+
         _debug_lines.push(v4);
         _debug_lines.push(v5);
         _debug_lines.push(color);
