@@ -79,6 +79,8 @@ public:
     ifc_fn void set_collision_info( btCollisionObject* obj, unsigned int group, unsigned int mask );
     ifc_fn void add_collision_object( btCollisionObject* obj, unsigned int group, unsigned int mask, bool inactive );
     ifc_fn void remove_collision_object( btCollisionObject* obj );
+    ifc_fn int get_collision_flags(const btCollisionObject * co);
+    ifc_fn void set_collision_flags(btCollisionObject * co, int flags);
 
     ifc_fn btCompoundShape* create_compound_shape();
     ifc_fn void add_child_shape( btCompoundShape* group, btCollisionShape* child, const btTransform& tr );

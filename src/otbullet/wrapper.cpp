@@ -512,6 +512,18 @@ void physics::remove_collision_object( btCollisionObject* obj )
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+int physics::get_collision_flags(const btCollisionObject * co)
+{
+    return co->getCollisionFlags();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void physics::set_collision_flags(btCollisionObject * co, int flags)
+{
+    return co->setCollisionFlags(flags);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void physics::update_collision_object( btCollisionObject* obj, const btTransform& tr, bool update_aabb )
 {
     obj->setWorldTransform(tr);
