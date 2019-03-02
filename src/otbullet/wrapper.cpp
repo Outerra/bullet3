@@ -191,8 +191,8 @@ iref<physics> physics::create(double r, void* context, coid::taskmaster* tm)
         &_ext_tree_col,
         &_ext_terrain_ray_intersect,
         &_ext_elevation_above_terrain,
-        context
-        );
+        context,
+        tm);
 
     wrld->setGravity(btVector3(0, 0, 0));
 
