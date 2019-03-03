@@ -445,7 +445,7 @@ public:
     bool is_point_inside_terrain_occluder(const btVector3& pt);
     void set_potential_collision_flag(btRigidBody * rb);
     template<class fn> // void (*fn)(btCollisionObject * obj)
-    void for_each_object_in_broadphase(bt32BitAxisSweep3 * broadphase, fn process_fn) {
+    void for_each_object_in_broadphase(bt32BitAxisSweep3 * broadphase, uint revision, fn process_fn) {
         static coid::dynarray<const btDbvtNode *> _processing_stack(1024);
         _processing_stack.reset();
 
@@ -476,7 +476,9 @@ public:
             if (cur_node->isleaf()) {
                 if (cur_node->data) {
                     btDbvtProxy* dat = reinterpret_cast<btDbvtProxy*>(cur_node->data);
-                    process_fn(reinterpret_cast<btCollisionObject*>(dat->m_clientObject));
+                    btCollisionObject * co = reinterpret_cast<btCollisionObject*>(dat->m_clientObject);
+                    if(co->getBroadphaseHandle() && broadphase->ownsProxy(co->getBroadphaseHandle()) && co->getBroadphaseHandle()->m_ot_revision == revision)
+                        process_fn(co);
                 }
             }
             else {

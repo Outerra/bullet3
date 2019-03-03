@@ -208,6 +208,7 @@ namespace ot {
                 }
                 else {
                     bp->_broadphase->destroyProxy(proxy,getDispatcher());
+                    proxy->m_ot_revision = 0xffffffff; // invalidate proxy
                 }
             });
         });
@@ -223,7 +224,7 @@ namespace ot {
             btVector3 min, max;
             entry._collision_object->getCollisionShape()->getAabb(entry._collision_object->getWorldTransform(), min, max);
 
-            if (bp->_broadphase->ownsProxy(proxy)) {
+            if (bp->_broadphase->ownsProxy(proxy) && proxy->m_ot_revision != 0xffffffff) {
                 bp->_broadphase->setAabb(proxy, min, max, getDispatcher());
             }
             else {
@@ -954,7 +955,7 @@ namespace ot {
             if ((getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb)))
             {
 
-                for_each_object_in_broadphase(bp->_broadphase, [&](btCollisionObject* colObj) {
+                for_each_object_in_broadphase(bp->_broadphase, bp->_revision, [&](btCollisionObject* colObj) {
                     if ((colObj->getCollisionFlags() & btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT) == 0)
                     {
                         if (getDebugDrawer() && (getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawWireframe))

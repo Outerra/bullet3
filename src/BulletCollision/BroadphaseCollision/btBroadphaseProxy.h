@@ -104,7 +104,7 @@ BT_DECLARE_ALIGNED_ALLOCATOR();
 	int m_collisionFilterMask;
 
 	int			m_uniqueId;//m_uniqueId is introduced for paircache. could get rid of this, by calculating the address offset etc.
-    unsigned int m_ot_revision = 0;
+    unsigned int m_ot_revision = 0xffffffff;
 
 	btVector3	m_aabbMin;
 	btVector3	m_aabbMax;
