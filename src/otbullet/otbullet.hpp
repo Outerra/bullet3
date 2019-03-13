@@ -114,6 +114,13 @@ public:
     ifc_fn btTypedConstraint* add_constraint_ball_socket(btDynamicsWorld * world, btRigidBody* rb_a,const btVector3& pivot_a, btRigidBody* rb_b, const btVector3& pivot_b, bool disable_collision);
     ifc_fn void remove_constraint(btDynamicsWorld * world, btTypedConstraint * constraint);
 
+    ifc_event bool external_broadphases_in_radius(
+        const void* context,
+        const double3& center,
+        float radius,
+        coid::dynarray<bt::external_broadphase*>& broadphases,
+        uint frame);
+
     ifc_event bool terrain_collisions(
         const void* context,
         const double3& center,

@@ -277,10 +277,31 @@ void physics::remove_collision_object_from_external_broadphase(bt::external_broa
 ////////////////////////////////////////////////////////////////////////////////
 void physics::query_volume_sphere(const double3 & pos, float rad, coid::dynarray<btCollisionObject*>& result)
 {
+#ifdef _DEBUG
+    bt32BitAxisSweep3 * broad = dynamic_cast<bt32BitAxisSweep3 *>(_world->getBroadphase());
+    DASSERT(broad != nullptr);
+#else
+    bt32BitAxisSweep3 * broad = static_cast<bt32BitAxisSweep3 *>(_world->getBroadphase());
+#endif
 
-    _world->query_volume_sphere(pos, rad, [&](btCollisionObject* obj) {
-        result.push(obj);
+    _world->query_volume_sphere(broad,  pos, rad, [&](btCollisionObject* obj) {
+        if (obj->getUserPointer())
+            result.push(obj);
     });
+
+    coid::dynarray <bt::external_broadphase*> ebps;
+    _physics->external_broadphases_in_radius(_world->getContext(), pos, rad, ebps, gCurrentFrame);
+    ebps.for_each([&](bt::external_broadphase* ebp) {
+        if (ebp->_dirty) {
+            _world->update_terrain_mesh_broadphase(ebp);
+        }
+
+        _world->query_volume_sphere(ebp->_broadphase, pos, rad, [&](btCollisionObject* obj) {
+            if(obj->getUserPointer())
+                result.push(obj);
+        });
+    });
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -294,7 +315,14 @@ void physics::query_volume_frustum(const double3 & pos,const float4 * f_planes_n
 
 ////////////////////////////////////////////////////////////////////////////////
 void physics::wake_up_objects_in_radius(const double3 & pos, float rad) {
-    _world->query_volume_sphere(pos, rad, [&](btCollisionObject* obj) {
+#ifdef _DEBUG
+    bt32BitAxisSweep3 * broad = dynamic_cast<bt32BitAxisSweep3 *>(_world->getBroadphase());
+    DASSERT(broad != nullptr);
+#else
+    bt32BitAxisSweep3 * broad = static_cast<bt32BitAxisSweep3 *>(_world->getBroadphase());
+#endif
+
+    _world->query_volume_sphere(broad,pos, rad, [&](btCollisionObject* obj) {
         obj->setActivationState(ACTIVE_TAG);
         obj->setDeactivationTime(0);
     });

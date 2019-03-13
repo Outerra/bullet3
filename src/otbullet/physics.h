@@ -162,6 +162,8 @@ protected:
 
     friend class ::physics;
 
+    virtual bool external_broadphases_in_radius( const void* context, const double3& center, float radius, coid::dynarray<bt::external_broadphase*>& broadphases, uint frame ){ throw coid::exception("handler not implemented"); }
+
     virtual bool terrain_collisions( const void* context, const double3& center, float radius, float lod_dimension, coid::dynarray<bt::triangle>& data, coid::dynarray<uint>& trees, coid::slotalloc<bt::tree_batch>& tree_batches, uint frame ){ throw coid::exception("handler not implemented"); }
 
     virtual int terrain_collisions_aabb( const void* context, const double3& center, float3x3 basis, float lod_dimension, coid::dynarray<bt::triangle>& data, coid::dynarray<uint>& trees, coid::slotalloc<bt::tree_batch>& tree_batches, uint frame, bool& is_above_tm, double3& under_contact, float3& under_normal, coid::dynarray<bt::external_broadphase*>& broadphases ){ throw coid::exception("handler not implemented"); }
@@ -181,6 +183,7 @@ protected:
 public:
     // --- host helpers to check presence of handlers in scripts ---
 
+    virtual bool is_bound_external_broadphases_in_radius() { return true; }
     virtual bool is_bound_terrain_collisions() { return true; }
     virtual bool is_bound_terrain_collisions_aabb() { return true; }
     virtual bool is_bound_tree_collisions() { return true; }
@@ -214,7 +217,7 @@ public:
     }
 
     ///Interface revision hash
-    static const int HASHID = 1829661994;
+    static const int HASHID = 4291002602;
 
     ///Interface name (full ns::class string)
     static const coid::tokenhash& IFCNAME() {
@@ -233,7 +236,7 @@ public:
     }
 
     static const coid::token& intergen_default_creator_static( EBackend bck ) {
-        static const coid::token _dc("bt::physics.get@1829661994");
+        static const coid::token _dc("bt::physics.get@4291002602");
         static const coid::token _djs("bt::physics@wrapper.js");
         static const coid::token _djsc("bt::physics@wrapper.jsc");
         static const coid::token _dlua("bt::physics@wrapper.lua");
@@ -291,7 +294,7 @@ public:
         type.consume("struct ");
 
         coid::charstr tmp = "bt::physics";
-        tmp << "@client-1829661994" << '.' << type;
+        tmp << "@client-4291002602" << '.' << type;
 
         coid::interface_register::register_interface_creator(tmp, cc);
         return 0;
@@ -318,14 +321,14 @@ inline iref<T> physics::create( T* _subclass_, double r, void* context, coid::ta
     typedef iref<T> (*fn_creator)(physics*, double, void*, coid::taskmaster*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.create@1829661994";
+    static const coid::token ifckey = "bt::physics.create@4291002602";
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
             coid::interface_register::get_interface_creator(ifckey));
 
     if (!create) {
-        log_mismatch("create", "bt::physics.create", "@1829661994");
+        log_mismatch("create", "bt::physics.create", "@4291002602");
         return 0;
     }
 
@@ -339,14 +342,14 @@ inline iref<T> physics::get( T* _subclass_ )
     typedef iref<T> (*fn_creator)(physics*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.get@1829661994";
+    static const coid::token ifckey = "bt::physics.get@4291002602";
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
             coid::interface_register::get_interface_creator(ifckey));
 
     if (!create) {
-        log_mismatch("get", "bt::physics.get", "@1829661994");
+        log_mismatch("get", "bt::physics.get", "@4291002602");
         return 0;
     }
 
