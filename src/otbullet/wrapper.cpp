@@ -239,8 +239,12 @@ bt::external_broadphase* physics::create_external_broadphase(const double3& min,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::add_collision_object_to_external_broadphase(bt::external_broadphase * bp, btCollisionObject * co, unsigned int group, unsigned int mask)
+bool physics::add_collision_object_to_external_broadphase(bt::external_broadphase * bp, btCollisionObject * co, unsigned int group, unsigned int mask)
 {
+    if (bp->_broadphase->is_full()) {
+        return false;
+    }
+    
     btTransform trans = co->getWorldTransform();
 
     btVector3	minAabb;
@@ -259,6 +263,8 @@ void physics::add_collision_object_to_external_broadphase(bt::external_broadphas
     ));
 
     //bp->_colliders.push(sc);
+
+    return true;
 }
 /*
 ////////////////////////////////////////////////////////////////////////////////
@@ -506,7 +512,7 @@ void physics::destroy_collision_object( btCollisionObject*& obj )
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::add_collision_object( btCollisionObject* obj, unsigned int group, unsigned int mask, bool inactive )
+bool physics::add_collision_object( btCollisionObject* obj, unsigned int group, unsigned int mask, bool inactive )
 {
     if(inactive)
         obj->setActivationState(DISABLE_SIMULATION);
@@ -522,15 +528,18 @@ void physics::add_collision_object( btCollisionObject* obj, unsigned int group, 
         _world->addCollisionObject(obj, group, mask);
     }*/
 
+    if (!_world->addCollisionObject(obj, group, mask)) {
+        return false;
+    }
+
+
     btGhostObject* ghost = btGhostObject::upcast(obj);
     if (ghost) {
         obj->setCollisionFlags(obj->getCollisionFlags() | btCollisionObject::CollisionFlags::CF_NO_CONTACT_RESPONSE | btCollisionObject::CollisionFlags::CF_DISABLE_VISUALIZE_OBJECT);
         _world->add_terrain_occluder(ghost);
     }
 
-    _world->addCollisionObject(obj, group, mask);
-
-
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

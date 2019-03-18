@@ -51,7 +51,7 @@ public:
     ifc_fn void set_simulation_frame(uint frame);
 
     ifc_fn bt::external_broadphase* create_external_broadphase(const double3& min,const double3& max);
-    ifc_fn void add_collision_object_to_external_broadphase(bt::external_broadphase * bp, btCollisionObject * co, unsigned int group, unsigned int mask);
+    ifc_fn bool add_collision_object_to_external_broadphase(bt::external_broadphase * bp, btCollisionObject * co, unsigned int group, unsigned int mask);
     //ifc_fn void remove_collision_object_from_external_broadphase(bt::external_broadphase * bp, simple_collider * sc, btCollisionObject * co);
 
     ifc_fn void step_simulation( double step );
@@ -62,7 +62,7 @@ public:
     ifc_fn btRigidBody* fixed_object();
     ifc_fn btRigidBody* create_rigid_body( float mass, btCollisionShape* shape, void* usr1, void* usr2 );
     ifc_fn void destroy_rigid_body( btRigidBody*& obj );
-    ifc_fn void add_rigid_body( btRigidBody* obj, unsigned int group, unsigned int mask,
+    ifc_fn bool add_rigid_body( btRigidBody* obj, unsigned int group, unsigned int mask,
         btActionInterface* action, bt::constraint_info* constraint );
     ifc_fn void remove_rigid_body( btRigidBody* obj, btActionInterface* action, bt::constraint_info* constraint );
     ifc_fn void pause_rigid_body( btRigidBody* obj, bool pause );
@@ -77,7 +77,7 @@ public:
     ifc_fn void destroy_collision_object( btCollisionObject*& obj );
     ifc_fn void update_collision_object( btCollisionObject* obj, const btTransform& tr, bool update_aabb );
     ifc_fn void set_collision_info( btCollisionObject* obj, unsigned int group, unsigned int mask );
-    ifc_fn void add_collision_object( btCollisionObject* obj, unsigned int group, unsigned int mask, bool inactive );
+    ifc_fn bool add_collision_object( btCollisionObject* obj, unsigned int group, unsigned int mask, bool inactive );
     ifc_fn void remove_collision_object( btCollisionObject* obj );
     ifc_fn int get_collision_flags(const btCollisionObject * co);
     ifc_fn void set_collision_flags(btCollisionObject * co, int flags);

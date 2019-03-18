@@ -83,13 +83,15 @@ void physics::destroy_rigid_body( btRigidBody*& obj )
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::add_rigid_body( btRigidBody* obj, unsigned int group, unsigned int mask,
+bool physics::add_rigid_body( btRigidBody* obj, unsigned int group, unsigned int mask,
     btActionInterface* action, bt::constraint_info* constraint )
 {
 //    if(action)
 //		obj->setActivationState(DISABLE_DEACTIVATION);
 
-    _world->addRigidBody(obj, group, mask);
+    if (!_world->addRigidBody(obj, group, mask)) {
+        return false;
+    };
 
     if(action)
         _world->addAction(action);
@@ -100,6 +102,8 @@ void physics::add_rigid_body( btRigidBody* obj, unsigned int group, unsigned int
 
         _world->addConstraint(btcon);
     }
+
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

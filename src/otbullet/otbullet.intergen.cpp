@@ -39,14 +39,14 @@ private:
         _vtable1 = new ifn_t[50];
         _vtable1[0] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(uint)>(&::physics::set_simulation_frame));
         _vtable1[1] = reinterpret_cast<ifn_t>(static_cast<bt::external_broadphase*(policy_intrusive_base::*)(const double3&,const double3&)>(&::physics::create_external_broadphase));
-        _vtable1[2] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(bt::external_broadphase*,btCollisionObject*,unsigned int,unsigned int)>(&::physics::add_collision_object_to_external_broadphase));
+        _vtable1[2] = reinterpret_cast<ifn_t>(static_cast<bool(policy_intrusive_base::*)(bt::external_broadphase*,btCollisionObject*,unsigned int,unsigned int)>(&::physics::add_collision_object_to_external_broadphase));
         _vtable1[3] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(double)>(&::physics::step_simulation));
         _vtable1[4] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(const double[3],const double[3],void*)>(&::physics::ray_test));
         _vtable1[5] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(uint)>(&::physics::set_current_frame));
         _vtable1[6] = reinterpret_cast<ifn_t>(static_cast<btRigidBody*(policy_intrusive_base::*)()>(&::physics::fixed_object));
         _vtable1[7] = reinterpret_cast<ifn_t>(static_cast<btRigidBody*(policy_intrusive_base::*)(float,btCollisionShape*,void*,void*)>(&::physics::create_rigid_body));
         _vtable1[8] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btRigidBody*&)>(&::physics::destroy_rigid_body));
-        _vtable1[9] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btRigidBody*,unsigned int,unsigned int,btActionInterface*,bt::constraint_info*)>(&::physics::add_rigid_body));
+        _vtable1[9] = reinterpret_cast<ifn_t>(static_cast<bool(policy_intrusive_base::*)(btRigidBody*,unsigned int,unsigned int,btActionInterface*,bt::constraint_info*)>(&::physics::add_rigid_body));
         _vtable1[10] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btRigidBody*,btActionInterface*,bt::constraint_info*)>(&::physics::remove_rigid_body));
         _vtable1[11] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btRigidBody*,bool)>(&::physics::pause_rigid_body));
         _vtable1[12] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btRigidBody*,float,const float[3])>(&::physics::set_rigid_body_mass));
@@ -58,7 +58,7 @@ private:
         _vtable1[18] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionObject*&)>(&::physics::destroy_collision_object));
         _vtable1[19] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionObject*,const btTransform&,bool)>(&::physics::update_collision_object));
         _vtable1[20] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionObject*,unsigned int,unsigned int)>(&::physics::set_collision_info));
-        _vtable1[21] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionObject*,unsigned int,unsigned int,bool)>(&::physics::add_collision_object));
+        _vtable1[21] = reinterpret_cast<ifn_t>(static_cast<bool(policy_intrusive_base::*)(btCollisionObject*,unsigned int,unsigned int,bool)>(&::physics::add_collision_object));
         _vtable1[22] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionObject*)>(&::physics::remove_collision_object));
         _vtable1[23] = reinterpret_cast<ifn_t>(static_cast<int(policy_intrusive_base::*)(const btCollisionObject*)>(&::physics::get_collision_flags));
         _vtable1[24] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(btCollisionObject*,int)>(&::physics::set_collision_flags));
@@ -263,10 +263,10 @@ public:
             on ? (void*)&_generic_interface_creator : nullptr);
 
         interface_register::register_interface_creator(
-            "bt::physics.create@4291002602",
+            "bt::physics.create@2002430152",
             on ? (void*)&create : nullptr);
         interface_register::register_interface_creator(
-            "bt::physics.get@4291002602",
+            "bt::physics.get@2002430152",
             on ? (void*)&get : nullptr);
     }
 };

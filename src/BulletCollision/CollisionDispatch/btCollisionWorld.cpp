@@ -129,7 +129,11 @@ void btCollisionWorld::refreshBroadphaseProxy(btCollisionObject* collisionObject
 	}
 }
 
-void btCollisionWorld::addCollisionObject(btCollisionObject* collisionObject, int collisionFilterGroup, int collisionFilterMask)
+
+
+
+
+bool	btCollisionWorld::addCollisionObject(btCollisionObject* collisionObject,short int collisionFilterGroup,short int collisionFilterMask)
 {
 	btAssert(collisionObject);
 
@@ -138,6 +142,10 @@ void btCollisionWorld::addCollisionObject(btCollisionObject* collisionObject, in
 	btAssert(collisionObject->getWorldArrayIndex() == -1);  // do not add the same object to more than one collision world
 
 	collisionObject->setWorldArrayIndex(m_collisionObjects.size());
+    if (m_collisionObjects.findLinearSearch(collisionObject) != m_collisionObjects.size() || m_broadphasePairCache->is_full()) {
+        return false;
+    }
+
 	m_collisionObjects.push_back(collisionObject);
 
 	//calculate new AABB
@@ -155,7 +163,12 @@ void btCollisionWorld::addCollisionObject(btCollisionObject* collisionObject, in
 		collisionObject,
 		collisionFilterGroup,
 		collisionFilterMask,
-		m_dispatcher1));
+		m_dispatcher1,0
+		))	;
+
+
+
+    return true;
 }
 
 void	btCollisionWorld::updateSingleAabb(btCollisionObject* colObj)

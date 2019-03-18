@@ -57,7 +57,7 @@ public:
 
     bt::external_broadphase* create_external_broadphase( const double3& min, const double3& max );
 
-    void add_collision_object_to_external_broadphase( bt::external_broadphase* bp, btCollisionObject* co, unsigned int group, unsigned int mask );
+    bool add_collision_object_to_external_broadphase( bt::external_broadphase* bp, btCollisionObject* co, unsigned int group, unsigned int mask );
 
     
     void step_simulation( double step );
@@ -72,7 +72,7 @@ public:
 
     void destroy_rigid_body( btRigidBody*& obj );
 
-    void add_rigid_body( btRigidBody* obj, unsigned int group, unsigned int mask, btActionInterface* action, bt::constraint_info* constraint );
+    bool add_rigid_body( btRigidBody* obj, unsigned int group, unsigned int mask, btActionInterface* action, bt::constraint_info* constraint );
 
     void remove_rigid_body( btRigidBody* obj, btActionInterface* action, bt::constraint_info* constraint );
 
@@ -96,7 +96,7 @@ public:
 
     void set_collision_info( btCollisionObject* obj, unsigned int group, unsigned int mask );
 
-    void add_collision_object( btCollisionObject* obj, unsigned int group, unsigned int mask, bool inactive );
+    bool add_collision_object( btCollisionObject* obj, unsigned int group, unsigned int mask, bool inactive );
 
     void remove_collision_object( btCollisionObject* obj );
 
@@ -217,7 +217,7 @@ public:
     }
 
     ///Interface revision hash
-    static const int HASHID = 4291002602;
+    static const int HASHID = 2002430152;
 
     ///Interface name (full ns::class string)
     static const coid::tokenhash& IFCNAME() {
@@ -236,7 +236,7 @@ public:
     }
 
     static const coid::token& intergen_default_creator_static( EBackend bck ) {
-        static const coid::token _dc("bt::physics.get@4291002602");
+        static const coid::token _dc("bt::physics.get@2002430152");
         static const coid::token _djs("bt::physics@wrapper.js");
         static const coid::token _djsc("bt::physics@wrapper.jsc");
         static const coid::token _dlua("bt::physics@wrapper.lua");
@@ -294,7 +294,7 @@ public:
         type.consume("struct ");
 
         coid::charstr tmp = "bt::physics";
-        tmp << "@client-4291002602" << '.' << type;
+        tmp << "@client-2002430152" << '.' << type;
 
         coid::interface_register::register_interface_creator(tmp, cc);
         return 0;
@@ -321,14 +321,14 @@ inline iref<T> physics::create( T* _subclass_, double r, void* context, coid::ta
     typedef iref<T> (*fn_creator)(physics*, double, void*, coid::taskmaster*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.create@4291002602";
+    static const coid::token ifckey = "bt::physics.create@2002430152";
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
             coid::interface_register::get_interface_creator(ifckey));
 
     if (!create) {
-        log_mismatch("create", "bt::physics.create", "@4291002602");
+        log_mismatch("create", "bt::physics.create", "@2002430152");
         return 0;
     }
 
@@ -342,14 +342,14 @@ inline iref<T> physics::get( T* _subclass_ )
     typedef iref<T> (*fn_creator)(physics*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.get@4291002602";
+    static const coid::token ifckey = "bt::physics.get@2002430152";
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
             coid::interface_register::get_interface_creator(ifckey));
 
     if (!create) {
-        log_mismatch("get", "bt::physics.get", "@4291002602");
+        log_mismatch("get", "bt::physics.get", "@2002430152");
         return 0;
     }
 
@@ -365,8 +365,8 @@ inline void physics::set_simulation_frame( uint frame )
 inline bt::external_broadphase* physics::create_external_broadphase( const double3& min, const double3& max )
 { return VT_CALL(bt::external_broadphase*,(const double3&,const double3&),1)(min,max); }
 
-inline void physics::add_collision_object_to_external_broadphase( bt::external_broadphase* bp, btCollisionObject* co, unsigned int group, unsigned int mask )
-{ return VT_CALL(void,(bt::external_broadphase*,btCollisionObject*,unsigned int,unsigned int),2)(bp,co,group,mask); }
+inline bool physics::add_collision_object_to_external_broadphase( bt::external_broadphase* bp, btCollisionObject* co, unsigned int group, unsigned int mask )
+{ return VT_CALL(bool,(bt::external_broadphase*,btCollisionObject*,unsigned int,unsigned int),2)(bp,co,group,mask); }
 
 inline void physics::step_simulation( double step )
 { return VT_CALL(void,(double),3)(step); }
@@ -386,8 +386,8 @@ inline btRigidBody* physics::create_rigid_body( float mass, btCollisionShape* sh
 inline void physics::destroy_rigid_body( btRigidBody*& obj )
 { return VT_CALL(void,(btRigidBody*&),8)(obj); }
 
-inline void physics::add_rigid_body( btRigidBody* obj, unsigned int group, unsigned int mask, btActionInterface* action, bt::constraint_info* constraint )
-{ return VT_CALL(void,(btRigidBody*,unsigned int,unsigned int,btActionInterface*,bt::constraint_info*),9)(obj,group,mask,action,constraint); }
+inline bool physics::add_rigid_body( btRigidBody* obj, unsigned int group, unsigned int mask, btActionInterface* action, bt::constraint_info* constraint )
+{ return VT_CALL(bool,(btRigidBody*,unsigned int,unsigned int,btActionInterface*,bt::constraint_info*),9)(obj,group,mask,action,constraint); }
 
 inline void physics::remove_rigid_body( btRigidBody* obj, btActionInterface* action, bt::constraint_info* constraint )
 { return VT_CALL(void,(btRigidBody*,btActionInterface*,bt::constraint_info*),10)(obj,action,constraint); }
@@ -422,8 +422,8 @@ inline void physics::update_collision_object( btCollisionObject* obj, const btTr
 inline void physics::set_collision_info( btCollisionObject* obj, unsigned int group, unsigned int mask )
 { return VT_CALL(void,(btCollisionObject*,unsigned int,unsigned int),20)(obj,group,mask); }
 
-inline void physics::add_collision_object( btCollisionObject* obj, unsigned int group, unsigned int mask, bool inactive )
-{ return VT_CALL(void,(btCollisionObject*,unsigned int,unsigned int,bool),21)(obj,group,mask,inactive); }
+inline bool physics::add_collision_object( btCollisionObject* obj, unsigned int group, unsigned int mask, bool inactive )
+{ return VT_CALL(bool,(btCollisionObject*,unsigned int,unsigned int,bool),21)(obj,group,mask,inactive); }
 
 inline void physics::remove_collision_object( btCollisionObject* obj )
 { return VT_CALL(void,(btCollisionObject*),22)(obj); }

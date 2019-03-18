@@ -514,9 +514,9 @@ btVector3 btDiscreteDynamicsWorld::getGravity () const
 	return m_gravity;
 }
 
-void btDiscreteDynamicsWorld::addCollisionObject(btCollisionObject* collisionObject, int collisionFilterGroup, int collisionFilterMask)
+bool btDiscreteDynamicsWorld::addCollisionObject(btCollisionObject* collisionObject, int collisionFilterGroup, int collisionFilterMask)
 {
-	btCollisionWorld::addCollisionObject(collisionObject,collisionFilterGroup,collisionFilterMask);
+	return btCollisionWorld::addCollisionObject(collisionObject,collisionFilterGroup,collisionFilterMask);
 }
 
 void	btDiscreteDynamicsWorld::removeCollisionObject(btCollisionObject* collisionObject)
@@ -534,7 +534,7 @@ void	btDiscreteDynamicsWorld::removeRigidBody(btRigidBody* body)
 	btCollisionWorld::removeCollisionObject(body);
 }
 
-void	btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body)
+bool	btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body)
 {
 	if (!body->isStaticOrKinematicObject() && !(body->getFlags() &BT_DISABLE_WORLD_GRAVITY))
 	{
@@ -543,7 +543,15 @@ void	btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body)
 
 	if (body->getCollisionShape())
 	{
-		if (!body->isStaticObject())
+        bool isDynamic = !(body->isStaticObject() || body->isKinematicObject());
+        short collisionFilterGroup = isDynamic ? short(btBroadphaseProxy::DefaultFilter) : short(btBroadphaseProxy::StaticFilter);
+        short collisionFilterMask = isDynamic ? short(btBroadphaseProxy::AllFilter) : short(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
+
+        if (!addCollisionObject(body, collisionFilterGroup, collisionFilterMask)) {
+            return false;
+        };
+
+        if (!body->isStaticObject())
 		{
 			m_nonStaticRigidBodies.push_back(body);
 		}
@@ -551,16 +559,17 @@ void	btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body)
 		{
 			body->setActivationState(ISLAND_SLEEPING);
 		}
+	}
 
 		bool isDynamic = !(body->isStaticObject() || body->isKinematicObject());
 		int collisionFilterGroup = isDynamic ? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
 		int collisionFilterMask = isDynamic ? int(btBroadphaseProxy::AllFilter) : int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
 
 		addCollisionObject(body,collisionFilterGroup,collisionFilterMask);
-	}
+    return true;
 }
 
-void btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body, int group, int mask)
+bool btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body, int group, int mask)
 {
 	if (!body->isStaticOrKinematicObject() && !(body->getFlags() &BT_DISABLE_WORLD_GRAVITY))
 	{
@@ -569,7 +578,12 @@ void btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body, int group, int mas
 
 	if (body->getCollisionShape())
 	{
-		if (!body->isStaticObject())
+        if (!addCollisionObject(body, group, mask)) {
+            return false;
+        }
+
+        
+        if (!body->isStaticObject())
 		{
 			m_nonStaticRigidBodies.push_back(body);
 		}
@@ -577,8 +591,9 @@ void btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body, int group, int mas
 		{
 			body->setActivationState(ISLAND_SLEEPING);
 		}
-		addCollisionObject(body,group,mask);
 	}
+
+    return true;
 }
 
 void	btDiscreteDynamicsWorld::updateActions(btScalar timeStep)
