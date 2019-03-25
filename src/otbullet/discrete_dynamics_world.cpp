@@ -643,7 +643,7 @@ namespace ot {
                 for (int j = 0; j < num_contacts; j++) {
                     btManifoldPoint& pt = man->getContactPoint(j);
 
-                    if (is_point_inside_terrain_occluder(pt.getPositionWorldOnA())) {
+                    if (is_point_inside_terrain_occluder(pt.getPositionWorldOnB())) {
                         man->removeContactPoint(j);
                         j--;
                         num_contacts--;
