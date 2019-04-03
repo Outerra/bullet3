@@ -578,12 +578,16 @@ void physics::step_simulation( double step )
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::ray_test( const double from[3], const double to[3], void* cb)
+void physics::ray_test( const double from[3], const double to[3], void* cb, bt::external_broadphase* bp)
 {
     btVector3 afrom = btVector3(from[0], from[1], from[2]);
     btVector3 ato = btVector3(to[0], to[1], to[2]);
 
-    _world->rayTest(afrom, ato, *(btCollisionWorld::RayResultCallback*)cb);
+    if (bp && bp->_dirty) {
+        _world->update_terrain_mesh_broadphase(bp);
+    }
+
+    _world->rayTest(afrom, ato, *(btCollisionWorld::RayResultCallback*)cb, bp);
 }
 
 void physics::set_current_frame(uint frame)

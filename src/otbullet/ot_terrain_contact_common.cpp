@@ -9,7 +9,7 @@
 
 #include "discrete_dynamics_world.h"
 
-#include <ot/world.h>
+//#include <ot/world.h>
 
 const bt::triangle* current_processed_triangle = nullptr;
 
@@ -362,7 +362,7 @@ void ot_terrain_contact_common::collide_object_plane(fn_elevation_above_terrain 
     double3 norm = glm::normalize(pos);
     double3 hit;
     float3 hit_norm;
-    ot::terrain::hitpoint hp;
+    //ot::terrain::hitpoint hp;
  
     const double elev(elevation_above_terrain(pos, _sphere_radius, &hit_norm, &hit));
 

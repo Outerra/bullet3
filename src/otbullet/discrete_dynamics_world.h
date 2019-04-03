@@ -203,7 +203,7 @@ public:
     void remove_terrain_broadphase_collision_pair(btBroadphasePair& pair);
     void process_terrain_broadphase_collision_pairs();
 
-    void rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback) const override;
+    void rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback, bt::external_broadphase* bp) const;
 
     virtual void removeRigidBody(btRigidBody* body) override;
     virtual void removeCollisionObject(btCollisionObject* collisionObject) override;

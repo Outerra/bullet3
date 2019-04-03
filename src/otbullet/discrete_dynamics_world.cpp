@@ -340,14 +340,15 @@ namespace ot {
 
     }
 
-    void discrete_dynamics_world::rayTest(const btVector3 & rayFromWorld, const btVector3 & rayToWorld, RayResultCallback & resultCallback) const
+    void discrete_dynamics_world::rayTest(const btVector3 & rayFromWorld, const btVector3 & rayToWorld, RayResultCallback & resultCallback, bt::external_broadphase* bp) const
     {
-        btCollisionWorld::rayTest(rayFromWorld,rayToWorld,resultCallback);
-
-        _external_broadphase_pool.for_each([&](bt::external_broadphase& bp) {
             btCollisionWorld::btSingleRayCallback rayCB(rayFromWorld, rayToWorld, this, resultCallback);
-            bp._broadphase->rayTest(rayFromWorld, rayToWorld, rayCB);
-        });
+            if (bp) { 
+                bp->_broadphase->rayTest(rayFromWorld, rayToWorld, rayCB); 
+            }
+            else {
+                m_broadphasePairCache->rayTest(rayFromWorld, rayToWorld, rayCB);
+            }
     }
 
     void discrete_dynamics_world::removeRigidBody(btRigidBody * body)
