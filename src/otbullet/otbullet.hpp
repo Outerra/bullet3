@@ -54,7 +54,7 @@ public:
     ifc_fn bool add_collision_object_to_external_broadphase(bt::external_broadphase * bp, btCollisionObject * co, unsigned int group, unsigned int mask);
     //ifc_fn void remove_collision_object_from_external_broadphase(bt::external_broadphase * bp, simple_collider * sc, btCollisionObject * co);
 
-    ifc_fn void step_simulation( double step );
+    ifc_fn void step_simulation( double step, bt::bullet_stats * stats );
     ifc_fn void ray_test( const double from[3], const double to[3], void* cb, bt::external_broadphase* bp = 0);
 
     ifc_fn void set_current_frame(uint frame);

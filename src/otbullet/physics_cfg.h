@@ -167,6 +167,14 @@ struct ot_world_physics_stats {
 };
 
 //
+struct bullet_stats {
+    float ot_collision_step = 0.f;
+    float bt_collision_step = 0.f;
+    float update_actions = 0.f;
+    float constraints_solving = 0.f;
+};
+
+//
 class constraint_info
 {
 public:

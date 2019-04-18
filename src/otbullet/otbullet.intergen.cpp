@@ -41,7 +41,7 @@ private:
         _vtable1[1] = reinterpret_cast<ifn_t>(static_cast<bt::external_broadphase*(policy_intrusive_base::*)(const double3&,const double3&)>(&::physics::create_external_broadphase));
         _vtable1[2] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(bt::external_broadphase*)>(&::physics::delete_external_broadphase));
         _vtable1[3] = reinterpret_cast<ifn_t>(static_cast<bool(policy_intrusive_base::*)(bt::external_broadphase*,btCollisionObject*,unsigned int,unsigned int)>(&::physics::add_collision_object_to_external_broadphase));
-        _vtable1[4] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(double)>(&::physics::step_simulation));
+        _vtable1[4] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(double,bt::bullet_stats*)>(&::physics::step_simulation));
         _vtable1[5] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(const double[3],const double[3],void*,bt::external_broadphase*)>(&::physics::ray_test));
         _vtable1[6] = reinterpret_cast<ifn_t>(static_cast<void(policy_intrusive_base::*)(uint)>(&::physics::set_current_frame));
         _vtable1[7] = reinterpret_cast<ifn_t>(static_cast<btRigidBody*(policy_intrusive_base::*)()>(&::physics::fixed_object));
@@ -265,10 +265,10 @@ public:
             on ? (void*)&_generic_interface_creator : nullptr);
 
         interface_register::register_interface_creator(
-            "bt::physics.create@1420098501",
+            "bt::physics.create@821344808",
             on ? (void*)&create : nullptr);
         interface_register::register_interface_creator(
-            "bt::physics.get@1420098501",
+            "bt::physics.get@821344808",
             on ? (void*)&get : nullptr);
     }
 };

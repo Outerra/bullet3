@@ -62,7 +62,7 @@ public:
     bool add_collision_object_to_external_broadphase( bt::external_broadphase* bp, btCollisionObject* co, unsigned int group, unsigned int mask );
 
     
-    void step_simulation( double step );
+    void step_simulation( double step, bt::bullet_stats* stats );
 
     void ray_test( const double from[3], const double to[3], void* cb, bt::external_broadphase* bp = 0 );
 
@@ -219,7 +219,7 @@ public:
     }
 
     ///Interface revision hash
-    static const int HASHID = 1420098501;
+    static const int HASHID = 821344808;
 
     ///Interface name (full ns::class string)
     static const coid::tokenhash& IFCNAME() {
@@ -238,7 +238,7 @@ public:
     }
 
     static const coid::token& intergen_default_creator_static( EBackend bck ) {
-        static const coid::token _dc("bt::physics.get@1420098501");
+        static const coid::token _dc("bt::physics.get@821344808");
         static const coid::token _djs("bt::physics@wrapper.js");
         static const coid::token _djsc("bt::physics@wrapper.jsc");
         static const coid::token _dlua("bt::physics@wrapper.lua");
@@ -296,7 +296,7 @@ public:
         type.consume("struct ");
 
         coid::charstr tmp = "bt::physics";
-        tmp << "@client-1420098501" << '.' << type;
+        tmp << "@client-821344808" << '.' << type;
 
         coid::interface_register::register_interface_creator(tmp, cc);
         return 0;
@@ -323,14 +323,14 @@ inline iref<T> physics::create( T* _subclass_, double r, void* context, coid::ta
     typedef iref<T> (*fn_creator)(physics*, double, void*, coid::taskmaster*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.create@1420098501";
+    static const coid::token ifckey = "bt::physics.create@821344808";
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
             coid::interface_register::get_interface_creator(ifckey));
 
     if (!create) {
-        log_mismatch("create", "bt::physics.create", "@1420098501");
+        log_mismatch("create", "bt::physics.create", "@821344808");
         return 0;
     }
 
@@ -344,14 +344,14 @@ inline iref<T> physics::get( T* _subclass_ )
     typedef iref<T> (*fn_creator)(physics*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.get@1420098501";
+    static const coid::token ifckey = "bt::physics.get@821344808";
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
             coid::interface_register::get_interface_creator(ifckey));
 
     if (!create) {
-        log_mismatch("get", "bt::physics.get", "@1420098501");
+        log_mismatch("get", "bt::physics.get", "@821344808");
         return 0;
     }
 
@@ -373,8 +373,8 @@ inline void physics::delete_external_broadphase( bt::external_broadphase* bp )
 inline bool physics::add_collision_object_to_external_broadphase( bt::external_broadphase* bp, btCollisionObject* co, unsigned int group, unsigned int mask )
 { return VT_CALL(bool,(bt::external_broadphase*,btCollisionObject*,unsigned int,unsigned int),3)(bp,co,group,mask); }
 
-inline void physics::step_simulation( double step )
-{ return VT_CALL(void,(double),4)(step); }
+inline void physics::step_simulation( double step, bt::bullet_stats* stats )
+{ return VT_CALL(void,(double,bt::bullet_stats*),4)(step,stats); }
 
 inline void physics::ray_test( const double from[3], const double to[3], void* cb, bt::external_broadphase* bp )
 { return VT_CALL(void,(const double[3],const double[3],void*,bt::external_broadphase*),5)(from,to,cb,bp); }

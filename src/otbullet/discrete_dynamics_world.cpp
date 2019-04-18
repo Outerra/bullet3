@@ -14,6 +14,9 @@
 #include <BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h>
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
 
+#include <BulletDynamics/Dynamics/btActionInterface.h>
+
+
 #include <LinearMath/btIDebugDraw.h>
 #include <LinearMath/btAabbUtil2.h>
 
@@ -130,8 +133,7 @@ namespace ot {
 
         createPredictiveContacts(timeStep);
 
-        ///perform collision detection
-        performDiscreteCollisionDetection();
+        COID_TIME_POINT(outerra_collision);
 
 #ifdef _PROFILING_ENABLED
         _stats.before_ot_phase_time_ms = timer.time_ns() * 1e-6f;
@@ -146,6 +148,13 @@ namespace ot {
 #ifdef _PROFILING_ENABLED
         timer.reset();
 #endif // _PROFILING_ENABLED
+        _stats2->ot_collision_step += COID_TIME_SINCE(outerra_collision);
+
+        ///perform collision detection
+        COID_TIME_POINT(bullet_collision);
+        performDiscreteCollisionDetection();
+        _stats2->bt_collision_step += COID_TIME_SINCE(bullet_collision);
+
 
         calculateSimulationIslands();
 
@@ -153,9 +162,10 @@ namespace ot {
         getSolverInfo().m_timeStep = timeStep;
 
 
-
+        COID_TIME_POINT(constraints_solving);
         ///solve contact and other joint constraints
         solveConstraints(getSolverInfo());
+        _stats2->constraints_solving += COID_TIME_SINCE(constraints_solving);
 
         ///CallbackTriggers();
 
@@ -163,8 +173,10 @@ namespace ot {
 
         integrateTransforms(timeStep);
 
+        COID_TIME_POINT(update_actions);
         ///update vehicle simulation
         updateActions(timeStep);
+        _stats2->update_actions += COID_TIME_SINCE(update_actions);
 
         updateActivationState(timeStep);
 
@@ -1133,6 +1145,23 @@ namespace ot {
             _debug_lines.push(v3);
             _debug_lines.push(v7);
             _debug_lines.push(color);
+        }
+    }
+
+    void	discrete_dynamics_world::updateActions(btScalar timeStep)
+    {
+        static bool use_parallel = true;
+
+        if (use_parallel) {
+            _task_master->parallel_for(0, m_actions.size(), [&](int idx) {
+                m_actions[idx]->updateAction(this, timeStep);
+            });
+        }
+        else {
+            for (int i = 0; i < m_actions.size(); i++) {
+                m_actions[i]->updateAction(this, timeStep);
+
+            }
         }
     }
 

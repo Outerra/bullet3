@@ -169,7 +169,7 @@ void set_debug_drawer_enabled(btIDebugDraw * debug_draw) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-iref<physics> physics::create(double r, void* context, coid::taskmaster* tm)
+iref<physics> physics::create(double r, void* context, coid::taskmaster* tm )
 {
     _physics = new physics;
 
@@ -572,8 +572,9 @@ void physics::update_collision_object( btCollisionObject* obj, const btTransform
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::step_simulation( double step )
+void physics::step_simulation(double step, bt::bullet_stats * stats)
 {
+    _world->set_ot_stats(stats);
     _world->stepSimulation(step, 0, step);
 }
 
