@@ -265,10 +265,10 @@ public:
             on ? (void*)&_generic_interface_creator : nullptr);
 
         interface_register::register_interface_creator(
-            "bt::physics.create@821344808",
+            "bt::physics.create@3406473402",
             on ? (void*)&create : nullptr);
         interface_register::register_interface_creator(
-            "bt::physics.get@821344808",
+            "bt::physics.get@3406473402",
             on ? (void*)&get : nullptr);
     }
 };
@@ -302,15 +302,15 @@ void* force_register_physics() {
 // events
 
 
-bool physics::external_broadphases_in_radius( const void* context, const double3& center, float radius, coid::dynarray<bt::external_broadphase*>& broadphases, uint frame )
+bool physics::external_broadphases_in_radius( const void* context, const double3& center, float radius, uint frame, bool mt_safe, ifc_out coid::dynarray<bt::external_broadphase*>& broadphases )
 {
     if (!_ifc_host) 
         throw coid::exception() << "external_broadphases_in_radius" << " handler not implemented";
     else
-        return _ifc_host->iface<bt::physics>()->external_broadphases_in_radius(context, center, radius, broadphases, frame);
+        return _ifc_host->iface<bt::physics>()->external_broadphases_in_radius(context, center, radius, frame, mt_safe, broadphases);
 }
 
-bool physics::terrain_collisions( const void* context, const double3& center, float radius, float lod_dimension, coid::dynarray<bt::triangle>& data, coid::dynarray<uint>& trees, coid::slotalloc<bt::tree_batch>& tree_batches, uint frame )
+bool physics::terrain_collisions( const void* context, const double3& center, float radius, float lod_dimension, ifc_out coid::dynarray<bt::triangle>& data, ifc_out coid::dynarray<uint>& trees, ifc_out coid::slotalloc<bt::tree_batch>& tree_batches, uint frame )
 {
     if (!_ifc_host) 
         throw coid::exception() << "terrain_collisions" << " handler not implemented";
@@ -318,15 +318,15 @@ bool physics::terrain_collisions( const void* context, const double3& center, fl
         return _ifc_host->iface<bt::physics>()->terrain_collisions(context, center, radius, lod_dimension, data, trees, tree_batches, frame);
 }
 
-int physics::terrain_collisions_aabb( const void* context, const double3& center, float3x3 basis, float lod_dimension, coid::dynarray<bt::triangle>& data, coid::dynarray<uint>& trees, coid::slotalloc<bt::tree_batch>& tree_batches, uint frame, bool& is_above_tm, double3& under_contact, float3& under_normal, coid::dynarray<bt::external_broadphase*>& broadphases )
+int physics::terrain_collisions_aabb( const void* context, const double3& center, float3x3 basis, float lod_dimension, ifc_out coid::dynarray<bt::triangle>& data, ifc_out coid::dynarray<uint>& trees, ifc_out coid::slotalloc<bt::tree_batch>& tree_batches, uint frame, bool mt_safe, ifc_out bool& is_above_tm, ifc_out double3& under_contact, ifc_out float3& under_normal, ifc_out coid::dynarray<bt::external_broadphase*>& broadphases )
 {
     if (!_ifc_host) 
         throw coid::exception() << "terrain_collisions_aabb" << " handler not implemented";
     else
-        return _ifc_host->iface<bt::physics>()->terrain_collisions_aabb(context, center, basis, lod_dimension, data, trees, tree_batches, frame, is_above_tm, under_contact, under_normal, broadphases);
+        return _ifc_host->iface<bt::physics>()->terrain_collisions_aabb(context, center, basis, lod_dimension, data, trees, tree_batches, frame, mt_safe, is_above_tm, under_contact, under_normal, broadphases);
 }
 
-float3 physics::tree_collisions( btRigidBody* obj, bt::tree_collision_contex& ctx, float time_step, coid::slotalloc<bt::tree_batch>& tree_batches )
+float3 physics::tree_collisions( btRigidBody* obj, bt::tree_collision_contex& ctx, float time_step, ifc_out coid::slotalloc<bt::tree_batch>& tree_batches )
 {
     if (!_ifc_host) 
         throw coid::exception() << "tree_collisions" << " handler not implemented";
@@ -334,7 +334,7 @@ float3 physics::tree_collisions( btRigidBody* obj, bt::tree_collision_contex& ct
         return _ifc_host->iface<bt::physics>()->tree_collisions(obj, ctx, time_step, tree_batches);
 }
 
-float physics::terrain_ray_intersect( const void* context, const double3& from, const float3& dir, const float2& minmaxlen, float3* norm, double3* pos )
+float physics::terrain_ray_intersect( const void* context, const double3& from, const float3& dir, const float2& minmaxlen, ifc_out float3* norm, ifc_out double3* pos )
 {
     if (!_ifc_host) 
         throw coid::exception() << "terrain_ray_intersect" << " handler not implemented";
@@ -342,7 +342,7 @@ float physics::terrain_ray_intersect( const void* context, const double3& from, 
         return _ifc_host->iface<bt::physics>()->terrain_ray_intersect(context, from, dir, minmaxlen, norm, pos);
 }
 
-float physics::elevation_above_terrain( const double3& pos, float maxlen, float3* norm, double3* hitpoint )
+float physics::elevation_above_terrain( const double3& pos, float maxlen, ifc_out float3* norm, ifc_out double3* hitpoint )
 {
     if (!_ifc_host) 
         throw coid::exception() << "elevation_above_terrain" << " handler not implemented";

@@ -104,12 +104,14 @@ static int _ext_collider_obb(
     coid::dynarray<uint>& trees,
     coid::slotalloc<bt::tree_batch>& tree_batches,
     uint frame,
+    bool mt_safe,
     bool& is_above_tm,
     double3& under_contact,
     float3& under_normal,
     coid::dynarray<bt::external_broadphase*>& broadphases)
 {
-    return _physics->terrain_collisions_aabb(planet, center, basis, lod_dimension, data, trees, tree_batches, frame,is_above_tm, under_contact, under_normal, broadphases);
+    return _physics->terrain_collisions_aabb(planet, center, basis, lod_dimension, data, trees,
+        tree_batches, frame, mt_safe, is_above_tm, under_contact, under_normal, broadphases);
 }
 
 static float _ext_terrain_ray_intersect(
@@ -290,24 +292,24 @@ void physics::query_volume_sphere(const double3 & pos, float rad, coid::dynarray
     bt32BitAxisSweep3 * broad = static_cast<bt32BitAxisSweep3 *>(_world->getBroadphase());
 #endif
 
-    _world->query_volume_sphere(broad,  pos, rad, [&](btCollisionObject* obj) {
+    _world->query_volume_sphere(broad, pos, rad, [&](btCollisionObject* obj) {
         if (obj->getUserPointer())
             result.push(obj);
-    });
+        });
 
     coid::dynarray <bt::external_broadphase*> ebps;
-    _physics->external_broadphases_in_radius(_world->getContext(), pos, rad, ebps, gCurrentFrame);
+    _physics->external_broadphases_in_radius(_world->getContext(), pos, rad, gCurrentFrame, false, ebps);
+
     ebps.for_each([&](bt::external_broadphase* ebp) {
         if (ebp->_dirty) {
             _world->update_terrain_mesh_broadphase(ebp);
         }
 
         _world->query_volume_sphere(ebp->_broadphase, pos, rad, [&](btCollisionObject* obj) {
-            if(obj->getUserPointer())
+            if (obj->getUserPointer())
                 result.push(obj);
+            });
         });
-    });
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -570,7 +570,9 @@ namespace ot {
                 double3 under_terrain_contact;
                 float3 under_terrain_normal;
 
-                int col_result = _aabb_intersect(m_context, _from, _basis, _lod_dim, _triangles, _tree_batches, _tb_cache, gCurrentFrame, is_above_tm, under_terrain_contact, under_terrain_normal,broadphases);
+                int col_result = _aabb_intersect(m_context, _from, _basis, _lod_dim, _triangles,
+                    _tree_batches, _tb_cache, gCurrentFrame, false,
+                    is_above_tm, under_terrain_contact, under_terrain_normal,broadphases);
 
                 if (col_result == 0) {
                     //DASSERT(_tree_batches.size() == 0);

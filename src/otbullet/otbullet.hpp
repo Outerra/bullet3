@@ -118,50 +118,53 @@ public:
         const void* context,
         const double3& center,
         float radius,
-        coid::dynarray<bt::external_broadphase*>& broadphases,
-        uint frame);
+        uint frame,
+        bool mt_safe,
+        ifc_out coid::dynarray<bt::external_broadphase*>& broadphases);
 
     ifc_event bool terrain_collisions(
         const void* context,
         const double3& center,
         float radius,
         float lod_dimension,
-        coid::dynarray<bt::triangle>& data,
-        coid::dynarray<uint>& trees,
-        coid::slotalloc<bt::tree_batch>& tree_batches,
-        uint frame );
+        ifc_out coid::dynarray<bt::triangle>& data,
+        ifc_out coid::dynarray<uint>& trees,
+        ifc_out coid::slotalloc<bt::tree_batch>& tree_batches,
+        uint frame);
 
+    //@return -2 when mt_safe is true and the operation would not be safe
     ifc_event int terrain_collisions_aabb(
         const void* context,
         const double3& center,
         float3x3 basis,
         float lod_dimension,
-        coid::dynarray<bt::triangle>& data,
-        coid::dynarray<uint>& trees,
-        coid::slotalloc<bt::tree_batch>& tree_batches,
+        ifc_out coid::dynarray<bt::triangle>& data,
+        ifc_out coid::dynarray<uint>& trees,
+        ifc_out coid::slotalloc<bt::tree_batch>& tree_batches,
         uint frame,
-        bool& is_above_tm,
-        double3& under_contact,
-        float3& under_normal,
-        coid::dynarray<bt::external_broadphase*>& broadphases);
+        bool mt_safe,
+        ifc_out bool& is_above_tm,
+        ifc_out double3& under_contact,
+        ifc_out float3& under_normal,
+        ifc_out coid::dynarray<bt::external_broadphase*>& broadphases);
 
     ifc_event float3 tree_collisions(btRigidBody * obj,
         bt::tree_collision_contex & ctx,
         float time_step,
-        coid::slotalloc<bt::tree_batch>& tree_batches);
+        ifc_out coid::slotalloc<bt::tree_batch>& tree_batches);
 
     ifc_event float terrain_ray_intersect(
         const void* context,
         const double3& from,
         const float3& dir,
         const float2& minmaxlen,
-        float3* norm,
-        double3* pos);
+        ifc_out float3* norm,
+        ifc_out double3* pos);
 
-    ifc_event float elevation_above_terrain(const double3& pos,
-        float maxlen,
-        float3* norm,
-        double3* hitpoint);
+    ifc_event float elevation_above_terrain(const double3& pos, 
+        float maxlen, 
+        ifc_out float3* norm, 
+        ifc_out double3* hitpoint);
 
     ifc_event void add_static_collider(const void * context, btCollisionObject * obj, const double3& cen, const float3x3& basis);
 
