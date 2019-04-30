@@ -161,6 +161,13 @@ public:
         ifc_out float3* norm,
         ifc_out double3* pos);
 
+    ifc_event void terrain_ray_intersect_broadphase(
+        const void* context,
+        const double3& from,
+        const float3& dir,
+        const float2& minmaxlen,
+        ifc_out coid::dynarray32<bt::external_broadphase*> bps);
+
     ifc_event float elevation_above_terrain(const double3& pos, 
         float maxlen, 
         ifc_out float3* norm, 

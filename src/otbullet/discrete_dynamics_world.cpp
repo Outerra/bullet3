@@ -352,6 +352,28 @@ namespace ot {
 
     }
 
+    void discrete_dynamics_world::rayTest(const btVector3 & rayFromWorld, const btVector3 & rayToWorld, RayResultCallback & resultCallback) const
+    {
+        THREAD_LOCAL_SINGLETON_DEF(coid::dynarray32<bt::external_broadphase*>) bps;
+        bps->clear();
+        btCollisionWorld::rayTest(rayFromWorld, rayToWorld, resultCallback);
+
+        if (resultCallback.m_check_ot_local_broadphases) {
+            double3 from(rayFromWorld[0], rayFromWorld[1], rayFromWorld[2]);
+            double3 dir(rayToWorld[0], rayToWorld[1], rayToWorld[2]);
+            dir = dir - from;
+            const double len = glm::length(dir);
+            dir = dir / len;
+
+            _terrain_ray_intersect_broadphase(m_context, from, float3(dir), float2(-FLT_MIN, len), *bps);
+
+            bps->for_each([&](bt::external_broadphase * bp) {
+                btCollisionWorld::btSingleRayCallback rayCB(rayFromWorld, rayToWorld, this, resultCallback);
+                bp->_broadphase->rayTest(rayFromWorld, rayToWorld, rayCB);
+            });
+        }
+    }
+
     void discrete_dynamics_world::rayTest(const btVector3 & rayFromWorld, const btVector3 & rayToWorld, RayResultCallback & resultCallback, bt::external_broadphase* bp) const
     {
             btCollisionWorld::btSingleRayCallback rayCB(rayFromWorld, rayToWorld, this, resultCallback);

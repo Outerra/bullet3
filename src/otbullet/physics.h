@@ -175,6 +175,8 @@ protected:
 
     virtual float terrain_ray_intersect( const void* context, const double3& from, const float3& dir, const float2& minmaxlen, float3* norm, double3* pos ){ throw coid::exception("handler not implemented"); }
 
+    virtual void terrain_ray_intersect_broadphase( const void* context, const double3& from, const float3& dir, const float2& minmaxlen, coid::dynarray32<bt::external_broadphase*> bps ) {}
+
     virtual float elevation_above_terrain( const double3& pos, float maxlen, float3* norm, double3* hitpoint ){ throw coid::exception("handler not implemented"); }
 
     virtual void add_static_collider( const void* context, btCollisionObject* obj, const double3& cen, const float3x3& basis ) {}
@@ -191,6 +193,7 @@ public:
     virtual bool is_bound_terrain_collisions_aabb() { return true; }
     virtual bool is_bound_tree_collisions() { return true; }
     virtual bool is_bound_terrain_ray_intersect() { return true; }
+    virtual bool is_bound_terrain_ray_intersect_broadphase() { return true; }
     virtual bool is_bound_elevation_above_terrain() { return true; }
     virtual bool is_bound_add_static_collider() { return true; }
     virtual bool is_bound_log() { return true; }
@@ -220,7 +223,7 @@ public:
     }
 
     ///Interface revision hash
-    static const int HASHID = 3406473402;
+    static const int HASHID = 2742401531;
 
     ///Interface name (full ns::class string)
     static const coid::tokenhash& IFCNAME() {
@@ -239,7 +242,7 @@ public:
     }
 
     static const coid::token& intergen_default_creator_static( EBackend bck ) {
-        static const coid::token _dc("bt::physics.get@3406473402");
+        static const coid::token _dc("bt::physics.get@2742401531");
         static const coid::token _djs("bt::physics@wrapper.js");
         static const coid::token _djsc("bt::physics@wrapper.jsc");
         static const coid::token _dlua("bt::physics@wrapper.lua");
@@ -297,7 +300,7 @@ public:
         type.consume("struct ");
 
         coid::charstr tmp = "bt::physics";
-        tmp << "@client-3406473402" << '.' << type;
+        tmp << "@client-2742401531" << '.' << type;
 
         coid::interface_register::register_interface_creator(tmp, cc);
         return 0;
@@ -324,14 +327,14 @@ inline iref<T> physics::create( T* _subclass_, double r, void* context, coid::ta
     typedef iref<T> (*fn_creator)(physics*, double, void*, coid::taskmaster*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.create@3406473402";
+    static const coid::token ifckey = "bt::physics.create@2742401531";
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
             coid::interface_register::get_interface_creator(ifckey));
 
     if (!create) {
-        log_mismatch("create", "bt::physics.create", "@3406473402");
+        log_mismatch("create", "bt::physics.create", "@2742401531");
         return 0;
     }
 
@@ -345,14 +348,14 @@ inline iref<T> physics::get( T* _subclass_ )
     typedef iref<T> (*fn_creator)(physics*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.get@3406473402";
+    static const coid::token ifckey = "bt::physics.get@2742401531";
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
             coid::interface_register::get_interface_creator(ifckey));
 
     if (!create) {
-        log_mismatch("get", "bt::physics.get", "@3406473402");
+        log_mismatch("get", "bt::physics.get", "@2742401531");
         return 0;
     }
 

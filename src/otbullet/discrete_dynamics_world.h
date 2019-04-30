@@ -205,6 +205,7 @@ public:
     void remove_terrain_broadphase_collision_pair(btBroadphasePair& pair);
     void process_terrain_broadphase_collision_pairs();
 
+    void rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback) const override;
     void rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback, bt::external_broadphase* bp) const;
 
     virtual void removeRigidBody(btRigidBody* body) override;
@@ -249,6 +250,13 @@ public:
         float3* norm,
         double3* pos);
 
+    typedef void(*fn_terrain_ray_intersect_broadphase)(
+        const void* context,
+        const double3& from,
+        const float3& dir,
+        const float2& minmaxlen,
+        coid::dynarray32<bt::external_broadphase*> bps);
+
     typedef float(*fn_elevation_above_terrain)(const double3& pos,
         float maxlen,
         float3* norm,
@@ -256,6 +264,7 @@ public:
 
     fn_ext_collision_2 _aabb_intersect;
     fn_terrain_ray_intersect _terrain_ray_intersect;
+    fn_terrain_ray_intersect_broadphase _terrain_ray_intersect_broadphase;
     fn_elevation_above_terrain _elevation_above_terrain;
 
     discrete_dynamics_world(btDispatcher* dispatcher,

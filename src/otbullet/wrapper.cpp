@@ -130,6 +130,22 @@ static float _ext_terrain_ray_intersect(
         pos);
 }
 
+static void _ext_terrain_ray_intersect_broadphase(
+    const void* planet,
+    const double3& from,
+    const float3& dir,
+    const float2& minmaxlen,
+    coid::dynarray32<bt::external_broadphase*> bps) {
+
+    _physics->terrain_ray_intersect_broadphase(
+        planet,
+        from,
+        dir,
+        minmaxlen,
+        bps);
+}
+
+
 static float _ext_elevation_above_terrain(
     const double3& pos,
     float maxlen,
@@ -199,6 +215,7 @@ iref<physics> physics::create(double r, void* context, coid::taskmaster* tm )
     wrld->setGravity(btVector3(0, 0, 0));
 
     wrld->_aabb_intersect = &_ext_collider_obb;
+    wrld->_terrain_ray_intersect_broadphase = &_ext_terrain_ray_intersect_broadphase;
 
     _physics->_world = wrld;
 
