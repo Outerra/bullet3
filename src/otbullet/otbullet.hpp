@@ -166,7 +166,7 @@ public:
         const double3& from,
         const float3& dir,
         const float2& minmaxlen,
-        ifc_out coid::dynarray32<bt::external_broadphase*> bps);
+        ifc_out coid::dynarray32<bt::external_broadphase*>& bps);
 
     ifc_event float elevation_above_terrain(const double3& pos, 
         float maxlen, 

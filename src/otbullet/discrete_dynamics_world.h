@@ -255,7 +255,7 @@ public:
         const double3& from,
         const float3& dir,
         const float2& minmaxlen,
-        coid::dynarray32<bt::external_broadphase*> bps);
+        coid::dynarray32<bt::external_broadphase*>& bps);
 
     typedef float(*fn_elevation_above_terrain)(const double3& pos,
         float maxlen,

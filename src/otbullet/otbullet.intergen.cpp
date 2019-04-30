@@ -265,10 +265,10 @@ public:
             on ? (void*)&_generic_interface_creator : nullptr);
 
         interface_register::register_interface_creator(
-            "bt::physics.create@2742401531",
+            "bt::physics.create@476085647",
             on ? (void*)&create : nullptr);
         interface_register::register_interface_creator(
-            "bt::physics.get@2742401531",
+            "bt::physics.get@476085647",
             on ? (void*)&get : nullptr);
     }
 };
@@ -342,7 +342,7 @@ float physics::terrain_ray_intersect( const void* context, const double3& from, 
         return _ifc_host->iface<bt::physics>()->terrain_ray_intersect(context, from, dir, minmaxlen, norm, pos);
 }
 
-void physics::terrain_ray_intersect_broadphase( const void* context, const double3& from, const float3& dir, const float2& minmaxlen, ifc_out coid::dynarray32<bt::external_broadphase*> bps )
+void physics::terrain_ray_intersect_broadphase( const void* context, const double3& from, const float3& dir, const float2& minmaxlen, ifc_out coid::dynarray32<bt::external_broadphase*>& bps )
 {
     if (!_ifc_host) 
         throw coid::exception() << "terrain_ray_intersect_broadphase" << " handler not implemented";

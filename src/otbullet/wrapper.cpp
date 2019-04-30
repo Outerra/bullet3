@@ -135,7 +135,7 @@ static void _ext_terrain_ray_intersect_broadphase(
     const double3& from,
     const float3& dir,
     const float2& minmaxlen,
-    coid::dynarray32<bt::external_broadphase*> bps) {
+    coid::dynarray32<bt::external_broadphase*>& bps) {
 
     _physics->terrain_ray_intersect_broadphase(
         planet,
