@@ -104,14 +104,13 @@ static int _ext_collider_obb(
     coid::dynarray<uint>& trees,
     coid::slotalloc<bt::tree_batch>& tree_batches,
     uint frame,
-    bool mt_safe,
     bool& is_above_tm,
     double3& under_contact,
     float3& under_normal,
     coid::dynarray<bt::external_broadphase*>& broadphases)
 {
     return _physics->terrain_collisions_aabb(planet, center, basis, lod_dimension, data, trees,
-        tree_batches, frame, mt_safe, is_above_tm, under_contact, under_normal, broadphases);
+        tree_batches, frame, is_above_tm, under_contact, under_normal, broadphases);
 }
 
 static float _ext_terrain_ray_intersect(
@@ -315,7 +314,7 @@ void physics::query_volume_sphere(const double3 & pos, float rad, coid::dynarray
         });
 
     coid::dynarray <bt::external_broadphase*> ebps;
-    _physics->external_broadphases_in_radius(_world->getContext(), pos, rad, gCurrentFrame, false, ebps);
+    _physics->external_broadphases_in_radius(_world->getContext(), pos, rad, gCurrentFrame, ebps);
 
     ebps.for_each([&](bt::external_broadphase* ebp) {
         if (ebp->_dirty) {

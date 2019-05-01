@@ -164,12 +164,11 @@ protected:
 
     friend class ::physics;
 
-    virtual bool external_broadphases_in_radius( const void* context, const double3& center, float radius, uint frame, bool mt_safe, coid::dynarray<bt::external_broadphase*>& broadphases ){ throw coid::exception("handler not implemented"); }
+    virtual bool external_broadphases_in_radius( const void* context, const double3& center, float radius, uint frame, coid::dynarray<bt::external_broadphase*>& broadphases ){ throw coid::exception("handler not implemented"); }
 
     virtual bool terrain_collisions( const void* context, const double3& center, float radius, float lod_dimension, coid::dynarray<bt::triangle>& data, coid::dynarray<uint>& trees, coid::slotalloc<bt::tree_batch>& tree_batches, uint frame ){ throw coid::exception("handler not implemented"); }
 
-    //@return -2 when mt_safe is true and the operation would not be safe
-    virtual int terrain_collisions_aabb( const void* context, const double3& center, float3x3 basis, float lod_dimension, coid::dynarray<bt::triangle>& data, coid::dynarray<uint>& trees, coid::slotalloc<bt::tree_batch>& tree_batches, uint frame, bool mt_safe, bool& is_above_tm, double3& under_contact, float3& under_normal, coid::dynarray<bt::external_broadphase*>& broadphases ){ throw coid::exception("handler not implemented"); }
+    virtual int terrain_collisions_aabb( const void* context, const double3& center, float3x3 basis, float lod_dimension, coid::dynarray<bt::triangle>& data, coid::dynarray<uint>& trees, coid::slotalloc<bt::tree_batch>& tree_batches, uint frame, bool& is_above_tm, double3& under_contact, float3& under_normal, coid::dynarray<bt::external_broadphase*>& broadphases ){ throw coid::exception("handler not implemented"); }
 
     virtual float3 tree_collisions( btRigidBody* obj, bt::tree_collision_contex& ctx, float time_step, coid::slotalloc<bt::tree_batch>& tree_batches ){ throw coid::exception("handler not implemented"); }
 
@@ -223,7 +222,7 @@ public:
     }
 
     ///Interface revision hash
-    static const int HASHID = 476085647;
+    static const int HASHID = 1565851739;
 
     ///Interface name (full ns::class string)
     static const coid::tokenhash& IFCNAME() {
@@ -242,7 +241,7 @@ public:
     }
 
     static const coid::token& intergen_default_creator_static( EBackend bck ) {
-        static const coid::token _dc("bt::physics.get@476085647");
+        static const coid::token _dc("bt::physics.get@1565851739");
         static const coid::token _djs("bt::physics@wrapper.js");
         static const coid::token _djsc("bt::physics@wrapper.jsc");
         static const coid::token _dlua("bt::physics@wrapper.lua");
@@ -300,7 +299,7 @@ public:
         type.consume("struct ");
 
         coid::charstr tmp = "bt::physics";
-        tmp << "@client-476085647" << '.' << type;
+        tmp << "@client-1565851739" << '.' << type;
 
         coid::interface_register::register_interface_creator(tmp, cc);
         return 0;
@@ -327,14 +326,14 @@ inline iref<T> physics::create( T* _subclass_, double r, void* context, coid::ta
     typedef iref<T> (*fn_creator)(physics*, double, void*, coid::taskmaster*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.create@476085647";
+    static const coid::token ifckey = "bt::physics.create@1565851739";
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
             coid::interface_register::get_interface_creator(ifckey));
 
     if (!create) {
-        log_mismatch("create", "bt::physics.create", "@476085647");
+        log_mismatch("create", "bt::physics.create", "@1565851739");
         return 0;
     }
 
@@ -348,14 +347,14 @@ inline iref<T> physics::get( T* _subclass_ )
     typedef iref<T> (*fn_creator)(physics*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.get@476085647";
+    static const coid::token ifckey = "bt::physics.get@1565851739";
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
             coid::interface_register::get_interface_creator(ifckey));
 
     if (!create) {
-        log_mismatch("get", "bt::physics.get", "@476085647");
+        log_mismatch("get", "bt::physics.get", "@1565851739");
         return 0;
     }
 

@@ -234,7 +234,6 @@ public:
         coid::dynarray<uint>& trees,
         coid::slotalloc<bt::tree_batch>& tree_batches,
         uint frame,
-        bool mt_safe,
         bool& is_above_tm,
         double3& under_contact,
         float3& under_normal,

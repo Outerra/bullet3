@@ -119,7 +119,6 @@ public:
         const double3& center,
         float radius,
         uint frame,
-        bool mt_safe,
         ifc_out coid::dynarray<bt::external_broadphase*>& broadphases);
 
     ifc_event bool terrain_collisions(
@@ -132,7 +131,6 @@ public:
         ifc_out coid::slotalloc<bt::tree_batch>& tree_batches,
         uint frame);
 
-    //@return -2 when mt_safe is true and the operation would not be safe
     ifc_event int terrain_collisions_aabb(
         const void* context,
         const double3& center,
@@ -142,7 +140,6 @@ public:
         ifc_out coid::dynarray<uint>& trees,
         ifc_out coid::slotalloc<bt::tree_batch>& tree_batches,
         uint frame,
-        bool mt_safe,
         ifc_out bool& is_above_tm,
         ifc_out double3& under_contact,
         ifc_out float3& under_normal,
