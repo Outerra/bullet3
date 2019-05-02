@@ -75,6 +75,7 @@ public:
     ifc_fn btCollisionObject* create_collision_object( btCollisionShape* shape, void* usr1, void* usr2 );
     ifc_fn btGhostObject * create_ghost_object(btCollisionShape* shape, void* usr1, void* usr2);
     ifc_fn void destroy_collision_object( btCollisionObject*& obj );
+    ifc_fn void destroy_ghost_object( btGhostObject*& obj );
     ifc_fn void update_collision_object( btCollisionObject* obj, const btTransform& tr, bool update_aabb );
     ifc_fn void set_collision_info( btCollisionObject* obj, unsigned int group, unsigned int mask );
     ifc_fn bool add_collision_object( btCollisionObject* obj, unsigned int group, unsigned int mask, bool inactive );

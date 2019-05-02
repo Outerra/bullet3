@@ -530,6 +530,13 @@ void physics::destroy_collision_object( btCollisionObject*& obj )
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void physics::destroy_ghost_object(btGhostObject*& obj)
+{
+    if (obj) delete obj;
+    obj = 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 bool physics::add_collision_object( btCollisionObject* obj, unsigned int group, unsigned int mask, bool inactive )
 {
     if(inactive)
@@ -564,6 +571,11 @@ bool physics::add_collision_object( btCollisionObject* obj, unsigned int group, 
 void physics::remove_collision_object( btCollisionObject* obj )
 {
     _world->removeCollisionObject(obj);
+
+    btGhostObject* ghost = btGhostObject::upcast(obj);
+    if (ghost) {
+        _world->remove_terrain_occluder(ghost);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
