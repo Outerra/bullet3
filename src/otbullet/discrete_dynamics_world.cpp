@@ -98,11 +98,28 @@ namespace ot {
             result->_dirty = false;
             result->_revision = 0;
             result->_entries.clear();
+            result->_procedural_objects.clear();
             delete result->_broadphase;
             result->_broadphase = new bt32BitAxisSweep3(btVector3(min.x, min.y, min.z), btVector3(max.x, max.y, max.z), 5000);
         }
 
         return result;
+    }
+
+
+    void discrete_dynamics_world::delete_external_broadphase(bt::external_broadphase * bp) {
+        
+        bp->_procedural_objects.for_each([&](btCollisionObject*& proc_obj)
+        {
+            btGhostObject * ghost = btGhostObject::upcast(proc_obj);
+            if (ghost) {
+                remove_terrain_occluder(ghost);
+            }
+            removeCollisionObject(proc_obj);
+            delete (proc_obj);
+        });
+
+        _external_broadphase_pool.del(bp);
     }
 
 
@@ -596,7 +613,7 @@ namespace ot {
                     _tree_batches, _tb_cache, gCurrentFrame,
                     is_above_tm, under_terrain_contact, under_terrain_normal,broadphases);
 
-                if (col_result == 0) {
+                if (col_result == 0 && broadphases.size() == 0 && _tree_batches.size() == 0) {
                     //DASSERT(_tree_batches.size() == 0);
                     continue;
                 }
