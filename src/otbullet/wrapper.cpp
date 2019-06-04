@@ -1,5 +1,7 @@
 #include "discrete_dynamics_world.h"
 
+#include "multithread_default_collision_configuration.h"
+
 #include <BulletCollision/CollisionShapes/btCompoundShape.h>
 #include <BulletCollision/CollisionShapes/btCollisionShape.h>
 #include <BulletCollision/CollisionShapes/btConvexHullShape.h>
@@ -189,8 +191,10 @@ void set_debug_drawer_enabled(btIDebugDraw * debug_draw) {
 iref<physics> physics::create(double r, void* context, coid::taskmaster* tm )
 {
     _physics = new physics;
+    btDefaultCollisionConstructionInfo dccinfo;
+    dccinfo.m_owns_simplex_and_pd_solver = false;
 
-    _collisionConfiguration = new btDefaultCollisionConfiguration();
+    _collisionConfiguration = new multithread_default_collision_configuration(dccinfo);
     _dispatcher = new btCollisionDispatcher(_collisionConfiguration);
     btVector3 worldMin(-r,-r,-r);
     btVector3 worldMax(r,r,r);
