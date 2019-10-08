@@ -230,7 +230,7 @@ public:
 
     ///Interface name (full ns::class string)
     static const coid::tokenhash& IFCNAME() {
-        static const coid::tokenhash _name = "bt::physics";
+        static const coid::tokenhash _name = "bt::physics"_T;
         return _name;
     }
 
@@ -244,18 +244,18 @@ public:
         return IFCNAME();
     }
 
-    static const coid::token& intergen_default_creator_static( EBackend bck ) {
-        static const coid::token _dc("bt::physics.get@1056813775");
-        static const coid::token _djs("bt::physics@wrapper.js");
-        static const coid::token _djsc("bt::physics@wrapper.jsc");
-        static const coid::token _dlua("bt::physics@wrapper.lua");
+    static const coid::token& intergen_default_creator_static( backend bck ) {
+        static const coid::token _dc("bt::physics.get@1056813775"_T);
+        static const coid::token _djs("bt::physics@wrapper.js"_T);
+        static const coid::token _djsc("bt::physics@wrapper.jsc"_T);
+        static const coid::token _dlua("bt::physics@wrapper.lua"_T);
         static const coid::token _dnone;
 
         switch(bck) {
-        case IFC_BACKEND_CXX: return _dc;
-        case IFC_BACKEND_JS:  return _djs;
-        case IFC_BACKEND_JSC:  return _djsc;
-        case IFC_BACKEND_LUA: return _dlua;
+        case backend::cxx: return _dc;
+        case backend::js:  return _djs;
+        case backend::jsc: return _djsc;
+        case backend::lua: return _dlua;
         default: return _dnone;
         }
     }
@@ -264,7 +264,7 @@ public:
     //@note host side helper
     static iref<physics> intergen_active_interface(::physics* host);
 
-    template<enum EBackend B>
+    template<enum class backend B>
     static void* intergen_wrapper_cache() {
         static void* _cached_wrapper=0;
         if (!_cached_wrapper) {
@@ -274,18 +274,18 @@ public:
         return _cached_wrapper;
     }
 
-    void* intergen_wrapper( EBackend bck ) const override final {
+    void* intergen_wrapper( backend bck ) const override final {
         switch(bck) {
-        case IFC_BACKEND_JS: return intergen_wrapper_cache<IFC_BACKEND_JS>();
-        case IFC_BACKEND_JSC: return intergen_wrapper_cache<IFC_BACKEND_JSC>();
-        case IFC_BACKEND_LUA: return intergen_wrapper_cache<IFC_BACKEND_LUA>();
+        case backend::js:  return intergen_wrapper_cache<backend::js>();
+        case backend::jsc: return intergen_wrapper_cache<backend::jsc>();
+        case backend::lua: return intergen_wrapper_cache<backend::lua>();
         default: return 0;
         }
     }
 
-    EBackend intergen_backend() const override { return IFC_BACKEND_CXX; }
+    backend intergen_backend() const override { return backend::cxx; }
 
-    const coid::token& intergen_default_creator( EBackend bck ) const override final {
+    const coid::token& intergen_default_creator( backend bck ) const override final {
         return intergen_default_creator_static(bck);
     }
 
@@ -302,8 +302,8 @@ public:
         type.consume("class ");
         type.consume("struct ");
 
-        coid::charstr tmp = "bt::physics";
-        tmp << "@client-1056813775" << '.' << type;
+        coid::charstr tmp = "bt::physics"_T;
+        tmp << "@client-1056813775"_T << '.' << type;
 
         coid::interface_register::register_interface_creator(tmp, cc);
         return 0;
@@ -316,8 +316,17 @@ protected:
         return _mx;
     }
 
+    ///Cleanup routine called from ~physics()
+    static void _cleaner_callback(physics* m, intergen_interface* ifc) {
+        m->assign_safe(ifc, 0);
+    }
+
+    bool assign_safe(intergen_interface* client, iref<physics>* pout);
+
     typedef void (*cleanup_fn)(physics*, intergen_interface*);
     cleanup_fn _cleaner;
+
+    bool set_host(policy_intrusive_base* host, intergen_interface* client, iref<physics>* pout);
 
     physics() : _cleaner(0)
     {}
@@ -330,14 +339,14 @@ inline iref<T> physics::create( T* _subclass_, double r, void* context, coid::ta
     typedef iref<T> (*fn_creator)(physics*, double, void*, coid::taskmaster*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.create@1056813775";
+    static const coid::token ifckey = "bt::physics.create@1056813775"_T;
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
             coid::interface_register::get_interface_creator(ifckey));
 
     if (!create) {
-        log_mismatch("create", "bt::physics.create", "@1056813775");
+        log_mismatch("create"_T, "bt::physics.create"_T, "@1056813775"_T);
         return 0;
     }
 
@@ -351,14 +360,14 @@ inline iref<T> physics::get( T* _subclass_ )
     typedef iref<T> (*fn_creator)(physics*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.get@1056813775";
+    static const coid::token ifckey = "bt::physics.get@1056813775"_T;
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
             coid::interface_register::get_interface_creator(ifckey));
 
     if (!create) {
-        log_mismatch("get", "bt::physics.get", "@1056813775");
+        log_mismatch("get"_T, "bt::physics.get"_T, "@1056813775"_T);
         return 0;
     }
 

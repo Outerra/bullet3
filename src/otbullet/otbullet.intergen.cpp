@@ -25,6 +25,8 @@ namespace bt {
 ///
 class physics_dispatcher : public physics
 {
+    friend class physics;
+
 private:
 
     static coid::binstring* _capture;
@@ -158,37 +160,13 @@ private:
         return _vtable2;
     }
 
-    bool assign_safe(intergen_interface* p, iref<physics>* pout)
-    {
-        ::physics* hostptr = host<::physics>();
-        if (!hostptr)
-            return false;
-
-        coid::clean_ptr<intergen_interface>& ifcvar = hostptr->_ifc_host;
-        coid::comm_mutex& mx = share_lock();
-        if (ifcvar == p)
-            return true;
-
-        GUARDTHIS(mx);
-        //assign only if nobody assigned before us
-        bool succ = !ifcvar || !p;
-        if (succ) {
-            ifcvar = p;
-            _cleaner = p ? &_cleaner_callback : 0;
-        }
-        else if (pout)
-            pout->add_refcount(static_cast<physics*>(ifcvar.get()));
-
-        return succ;
-    }
-
 protected:
 
     COIDNEWDELETE(physics_dispatcher);
 
     physics_dispatcher() {
     }
-    
+
     virtual ~physics_dispatcher() {
     }
 
@@ -211,11 +189,6 @@ protected:
         }
     }
 
-    ///Cleanup routine called from ~physics()
-    static void _cleaner_callback( physics* m, intergen_interface* ifc ) {
-        static_cast<physics_dispatcher*>(m)->assign_safe(ifc, 0);
-    }
-
     static iref<physics> _generic_interface_creator(::physics* host, physics* __here__)
     {
         iref<physics> rval;
@@ -230,12 +203,7 @@ protected:
                 : new physics_dispatcher;
             rval.create(dispatcher);
 
-            dispatcher->_host.create(host);
-            dispatcher->_vtable = _capture ? get_vtable_intercept() : get_vtable();
-
-            //try assigning to the host (MT guard)
-            // if that fails, the interface will be passive (no events)
-            dispatcher->assign_safe(rval.get(), __here__ ? 0 : &rval);
+            dispatcher->set_host(host, rval.get(), __here__ ? 0 : &rval);
         }
 
         return rval;
@@ -285,12 +253,47 @@ intergen_interface::ifn_t* physics_dispatcher::_vtable1 = 0;
 iref<physics> physics::intergen_active_interface(::physics* host)
 {
     coid::comm_mutex& mx = share_lock();
-    
+
     GUARDTHIS(mx);
     iref<physics> rval;
     rval.add_refcount(static_cast<physics*>(host->_ifc_host.get()));
-    
+
     return rval;
+}
+
+bool physics::assign_safe(intergen_interface* client, iref<physics>* pout)
+{
+    //try assigning to the host (MT guard)
+    // if that fails, the interface will be passive (no events)
+
+    ::physics* hostptr = host<::physics>();
+    if (!hostptr)
+        return false;
+
+    coid::clean_ptr<intergen_interface>& ifcvar = hostptr->_ifc_host;
+    coid::comm_mutex& mx = share_lock();
+    if (ifcvar == client)
+        return true;
+
+    GUARDTHIS(mx);
+    //assign only if nobody assigned before us
+    bool succ = !ifcvar || !client;
+    if (succ) {
+        ifcvar = client;
+        _cleaner = client ? &_cleaner_callback : 0;
+    }
+    else if (pout)
+        pout->add_refcount(static_cast<physics*>(ifcvar.get()));
+
+    return succ;
+}
+
+bool physics::set_host(policy_intrusive_base* host, intergen_interface* client, iref<physics>* pout)
+{
+    _host = host;
+    _vtable = physics_dispatcher::get_vtable();
+
+    return assign_safe(client, pout);
 }
 
 //auto-register the available interface creators
