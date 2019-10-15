@@ -376,18 +376,13 @@ public:
 
 
     template<class fn> // void (*fn)(btCollisionObject * obj)
-    void query_volume_frustum(const double3&pos, const float4 * f_planes_norms, uint8 nplanes, bool include_partial, fn process_fn)
+    void query_volume_frustum(bt32BitAxisSweep3* broadphase, const double3&pos, const float4 * f_planes_norms, uint8 nplanes, bool include_partial, fn process_fn)
     {
-#ifdef _DEBUG
-        bt32BitAxisSweep3 * broad = dynamic_cast<bt32BitAxisSweep3 *>(m_broadphasePairCache);
-        DASSERT(broad != nullptr);
-#else
-        bt32BitAxisSweep3 * broad = static_cast<bt32BitAxisSweep3 *>(m_broadphasePairCache);
-#endif
+
         static coid::dynarray<const btDbvtNode *> _processing_stack(1024);
         _processing_stack.reset();
 
-        const btDbvtBroadphase* raycast_acc = broad->getRaycastAccelerator();
+        const btDbvtBroadphase* raycast_acc = broadphase->getRaycastAccelerator();
         DASSERT(raycast_acc);
 
         const btDbvt * dyn_set = &raycast_acc->m_sets[0];

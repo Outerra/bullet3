@@ -343,9 +343,32 @@ void physics::query_volume_sphere(const double3 & pos, float rad, coid::dynarray
 ////////////////////////////////////////////////////////////////////////////////
 void physics::query_volume_frustum(const double3 & pos,const float4 * f_planes_norms, uint8 nplanes, bool include_partial, coid::dynarray<btCollisionObject*>& result)
 {
+#ifdef _DEBUG
+    bt32BitAxisSweep3* broad = dynamic_cast<bt32BitAxisSweep3*>(_world->getBroadphase());
+    DASSERT(broad != nullptr);
+#else
+    bt32BitAxisSweep3* broad = static_cast<bt32BitAxisSweep3*>(_world->getBroadphase());
+#endif
 
-    _world->query_volume_frustum(pos, f_planes_norms, nplanes, include_partial, [&](btCollisionObject* obj) {
+
+    _world->query_volume_frustum(broad, pos, f_planes_norms, nplanes, include_partial, [&](btCollisionObject* obj) {
         result.push(obj);
+    });
+
+    coid::dynarray <bt::external_broadphase*> ebps;
+    _physics->external_broadphases_in_frustum(_world->getContext(), pos, f_planes_norms, nplanes, gCurrentFrame, ebps);
+
+    ebps.for_each([&](bt::external_broadphase* ebp) {
+        /*if (ebp->_dirty) {
+            _world->update_terrain_mesh_broadphase(ebp);
+        }*/
+
+        DASSERT(!ebp->_dirty);
+
+        _world->query_volume_frustum(ebp->_broadphase, pos, f_planes_norms, nplanes, include_partial, [&](btCollisionObject* obj) {
+            if (obj->getUserPointer())
+                result.push(obj);
+        });
     });
 }
 

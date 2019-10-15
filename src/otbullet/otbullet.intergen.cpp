@@ -237,10 +237,10 @@ public:
             on ? (void*)&_generic_interface_creator : nullptr);
 
         interface_register::register_interface_creator(
-            "bt::physics.create@1056813775",
+            "bt::physics.create@790678771",
             on ? (void*)&create : nullptr);
         interface_register::register_interface_creator(
-            "bt::physics.get@1056813775",
+            "bt::physics.get@790678771",
             on ? (void*)&get : nullptr);
     }
 };
@@ -315,6 +315,14 @@ bool physics::external_broadphases_in_radius( const void* context, const double3
         throw coid::exception() << "external_broadphases_in_radius" << " handler not implemented";
     else
         return _ifc_host->iface<bt::physics>()->external_broadphases_in_radius(context, center, radius, frame, broadphases);
+}
+
+bool physics::external_broadphases_in_frustum( const void* context, const double3& from, const float4* planes, uint nplanes, uint frame, ifc_out coid::dynarray<bt::external_broadphase*>& broadphases )
+{
+    if (!_ifc_host) 
+        throw coid::exception() << "external_broadphases_in_frustum" << " handler not implemented";
+    else
+        return _ifc_host->iface<bt::physics>()->external_broadphases_in_frustum(context, from, planes, nplanes, frame, broadphases);
 }
 
 bool physics::terrain_collisions( const void* context, const double3& center, float radius, float lod_dimension, ifc_out coid::dynarray<bt::triangle>& data, ifc_out coid::dynarray<uint>& trees, ifc_out coid::slotalloc<bt::tree_batch>& tree_batches, uint frame )

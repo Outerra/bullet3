@@ -123,6 +123,15 @@ public:
         uint frame,
         ifc_out coid::dynarray<bt::external_broadphase*>& broadphases);
 
+    ifc_event bool external_broadphases_in_frustum(
+        const void* context,
+        const double3& from,
+        const float4* planes,
+        uint nplanes,
+        uint frame,
+        ifc_out coid::dynarray<bt::external_broadphase*>& broadphases
+    );
+
     ifc_event bool terrain_collisions(
         const void* context,
         const double3& center,
@@ -171,6 +180,7 @@ public:
         float maxlen, 
         ifc_out float3* norm, 
         ifc_out double3* hitpoint);
+
 
     ifc_event void add_static_collider(const void * context, btCollisionObject * obj, const double3& cen, const float3x3& basis);
 
