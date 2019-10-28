@@ -647,7 +647,7 @@ namespace ot {
 
                 if (_triangles.size() > 0) {
 
-                    if (m_debugDrawer) {
+                    if (m_debugDrawer && !(obj->getCollisionFlags() & btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT)) {
                         _triangles.for_each([&](const bt::triangle& t) {
                             *_debug_terrain_triangles.push() = t;
                         });
