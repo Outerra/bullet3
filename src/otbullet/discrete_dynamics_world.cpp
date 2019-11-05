@@ -456,7 +456,6 @@ namespace ot {
             //_debug_terrain_trees.reset();
             //_debug_terrain_trees_active.reset();
             _debug_trees.reset();
-            _debug_external_broadphases.clear();
         }
 
         //LOCAL_SINGLETON(ot_terrain_contact_common) common_data = new ot_terrain_contact_common(0.00f,this,_pb_wrap);
@@ -717,7 +716,8 @@ namespace ot {
             //// tu budem pisat
             if (m_debugDrawer) {
                 broadphases.for_each([&](bt::external_broadphase* bp) {
-                    _debug_external_broadphases.push_if_absent(bp);
+                    //_debug_external_broadphases.push_if_absent(bp);
+                    bp->_was_used_this_frame = true;
                 });
             }
 
@@ -1003,13 +1003,18 @@ namespace ot {
 
         // Debug draw external broadphases
 
-        _debug_external_broadphases.for_each([&](bt::external_broadphase * bp) {
+        _external_broadphase_pool.for_each([&](bt::external_broadphase& bp) {
+            if (!bp._was_used_this_frame && _simulation_running) {
+                return;
+            }
+
+            bp._was_used_this_frame = false;
 
             btIDebugDraw::DefaultColors defaultColors = getDebugDrawer()->getDefaultColors();
             if ((getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb)))
             {
 
-                for_each_object_in_broadphase(bp->_broadphase, bp->_revision, [&](btCollisionObject* colObj) {
+                for_each_object_in_broadphase(bp._broadphase, bp._revision, [&](btCollisionObject* colObj) {
                     if ((colObj->getCollisionFlags() & btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT) == 0)
                     {
                         if (getDebugDrawer() && (getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawWireframe))

@@ -156,6 +156,8 @@ public:
 
     bool is_point_inside_terrain_ocluder( const double3& pt );
 
+    void pause_simulation( bool pause );
+
     /// CONSTAINTS
     btTypedConstraint* add_constraint_ball_socket( btDynamicsWorld* world, btRigidBody* rb_a, const btVector3& pivot_a, btRigidBody* rb_b, const btVector3& pivot_b, bool disable_collision );
 
@@ -229,7 +231,7 @@ public:
     }
 
     ///Interface revision hash
-    static const int HASHID = 790678771;
+    static const int HASHID = 2083808754;
 
     ///Interface name (full ns::class string)
     static const coid::tokenhash& IFCNAME() {
@@ -248,7 +250,7 @@ public:
     }
 
     static const coid::token& intergen_default_creator_static( backend bck ) {
-        static const coid::token _dc("bt::physics.get@790678771"_T);
+        static const coid::token _dc("bt::physics.get@2083808754"_T);
         static const coid::token _djs("bt::physics@wrapper.js"_T);
         static const coid::token _djsc("bt::physics@wrapper.jsc"_T);
         static const coid::token _dlua("bt::physics@wrapper.lua"_T);
@@ -306,7 +308,7 @@ public:
         type.consume("struct ");
 
         coid::charstr tmp = "bt::physics"_T;
-        tmp << "@client-790678771"_T << '.' << type;
+        tmp << "@client-2083808754"_T << '.' << type;
 
         coid::interface_register::register_interface_creator(tmp, cc);
         return 0;
@@ -342,14 +344,14 @@ inline iref<T> physics::create( T* _subclass_, double r, void* context, coid::ta
     typedef iref<T> (*fn_creator)(physics*, double, void*, coid::taskmaster*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.create@790678771"_T;
+    static const coid::token ifckey = "bt::physics.create@2083808754"_T;
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
             coid::interface_register::get_interface_creator(ifckey));
 
     if (!create) {
-        log_mismatch("create"_T, "bt::physics.create"_T, "@790678771"_T);
+        log_mismatch("create"_T, "bt::physics.create"_T, "@2083808754"_T);
         return 0;
     }
 
@@ -363,14 +365,14 @@ inline iref<T> physics::get( T* _subclass_ )
     typedef iref<T> (*fn_creator)(physics*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.get@790678771"_T;
+    static const coid::token ifckey = "bt::physics.get@2083808754"_T;
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
             coid::interface_register::get_interface_creator(ifckey));
 
     if (!create) {
-        log_mismatch("get"_T, "bt::physics.get"_T, "@790678771"_T);
+        log_mismatch("get"_T, "bt::physics.get"_T, "@2083808754"_T);
         return 0;
     }
 
@@ -533,11 +535,14 @@ inline void physics::wake_up_object( btCollisionObject* obj )
 inline bool physics::is_point_inside_terrain_ocluder( const double3& pt )
 { return VT_CALL(bool,(const double3&),50)(pt); }
 
+inline void physics::pause_simulation( bool pause )
+{ return VT_CALL(void,(bool),51)(pause); }
+
 inline btTypedConstraint* physics::add_constraint_ball_socket( btDynamicsWorld* world, btRigidBody* rb_a, const btVector3& pivot_a, btRigidBody* rb_b, const btVector3& pivot_b, bool disable_collision )
-{ return VT_CALL(btTypedConstraint*,(btDynamicsWorld*,btRigidBody*,const btVector3&,btRigidBody*,const btVector3&,bool),51)(world,rb_a,pivot_a,rb_b,pivot_b,disable_collision); }
+{ return VT_CALL(btTypedConstraint*,(btDynamicsWorld*,btRigidBody*,const btVector3&,btRigidBody*,const btVector3&,bool),52)(world,rb_a,pivot_a,rb_b,pivot_b,disable_collision); }
 
 inline void physics::remove_constraint( btDynamicsWorld* world, btTypedConstraint* constraint )
-{ return VT_CALL(void,(btDynamicsWorld*,btTypedConstraint*),52)(world,constraint); }
+{ return VT_CALL(void,(btDynamicsWorld*,btTypedConstraint*),53)(world,constraint); }
 
 #pragma warning(pop)
 

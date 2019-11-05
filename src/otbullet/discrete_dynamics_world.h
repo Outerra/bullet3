@@ -170,7 +170,7 @@ protected:
 
     coid::slotalloc<btBroadphasePair> _terrain_mesh_broadphase_pairs;
 
-    coid::dynarray<bt::external_broadphase*> _debug_external_broadphases;
+    //coid::dynarray<bt::external_broadphase*> _debug_external_broadphases;
 
     coid::slotalloc_pool<bt::external_broadphase> _external_broadphase_pool;
 
@@ -192,6 +192,7 @@ protected:
     coid::local<ot_terrain_contact_common> _common_data;
 
     bt::bullet_stats * _stats2;
+    bool _simulation_running = true;
 
 public:
     bt::external_broadphase * create_external_broadphase(const double3& min, const double3& max);
@@ -214,6 +215,8 @@ public:
     virtual void debugDrawWorld() override;
 
     void set_ot_stats(bt::bullet_stats * stats) { _stats2 = stats; };
+
+    void pause_simulation(bool pause) { _simulation_running = !pause; };
 
     typedef bool (*fn_ext_collision)(
         const void* context,

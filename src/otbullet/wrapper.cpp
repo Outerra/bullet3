@@ -399,6 +399,11 @@ bool physics::is_point_inside_terrain_ocluder(const double3 & pt)
     return _world->is_point_inside_terrain_occluder(btVector3(pt.x,pt.y,pt.z));
 }
 
+void physics::pause_simulation(bool pause)
+{
+    _world->pause_simulation(pause);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 btCollisionShape* physics::create_shape( bt::EShape sh, const float hvec[3] )
 {

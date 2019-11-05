@@ -112,6 +112,8 @@ public:
 
     ifc_fn bool is_point_inside_terrain_ocluder(const double3& pt);
 
+    ifc_fn void pause_simulation(bool pause);
+
     /// CONSTAINTS
     ifc_fn btTypedConstraint* add_constraint_ball_socket(btDynamicsWorld * world, btRigidBody* rb_a,const btVector3& pivot_a, btRigidBody* rb_b, const btVector3& pivot_b, bool disable_collision);
     ifc_fn void remove_constraint(btDynamicsWorld * world, btTypedConstraint * constraint);
