@@ -161,6 +161,7 @@ private:
         _vtable2[53] = vtable1[53];
         return _vtable2;
     }
+    
 
 protected:
 

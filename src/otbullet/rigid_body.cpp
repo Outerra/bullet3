@@ -118,6 +118,10 @@ void physics::remove_rigid_body( btRigidBody* obj, btActionInterface* action, bt
         delete btcon;
     }
 
+    const static btVector3 zero(0.0, 0.0, 0.0);
+    obj->setAngularVelocity(zero);
+    obj->setLinearVelocity(zero);
+
     _world->removeRigidBody(obj);
 }
 

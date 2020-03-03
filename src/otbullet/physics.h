@@ -38,7 +38,6 @@ namespace coid {
     class taskmaster;
 }
 
-
 class physics;
 
 
@@ -231,7 +230,7 @@ public:
     }
 
     ///Interface revision hash
-    static const int HASHID = 2083808754;
+    static const int HASHID = 2083808754u;
 
     ///Interface name (full ns::class string)
     static const coid::tokenhash& IFCNAME() {
@@ -329,12 +328,9 @@ protected:
     bool assign_safe(intergen_interface* client__, iref<physics>* pout);
 
     typedef void (*cleanup_fn)(physics*, intergen_interface*);
-    cleanup_fn _cleaner;
+    cleanup_fn _cleaner = 0;
 
     bool set_host(policy_intrusive_base*, intergen_interface*, iref<physics>* pout);
-
-    physics() : _cleaner(0)
-    {}
 };
 
 ////////////////////////////////////////////////////////////////////////////////
