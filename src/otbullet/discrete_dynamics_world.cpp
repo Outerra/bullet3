@@ -1068,8 +1068,8 @@ namespace ot {
         , _elevation_above_terrain(ext_elevation_above_terrain)
         , _debug_terrain_triangles(1024)
         , _debug_trees(1024)
-        , _tb_cache(1024)
-        , _terrain_mesh_broadphase_pairs(1024)
+        , _tb_cache(1024, coid::reserve_mode::memory)
+        , _terrain_mesh_broadphase_pairs(1024, coid::reserve_mode::memory)
         , _task_master(tm)
         //, _relocation_offset(0)
     {
