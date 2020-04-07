@@ -239,6 +239,11 @@ namespace ot {
                 else {
                     bp->_broadphase->destroyProxy(proxy,getDispatcher());
                     proxy->m_ot_revision = 0xffffffff; // invalidate proxy
+                    btCollisionObject* client_object = static_cast<btCollisionObject*>(proxy->m_clientObject);
+                    
+                    if (client_object && client_object->getBroadphaseHandle() == proxy) { // client object has still same proxy that is invalid so clear it (it happens when object is set not visible)
+                        client_object->setBroadphaseHandle(nullptr);
+                    }
                 }
             });
         });
