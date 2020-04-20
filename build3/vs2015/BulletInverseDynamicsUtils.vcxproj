@@ -30,7 +30,7 @@
     <ProjectGuid>{7BC5FF8F-66BD-2B47-9707-452800AA7F0F}</ProjectGuid>
     <RootNamespace>BulletInverseDynamicsUtils</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
