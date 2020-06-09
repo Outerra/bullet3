@@ -162,3 +162,15 @@ void physics::predict_rigid_body_transform( btRigidBody* obj, double dt, btTrans
 {
     obj->predictIntegratedTransform(dt, tr);
 }
+
+////////////////////////////////////////////////////////////////////////////////
+float physics::get_angular_factor(const btRigidBody* obj)
+{
+    return float(obj->getAngularFactor().x());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void physics::set_angular_factor(btRigidBody* obj, float factor)
+{
+    obj->setAngularFactor(btVector3(factor, factor, factor));
+}

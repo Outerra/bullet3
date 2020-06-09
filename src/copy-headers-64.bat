@@ -1,5 +1,5 @@
 
-del /S /Q ..\..\..\include\bullet\*.*
+del /S /Q /F ..\..\..\include\bullet\*.*
 
 xcopy BulletCollision ..\..\..\include\bullet\BulletCollision\ /sy /exclude:copy-headers.exc
 xcopy BulletDynamics ..\..\..\include\bullet\BulletDynamics\ /sy /exclude:copy-headers.exc

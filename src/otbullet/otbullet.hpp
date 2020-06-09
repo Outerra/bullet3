@@ -71,6 +71,8 @@ public:
     ifc_fn void set_rigid_body_gravity( btRigidBody* obj, const double gravity[3] );
     ifc_fn void set_rigid_body_transform( btRigidBody* obj, const btTransform& tr, const double gravity[3] );
     ifc_fn void predict_rigid_body_transform( btRigidBody* obj, double dt, ifc_out btTransform& tr );
+    ifc_fn float get_angular_factor(const btRigidBody* obj);
+    ifc_fn void set_angular_factor(btRigidBody* obj, float factor);
 
 
     ifc_fn btCollisionObject* create_collision_object( btCollisionShape* shape, void* usr1, void* usr2 );

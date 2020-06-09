@@ -89,6 +89,10 @@ public:
 
     void predict_rigid_body_transform( btRigidBody* obj, double dt, ifc_out btTransform& tr );
 
+    float get_angular_factor( const btRigidBody* obj );
+
+    void set_angular_factor( btRigidBody* obj, float factor );
+
     btCollisionObject* create_collision_object( btCollisionShape* shape, void* usr1, void* usr2 );
 
     btGhostObject* create_ghost_object( btCollisionShape* shape, void* usr1, void* usr2 );
@@ -230,7 +234,7 @@ public:
     }
 
     ///Interface revision hash
-    static const int HASHID = 2083808754u;
+    static const int HASHID = 518902456u;
 
     ///Interface name (full ns::class string)
     static const coid::tokenhash& IFCNAME() {
@@ -249,7 +253,7 @@ public:
     }
 
     static const coid::token& intergen_default_creator_static( backend bck ) {
-        static const coid::token _dc("bt::physics.get@2083808754"_T);
+        static const coid::token _dc("bt::physics.get@518902456"_T);
         static const coid::token _djs("bt::physics@wrapper.js"_T);
         static const coid::token _djsc("bt::physics@wrapper.jsc"_T);
         static const coid::token _dlua("bt::physics@wrapper.lua"_T);
@@ -307,7 +311,7 @@ public:
         type.consume("struct ");
 
         coid::charstr tmp = "bt::physics"_T;
-        tmp << "@client-2083808754"_T << '.' << type;
+        tmp << "@client-518902456"_T << '.' << type;
 
         coid::interface_register::register_interface_creator(tmp, cc);
         return 0;
@@ -340,14 +344,14 @@ inline iref<T> physics::create( T* _subclass_, double r, void* context, coid::ta
     typedef iref<T> (*fn_creator)(physics*, double, void*, coid::taskmaster*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.create@2083808754"_T;
+    static const coid::token ifckey = "bt::physics.create@518902456"_T;
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
             coid::interface_register::get_interface_creator(ifckey));
 
     if (!create) {
-        log_mismatch("create"_T, "bt::physics.create"_T, "@2083808754"_T);
+        log_mismatch("create"_T, "bt::physics.create"_T, "@518902456"_T);
         return 0;
     }
 
@@ -361,14 +365,14 @@ inline iref<T> physics::get( T* _subclass_ )
     typedef iref<T> (*fn_creator)(physics*);
 
     static fn_creator create = 0;
-    static const coid::token ifckey = "bt::physics.get@2083808754"_T;
+    static const coid::token ifckey = "bt::physics.get@518902456"_T;
 
     if (!create)
         create = reinterpret_cast<fn_creator>(
             coid::interface_register::get_interface_creator(ifckey));
 
     if (!create) {
-        log_mismatch("get"_T, "bt::physics.get"_T, "@2083808754"_T);
+        log_mismatch("get"_T, "bt::physics.get"_T, "@518902456"_T);
         return 0;
     }
 
@@ -432,113 +436,119 @@ inline void physics::set_rigid_body_transform( btRigidBody* obj, const btTransfo
 inline void physics::predict_rigid_body_transform( btRigidBody* obj, double dt, btTransform& tr )
 { return VT_CALL(void,(btRigidBody*,double,btTransform&),17)(obj,dt,tr); }
 
+inline float physics::get_angular_factor( const btRigidBody* obj )
+{ return VT_CALL(float,(const btRigidBody*),18)(obj); }
+
+inline void physics::set_angular_factor( btRigidBody* obj, float factor )
+{ return VT_CALL(void,(btRigidBody*,float),19)(obj,factor); }
+
 inline btCollisionObject* physics::create_collision_object( btCollisionShape* shape, void* usr1, void* usr2 )
-{ return VT_CALL(btCollisionObject*,(btCollisionShape*,void*,void*),18)(shape,usr1,usr2); }
+{ return VT_CALL(btCollisionObject*,(btCollisionShape*,void*,void*),20)(shape,usr1,usr2); }
 
 inline btGhostObject* physics::create_ghost_object( btCollisionShape* shape, void* usr1, void* usr2 )
-{ return VT_CALL(btGhostObject*,(btCollisionShape*,void*,void*),19)(shape,usr1,usr2); }
+{ return VT_CALL(btGhostObject*,(btCollisionShape*,void*,void*),21)(shape,usr1,usr2); }
 
 inline void physics::destroy_collision_object( btCollisionObject*& obj )
-{ return VT_CALL(void,(btCollisionObject*&),20)(obj); }
+{ return VT_CALL(void,(btCollisionObject*&),22)(obj); }
 
 inline void physics::destroy_ghost_object( btGhostObject*& obj )
-{ return VT_CALL(void,(btGhostObject*&),21)(obj); }
+{ return VT_CALL(void,(btGhostObject*&),23)(obj); }
 
 inline void physics::update_collision_object( btCollisionObject* obj, const btTransform& tr, bool update_aabb )
-{ return VT_CALL(void,(btCollisionObject*,const btTransform&,bool),22)(obj,tr,update_aabb); }
+{ return VT_CALL(void,(btCollisionObject*,const btTransform&,bool),24)(obj,tr,update_aabb); }
 
 inline void physics::set_collision_info( btCollisionObject* obj, unsigned int group, unsigned int mask )
-{ return VT_CALL(void,(btCollisionObject*,unsigned int,unsigned int),23)(obj,group,mask); }
+{ return VT_CALL(void,(btCollisionObject*,unsigned int,unsigned int),25)(obj,group,mask); }
 
 inline bool physics::add_collision_object( btCollisionObject* obj, unsigned int group, unsigned int mask, bool inactive )
-{ return VT_CALL(bool,(btCollisionObject*,unsigned int,unsigned int,bool),24)(obj,group,mask,inactive); }
+{ return VT_CALL(bool,(btCollisionObject*,unsigned int,unsigned int,bool),26)(obj,group,mask,inactive); }
 
 inline void physics::remove_collision_object( btCollisionObject* obj )
-{ return VT_CALL(void,(btCollisionObject*),25)(obj); }
+{ return VT_CALL(void,(btCollisionObject*),27)(obj); }
 
 inline int physics::get_collision_flags( const btCollisionObject* co )
-{ return VT_CALL(int,(const btCollisionObject*),26)(co); }
+{ return VT_CALL(int,(const btCollisionObject*),28)(co); }
 
 inline void physics::set_collision_flags( btCollisionObject* co, int flags )
-{ return VT_CALL(void,(btCollisionObject*,int),27)(co,flags); }
+{ return VT_CALL(void,(btCollisionObject*,int),29)(co,flags); }
 
 inline btCompoundShape* physics::create_compound_shape()
-{ return VT_CALL(btCompoundShape*,(),28)(); }
+{ return VT_CALL(btCompoundShape*,(),30)(); }
 
 inline void physics::add_child_shape( btCompoundShape* group, btCollisionShape* child, const btTransform& tr )
-{ return VT_CALL(void,(btCompoundShape*,btCollisionShape*,const btTransform&),29)(group,child,tr); }
-
-inline void physics::remove_child_shape( btCompoundShape* group, btCollisionShape* child )
-{ return VT_CALL(void,(btCompoundShape*,btCollisionShape*),30)(group,child); }
-
-inline void physics::update_child( btCompoundShape* group, btCollisionShape* child, const btTransform& tr )
 { return VT_CALL(void,(btCompoundShape*,btCollisionShape*,const btTransform&),31)(group,child,tr); }
 
+inline void physics::remove_child_shape( btCompoundShape* group, btCollisionShape* child )
+{ return VT_CALL(void,(btCompoundShape*,btCollisionShape*),32)(group,child); }
+
+inline void physics::update_child( btCompoundShape* group, btCollisionShape* child, const btTransform& tr )
+{ return VT_CALL(void,(btCompoundShape*,btCollisionShape*,const btTransform&),33)(group,child,tr); }
+
 inline void physics::get_child_transform( btCompoundShape* group, btCollisionShape* child, btTransform& tr )
-{ return VT_CALL(void,(btCompoundShape*,btCollisionShape*,btTransform&),32)(group,child,tr); }
+{ return VT_CALL(void,(btCompoundShape*,btCollisionShape*,btTransform&),34)(group,child,tr); }
 
 inline void physics::recalc_compound_shape( btCompoundShape* shape )
-{ return VT_CALL(void,(btCompoundShape*),33)(shape); }
+{ return VT_CALL(void,(btCompoundShape*),35)(shape); }
 
 inline void physics::destroy_compound_shape( btCompoundShape*& shape )
-{ return VT_CALL(void,(btCompoundShape*&),34)(shape); }
+{ return VT_CALL(void,(btCompoundShape*&),36)(shape); }
 
 inline btCollisionShape* physics::create_shape( bt::EShape sh, const float hvec[3] )
-{ return VT_CALL(btCollisionShape*,(bt::EShape,const float[3]),35)(sh,hvec); }
+{ return VT_CALL(btCollisionShape*,(bt::EShape,const float[3]),37)(sh,hvec); }
 
 inline btCollisionShape* physics::clone_shape( const btCollisionShape* shape )
-{ return VT_CALL(btCollisionShape*,(const btCollisionShape*),36)(shape); }
+{ return VT_CALL(btCollisionShape*,(const btCollisionShape*),38)(shape); }
 
 inline void physics::add_convex_point( btCollisionShape* shape, const float point[3] )
-{ return VT_CALL(void,(btCollisionShape*,const float[3]),37)(shape,point); }
+{ return VT_CALL(void,(btCollisionShape*,const float[3]),39)(shape,point); }
 
 inline void physics::close_convex_shape( btCollisionShape* shape )
-{ return VT_CALL(void,(btCollisionShape*),38)(shape); }
+{ return VT_CALL(void,(btCollisionShape*),40)(shape); }
 
 inline void physics::destroy_shape( btCollisionShape*& shape )
-{ return VT_CALL(void,(btCollisionShape*&),39)(shape); }
+{ return VT_CALL(void,(btCollisionShape*&),41)(shape); }
 
 inline void physics::set_collision_shape_local_scaling( btCollisionShape* shape, const float3& scale )
-{ return VT_CALL(void,(btCollisionShape*,const float3&),40)(shape,scale); }
+{ return VT_CALL(void,(btCollisionShape*,const float3&),42)(shape,scale); }
 
 inline bt::ot_world_physics_stats physics::get_stats()
-{ return VT_CALL(bt::ot_world_physics_stats,(),41)(); }
+{ return VT_CALL(bt::ot_world_physics_stats,(),43)(); }
 
 inline bt::ot_world_physics_stats* physics::get_stats_ptr()
-{ return VT_CALL(bt::ot_world_physics_stats*,(),42)(); }
+{ return VT_CALL(bt::ot_world_physics_stats*,(),44)(); }
 
 inline void physics::set_debug_draw_enabled( btIDebugDraw* debug_drawer )
-{ return VT_CALL(void,(btIDebugDraw*),43)(debug_drawer); }
+{ return VT_CALL(void,(btIDebugDraw*),45)(debug_drawer); }
 
 inline void physics::set_debug_drawer_mode( int debug_mode )
-{ return VT_CALL(void,(int),44)(debug_mode); }
+{ return VT_CALL(void,(int),46)(debug_mode); }
 
 inline void physics::debug_draw_world()
-{ return VT_CALL(void,(),45)(); }
+{ return VT_CALL(void,(),47)(); }
 
 inline void physics::query_volume_sphere( const double3& pos, float rad, coid::dynarray<btCollisionObject*>& result )
-{ return VT_CALL(void,(const double3&,float,coid::dynarray<btCollisionObject*>&),46)(pos,rad,result); }
+{ return VT_CALL(void,(const double3&,float,coid::dynarray<btCollisionObject*>&),48)(pos,rad,result); }
 
 inline void physics::query_volume_frustum( const double3& pos, const float4* f_planes_norms, uint8 nplanes, bool include_partial, coid::dynarray<btCollisionObject *>& result )
-{ return VT_CALL(void,(const double3&,const float4*,uint8,bool,coid::dynarray<btCollisionObject *>&),47)(pos,f_planes_norms,nplanes,include_partial,result); }
+{ return VT_CALL(void,(const double3&,const float4*,uint8,bool,coid::dynarray<btCollisionObject *>&),49)(pos,f_planes_norms,nplanes,include_partial,result); }
 
 inline void physics::wake_up_objects_in_radius( const double3& pos, float rad )
-{ return VT_CALL(void,(const double3&,float),48)(pos,rad); }
+{ return VT_CALL(void,(const double3&,float),50)(pos,rad); }
 
 inline void physics::wake_up_object( btCollisionObject* obj )
-{ return VT_CALL(void,(btCollisionObject*),49)(obj); }
+{ return VT_CALL(void,(btCollisionObject*),51)(obj); }
 
 inline bool physics::is_point_inside_terrain_ocluder( const double3& pt )
-{ return VT_CALL(bool,(const double3&),50)(pt); }
+{ return VT_CALL(bool,(const double3&),52)(pt); }
 
 inline void physics::pause_simulation( bool pause )
-{ return VT_CALL(void,(bool),51)(pause); }
+{ return VT_CALL(void,(bool),53)(pause); }
 
 inline btTypedConstraint* physics::add_constraint_ball_socket( btDynamicsWorld* world, btRigidBody* rb_a, const btVector3& pivot_a, btRigidBody* rb_b, const btVector3& pivot_b, bool disable_collision )
-{ return VT_CALL(btTypedConstraint*,(btDynamicsWorld*,btRigidBody*,const btVector3&,btRigidBody*,const btVector3&,bool),52)(world,rb_a,pivot_a,rb_b,pivot_b,disable_collision); }
+{ return VT_CALL(btTypedConstraint*,(btDynamicsWorld*,btRigidBody*,const btVector3&,btRigidBody*,const btVector3&,bool),54)(world,rb_a,pivot_a,rb_b,pivot_b,disable_collision); }
 
 inline void physics::remove_constraint( btDynamicsWorld* world, btTypedConstraint* constraint )
-{ return VT_CALL(void,(btDynamicsWorld*,btTypedConstraint*),53)(world,constraint); }
+{ return VT_CALL(void,(btDynamicsWorld*,btTypedConstraint*),55)(world,constraint); }
 
 #pragma warning(pop)
 
