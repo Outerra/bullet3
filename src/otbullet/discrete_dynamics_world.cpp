@@ -23,6 +23,7 @@
 #include "ot_terrain_contact_common.h"
 
 #include <comm/timer.h>
+#include <comm/singleton.h>
 #include <comm/log/logger.h>
 
 #include <ot/glm/glm_ext.h>
@@ -529,7 +530,8 @@ namespace ot {
 
             uint tri_count = 0;
 
-            coid::dynarray<bt::external_broadphase*> broadphases;
+            THREAD_LOCAL_SINGLETON_DEF(coid::dynarray<bt::external_broadphase*>) broadphase_tls;
+            coid::dynarray<bt::external_broadphase*> broadphases = *broadphase_tls;
 
             for (uints j = 0; j < _cow_internal.size(); j++) {
                 if (_cow_internal[j]._shape->getUserIndex() & 1) { // do not collide with terrain
