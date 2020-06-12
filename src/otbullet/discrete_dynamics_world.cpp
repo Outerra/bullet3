@@ -537,6 +537,7 @@ namespace ot {
 
             THREAD_LOCAL_SINGLETON_DEF(coid::dynarray<bt::external_broadphase*>) broadphase_tls;
             coid::dynarray<bt::external_broadphase*> broadphases = *broadphase_tls;
+            broadphases.reset();
 
             for (uints j = 0; j < _cow_internal.size(); j++) {
                 if (_cow_internal[j]._shape->getUserIndex() & 1) { // do not collide with terrain
