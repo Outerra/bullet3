@@ -231,12 +231,12 @@ namespace ot {
                 double3(half[0], half[1], half[2]),
                 [&](btBroadphaseProxy * proxy) {
 
-                add_debug_aabb(proxy->m_aabbMin, proxy->m_aabbMax,btVector3(1,0,0));
-
                 if (proxy->m_ot_revision == bp->_revision) {
+                    add_debug_aabb(proxy->m_aabbMin, proxy->m_aabbMax, btVector3(1, 0, 0));
                     add_terrain_broadphase_collision_pair(static_cast<btCollisionObject*>(proxy->m_clientObject), col_obj);
                 }
                 else {
+                    DASSERT(bp->_broadphase->ownsProxy(proxy));
                     bp->_broadphase->destroyProxy(proxy,getDispatcher());
                     proxy->m_ot_revision = 0xffffffff; // invalidate proxy
                     btCollisionObject* client_object = static_cast<btCollisionObject*>(proxy->m_clientObject);
@@ -263,6 +263,17 @@ namespace ot {
                 bp->_broadphase->setAabb(proxy, min, max, getDispatcher());
             }
             else {
+                if (proxy) {
+                    bt::external_broadphase* proxy_owner = _external_broadphase_pool.find_if([&](bt::external_broadphase& ebp) {
+                        return ebp._broadphase->ownsProxy(proxy);
+                    });
+
+                    DASSERT(proxy_owner);
+
+                    proxy_owner->_broadphase->destroyProxy(proxy,getDispatcher());
+                    proxy->m_ot_revision = 0xffffffff; /// INVALIDATE HANDLE
+                }
+
                 proxy = bp->_broadphase->createProxy(
                     min,
                     max,
