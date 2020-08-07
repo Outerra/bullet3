@@ -116,7 +116,9 @@ public:
 	virtual void clearManifold(btPersistentManifold* manifold);
 
 	btCollisionAlgorithm* findAlgorithm(const btCollisionObjectWrapper* body0Wrap, const btCollisionObjectWrapper* body1Wrap, btPersistentManifold* sharedManifold, ebtDispatcherQueryType queryType);
-		
+	
+    btCollisionAlgorithm* findAlgorithm2(int body0ShapeType, int body1ShapeType, btPersistentManifold* sharedManifold);
+
 	virtual bool	needsCollision(const btCollisionObject* body0,const btCollisionObject* body1);
 	
 	virtual bool	needsResponse(const btCollisionObject* body0,const btCollisionObject* body1);

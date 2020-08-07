@@ -32,6 +32,8 @@ enum EShape {
     SHAPE_CYLINDER,
     SHAPE_CAPSULE,
     SHAPE_CONE,
+    SHAPE_MESH_STATIC,
+    SHAPE_MESH_DYNAMIC
 };
 
 enum ECollisionShape {

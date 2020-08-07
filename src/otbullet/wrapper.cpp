@@ -9,6 +9,8 @@
 #include <BulletCollision/CollisionShapes/btCylinderShape.h>
 #include <BulletCollision/CollisionShapes/btCapsuleShape.h>
 #include <BulletCollision/CollisionShapes/btConeShape.h>
+#include <BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h>
+#include <BulletCollision/CollisionShapes/btTriangleMesh.h>
 
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
 
@@ -403,15 +405,39 @@ void physics::pause_simulation(bool pause)
 {
     _world->pause_simulation(pause);
 }
+////////////////////////////////////////////////////////////////////////////////
+btTriangleMesh* physics::create_triangle_mesh()
+{
+    btTriangleMesh* result = new btTriangleMesh();
+    return result;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
-btCollisionShape* physics::create_shape( bt::EShape sh, const float hvec[3] )
+void physics::destroy_triangle_mesh(btTriangleMesh* triangle_mesh)
+{
+    DASSERT(triangle_mesh);
+    delete triangle_mesh;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void physics::add_triangle(btTriangleMesh* mesh, const float v0[3], const float v1[3], const float v2[3])
+{
+    btVector3 btv0(static_cast<double>(v0[0]), static_cast<double>(v0[1]), static_cast<double>(v0[2]));
+    btVector3 btv1(static_cast<double>(v1[0]), static_cast<double>(v1[1]), static_cast<double>(v1[2]));
+    btVector3 btv2(static_cast<double>(v2[0]), static_cast<double>(v2[1]), static_cast<double>(v2[2]));
+
+    mesh->addTriangle(btv0, btv1, btv2);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+btCollisionShape* physics::create_shape( bt::EShape sh, const float hvec[3], void* data)
 {
     switch(sh) {
-    case bt::SHAPE_CONVEX:  return new btConvexHullShape();
-    case bt::SHAPE_SPHERE:  return new btSphereShape(hvec[0]);
-    case bt::SHAPE_BOX:     return new btBoxShape(btVector3(hvec[0], hvec[1], hvec[2]));
-    case bt::SHAPE_CYLINDER:return new btCylinderShapeZ(btVector3(hvec[0], hvec[1], hvec[2]));
+    case bt::SHAPE_CONVEX:          return new btConvexHullShape();
+    case bt::SHAPE_MESH_STATIC:     return new btBvhTriangleMeshShape(reinterpret_cast<btTriangleMesh*>(data),false);
+    case bt::SHAPE_SPHERE:          return new btSphereShape(hvec[0]);
+    case bt::SHAPE_BOX:             return new btBoxShape(btVector3(hvec[0], hvec[1], hvec[2]));
+    case bt::SHAPE_CYLINDER:        return new btCylinderShapeZ(btVector3(hvec[0], hvec[1], hvec[2]));
     case bt::SHAPE_CAPSULE: {
         if (glm::abs(hvec[1] - hvec[2]) < 0.000001f) {
            //btCapsuleX
@@ -611,6 +637,17 @@ bool physics::add_collision_object( btCollisionObject* obj, unsigned int group, 
 void physics::remove_collision_object( btCollisionObject* obj )
 {
     _world->removeCollisionObject(obj);
+
+    btGhostObject* ghost = btGhostObject::upcast(obj);
+    if (ghost) {
+        _world->remove_terrain_occluder(ghost);
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void physics::remove_collision_object_external(btCollisionObject* obj)
+{
+    _world->removeCollisionObject_external(obj);
 
     btGhostObject* ghost = btGhostObject::upcast(obj);
     if (ghost) {

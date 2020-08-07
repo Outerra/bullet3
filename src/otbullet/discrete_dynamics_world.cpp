@@ -441,23 +441,26 @@ namespace ot {
 
     void discrete_dynamics_world::removeCollisionObject(btCollisionObject * collisionObject)
     {
+        btDiscreteDynamicsWorld::removeCollisionObject(collisionObject);
+    }
+
+    void discrete_dynamics_world::removeCollisionObject_external(btCollisionObject* collisionObject)
+    {
         _terrain_mesh_broadphase_pairs.for_each([&](btBroadphasePair& bp, uints idx) {
             if (bp.m_pProxy0->m_clientObject == collisionObject || bp.m_pProxy1->m_clientObject == collisionObject) {
                 remove_terrain_broadphase_collision_pair(bp);
             }
-        });
+            });
 
         bt::external_broadphase* broadphase = _external_broadphase_pool.find_if([&](bt::external_broadphase& bp) {
             return bp._broadphase->ownsProxy(collisionObject->getBroadphaseHandle());
-       });
+            });
 
         if (broadphase) {
-            broadphase->_broadphase->destroyProxy(collisionObject->getBroadphaseHandle(),getDispatcher());
-            collisionObject->setBroadphaseHandle(nullptr);
+            broadphase->_broadphase->destroyProxy(collisionObject->getBroadphaseHandle(), getDispatcher());
         }
 
-        btDiscreteDynamicsWorld::removeCollisionObject(collisionObject);
-
+        collisionObject->setBroadphaseHandle(nullptr);
     }
 
     void discrete_dynamics_world::ot_terrain_collision_step()

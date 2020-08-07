@@ -17,6 +17,7 @@ class btTransform;
 class btIDebugDraw;
 class btManifoldPoint;
 class btTypedConstraint;
+class btTriangleMesh;
 
 namespace bt {
     class constraint_info;
@@ -83,6 +84,7 @@ public:
     ifc_fn void set_collision_info( btCollisionObject* obj, unsigned int group, unsigned int mask );
     ifc_fn bool add_collision_object( btCollisionObject* obj, unsigned int group, unsigned int mask, bool inactive );
     ifc_fn void remove_collision_object( btCollisionObject* obj );
+    ifc_fn void remove_collision_object_external(btCollisionObject* obj);
     ifc_fn int get_collision_flags(const btCollisionObject * co);
     ifc_fn void set_collision_flags(btCollisionObject * co, int flags);
 
@@ -94,7 +96,11 @@ public:
     ifc_fn void recalc_compound_shape( btCompoundShape* shape );
     ifc_fn void destroy_compound_shape( ifc_inout btCompoundShape*& shape );
 
-    ifc_fn btCollisionShape* create_shape( bt::EShape sh, const float hvec[3] );
+    ifc_fn btTriangleMesh* create_triangle_mesh();
+    ifc_fn void destroy_triangle_mesh(btTriangleMesh* triangle_mesh);
+    ifc_fn void add_triangle(btTriangleMesh* mesh, const float v0[3], const float v1[3], const float v2[3]);
+
+    ifc_fn btCollisionShape* create_shape( bt::EShape sh, const float hvec[3], void * data = nullptr );
     ifc_fn btCollisionShape* clone_shape(const btCollisionShape * shape);
     ifc_fn void add_convex_point( btCollisionShape* shape, const float point[3] );
     ifc_fn void close_convex_shape( btCollisionShape* shape );

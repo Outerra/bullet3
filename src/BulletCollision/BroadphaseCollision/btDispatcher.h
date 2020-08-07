@@ -81,6 +81,8 @@ public:
 
 	virtual btCollisionAlgorithm* findAlgorithm(const btCollisionObjectWrapper* body0Wrap, const btCollisionObjectWrapper* body1Wrap, btPersistentManifold* sharedManifold, ebtDispatcherQueryType queryType) = 0;
 
+	virtual btCollisionAlgorithm* findAlgorithm2(int body0ShapeType, int body1ShapeType, btPersistentManifold* sharedManifold) = 0;
+
 	virtual btPersistentManifold*	getNewManifold(const btCollisionObject* b0,const btCollisionObject* b1)=0;
 
 	virtual void releaseManifold(btPersistentManifold* manifold)=0;

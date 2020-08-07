@@ -74,7 +74,13 @@ void ot_terrain_contact_common::prepare_bt_convex_collision(btManifoldResult * r
 	_curr_algo = &ot_terrain_contact_common::collide_convex_triangle;
 	_box_local_transform = convex_object->getWorldTransform();
 	_convex_object = convex_object;
-	_bt_ca = 0;
+
+    if (_bt_ca) {
+        _bt_ca->~btCollisionAlgorithm();
+        _collision_world->getDispatcher()->freeCollisionAlgorithm(_bt_ca);
+    }
+    
+    _bt_ca = _collision_world->getDispatcher()->findAlgorithm2(convex_object->getCollisionShape()->getShapeType(),btTriangleShape().getShapeType(),result->getPersistentManifold());
 }
 
 void ot_terrain_contact_common::process_triangle_cache()
@@ -336,7 +342,8 @@ void ot_terrain_contact_common::collide_convex_triangle(const bt::triangle & tri
     const btCollisionObjectWrapper * curr_col_obj_wrapper = _manifold->getBody0Wrap();
     _manifold->setBody0Wrap(_convex_object);
 
-    btCollisionAlgorithm* colAlgo = _collision_world->getDispatcher()->findAlgorithm(_manifold->getBody0Wrap(), &triObWrap, _manifold->getPersistentManifold());
+    DASSERT(_bt_ca);
+    //btCollisionAlgorithm* colAlgo = _collision_world->getDispatcher()->findAlgorithm(_manifold->getBody0Wrap(), &triObWrap, _manifold->getPersistentManifold());
 
     const btCollisionObjectWrapper* tmpWrap = 0;
 
@@ -345,13 +352,10 @@ void ot_terrain_contact_common::collide_convex_triangle(const bt::triangle & tri
     _manifold->setShapeIdentifiersB(0, triangle.tri_idx);
 
 
-    colAlgo->processCollision(_manifold->getBody0Wrap(), &triObWrap, _collision_world->getDispatchInfo(), _manifold);
+    _bt_ca->processCollision(_manifold->getBody0Wrap(), &triObWrap, _collision_world->getDispatchInfo(), _manifold);
 
     _manifold->setBody1Wrap(curr_col_obj_wrapper);
     _manifold->setBody1Wrap(tmpWrap);
-    
-    colAlgo->~btCollisionAlgorithm();
-    _collision_world->getDispatcher()->freeCollisionAlgorithm(colAlgo);
 }
 
 void ot_terrain_contact_common::collide_object_plane(fn_elevation_above_terrain elevation_above_terrain)
