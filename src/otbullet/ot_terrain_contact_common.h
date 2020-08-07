@@ -112,7 +112,7 @@ public:
 	void set_terrain_mesh_offset(const glm::dvec3 & offset);
 	void prepare_sphere_collision(btManifoldResult * result, const glm::dvec3 & center, float radius, float collision_margin);
 	void prepare_capsule_collision(btManifoldResult * result, const glm::dvec3 & p0, const glm::dvec3 & p1,float radius,float collision_margin);
-	void prepare_bt_convex_collision(btManifoldResult * result, btCollisionObjectWrapper * convex_object);
+	void prepare_bt_convex_collision(btManifoldResult * result, btCollisionObjectWrapper * convex_object, btDispatcher* dispatcher);
     void clear_caches();
 
 	void process_triangle_cache();

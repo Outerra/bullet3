@@ -190,7 +190,7 @@ void set_debug_drawer_enabled(btIDebugDraw * debug_draw) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-iref<physics> physics::create(double r, void* context, coid::taskmaster* tm )
+iref<physics> physics::create(double r, void* context, coid::taskmaster* tm, void* profiler)
 {
     _physics = new physics;
     btDefaultCollisionConstructionInfo dccinfo;
@@ -215,7 +215,8 @@ iref<physics> physics::create(double r, void* context, coid::taskmaster* tm )
         &_ext_terrain_ray_intersect,
         &_ext_elevation_above_terrain,
         context,
-        tm);
+        tm,
+        profiler);
 
     wrld->setGravity(btVector3(0, 0, 0));
 

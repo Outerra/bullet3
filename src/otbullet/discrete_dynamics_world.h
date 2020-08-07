@@ -279,7 +279,8 @@ public:
         fn_terrain_ray_intersect ext_terrain_ray_intersect,
         fn_elevation_above_terrain ext_elevation_above_terrain,
         const void* context = 0,
-        coid::taskmaster * tm = 0);
+        coid::taskmaster * tm = 0,
+        void* profiler = 0);
 
     const bt::ot_world_physics_stats & get_stats() const {
         return _stats;

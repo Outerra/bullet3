@@ -28,6 +28,19 @@
 
 #include <ot/glm/glm_ext.h>
 
+#define USE_PROFILER
+#ifdef USE_PROFILER
+#include <ot/profiler.h>
+iref<ot::profiler> prof;
+#define BEGIN_PROFILE(name) do{prof->begin(prof->get_token(name));}while(0)
+#define END_PROFILE() do{prof->end();}while(0)
+#define SET_PROFILER(p) do{prof = reinterpret_cast<ot::profiler*>(p);}while(0)
+#else
+#define BEGIN_PROFILE(name) do{}while(0)
+#define END_PROFILE() do{}while(0)
+#define SET_PROFILER(p) do{}while(0)
+#endif
+
 extern unsigned int gOuterraSimulationFrame;
 
 /// tmp ////
@@ -211,6 +224,7 @@ namespace ot {
 
     void discrete_dynamics_world::process_terrain_broadphases(const coid::dynarray<bt::external_broadphase*>& broadphase, btCollisionObject * col_obj)
     {
+        BEGIN_PROFILE("discrete_dynamics_world::process_terrain_broadphases");
         btVector3 min, max;
         col_obj->getCollisionShape()->getAabb(col_obj->getWorldTransform(), min, max);
 
@@ -247,6 +261,8 @@ namespace ot {
                 }
             });
         });
+
+        END_PROFILE();
     }
 
     void discrete_dynamics_world::update_terrain_mesh_broadphase(bt::external_broadphase * bp)
@@ -610,7 +626,7 @@ namespace ot {
 
                     min = (max - min) * 0.5;
                     _lod_dim = min[min.minAxis()];
-                    _common_data->prepare_bt_convex_collision(&res, &internal_obj_wrapper);
+                    _common_data->prepare_bt_convex_collision(&res, &internal_obj_wrapper, getDispatcher());
                     gContactAddedCallback = GJK_contact_added;
                 }
                 else {
@@ -680,7 +696,14 @@ namespace ot {
 #endif // _PROFILING_ENABLED
 
                     if (is_above_tm) {
+                        static coid::nsec_timer timer;
+                        timer.reset();
+                        BEGIN_PROFILE("process_triangle_cache");
                         _common_data->process_triangle_cache(_triangles);
+                        END_PROFILE();
+                        uint time_ms = timer.time_ns() * 0.000001f;
+                        static bool ass = false;
+                        DASSERT(ass || time_ms < 2.f);
                     }
                     else {
                         gContactAddedCallback = plane_contact_added;
@@ -1080,7 +1103,8 @@ namespace ot {
         fn_terrain_ray_intersect ext_terrain_ray_intersect,
         fn_elevation_above_terrain ext_elevation_above_terrain,
         const void* context,
-        coid::taskmaster * tm)
+        coid::taskmaster * tm,
+        void* profiler)
         : btDiscreteDynamicsWorld(dispatcher,pairCache,constraintSolver,collisionConfiguration)
         , _sphere_intersect(ext_collider)
         , _tree_collision(ext_tree_col)
@@ -1093,6 +1117,7 @@ namespace ot {
         , _task_master(tm)
         //, _relocation_offset(0)
     {
+        SET_PROFILER(profiler);
         setContext((void*)context);
 
         btTriangleShape * ts = new btTriangleShape();

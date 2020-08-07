@@ -5,6 +5,7 @@
 #include <BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h>
 #include <BulletDynamics/Dynamics/btRigidBody.h>
 #include <BulletCollision/CollisionDispatch/btCollisionWorld.h>
+#include <BulletCollision/CollisionDispatch/btConvexConvexAlgorithm.h>
 #include <ot/glm/coal.h>
 
 #include "discrete_dynamics_world.h"
@@ -67,7 +68,7 @@ void ot_terrain_contact_common::prepare_capsule_collision(btManifoldResult * res
 	_curr_algo = &ot_terrain_contact_common::collide_capsule_triangle;
 }
 
-void ot_terrain_contact_common::prepare_bt_convex_collision(btManifoldResult * result, btCollisionObjectWrapper * convex_object)
+void ot_terrain_contact_common::prepare_bt_convex_collision(btManifoldResult * result, btCollisionObjectWrapper * convex_object, btDispatcher* dispatcher)
 {
 	prepare(result);
 	_curr_collider = ctBox;
@@ -79,8 +80,8 @@ void ot_terrain_contact_common::prepare_bt_convex_collision(btManifoldResult * r
         _bt_ca->~btCollisionAlgorithm();
         _collision_world->getDispatcher()->freeCollisionAlgorithm(_bt_ca);
     }
-    
-    _bt_ca = _collision_world->getDispatcher()->findAlgorithm2(convex_object->getCollisionShape()->getShapeType(),btTriangleShape().getShapeType(),result->getPersistentManifold());
+
+    _bt_ca = _collision_world->getDispatcher()->findAlgorithm2(convex_object->getCollisionShape()->getShapeType(), btTriangleShape().getShapeType(), result->getPersistentManifold());
 }
 
 void ot_terrain_contact_common::process_triangle_cache()
@@ -343,7 +344,6 @@ void ot_terrain_contact_common::collide_convex_triangle(const bt::triangle & tri
     _manifold->setBody0Wrap(_convex_object);
 
     DASSERT(_bt_ca);
-    //btCollisionAlgorithm* colAlgo = _collision_world->getDispatcher()->findAlgorithm(_manifold->getBody0Wrap(), &triObWrap, _manifold->getPersistentManifold());
 
     const btCollisionObjectWrapper* tmpWrap = 0;
 
