@@ -43,8 +43,19 @@ set VERLST=%VERLST:.=,%
 echo VERSTR: %VERSTR%
 echo VERLST: %VERLST%
 
+
+msbuild otbullet\otbullet.sln /m /target:Build /p:Configuration=Debug /p:Platform=x64
+
+set BUILD_STATUS=%ERRORLEVEL%
+echo build status (x64 Debug) %BUILD_STATUS%
+if "%BUILD_STATUS%" neq "0" goto :eof
+
+
 msbuild otbullet\otbullet.sln /m /target:Build /p:Configuration=ReleaseLTCG /p:Platform=x64
 
+set BUILD_STATUS=%ERRORLEVEL%
+echo build status (x64 ReleaseLTCG) %BUILD_STATUS%
+if "%BUILD_STATUS%" neq "0" goto :eof
 
 
 del /S /Q /F ..\..\..\include\bullet\*.*

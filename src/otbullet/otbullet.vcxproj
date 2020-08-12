@@ -149,6 +149,9 @@
       <AdditionalLibraryDirectories>$(ProjectDir)..\..\..\comm\_build\msvc\2019\bin\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>comm_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <ResourceCompile>
+      <PreprocessorDefinitions>VERSTR="$(VERSTR)";VERLST=$(VERLST);REVISION=0$(REVISION)</PreprocessorDefinitions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -171,9 +174,12 @@
       <AdditionalLibraryDirectories>$(ProjectDir)..\..\..\comm\_build\msvc\2019\bin\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>cd..
-$(SolutionDir)..\copy-headers-64.bat</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
+    <ResourceCompile>
+      <PreprocessorDefinitions>VERSTR="$(VERSTR)";VERLST=$(VERLST);REVISION=0$(REVISION)</PreprocessorDefinitions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -200,6 +206,9 @@ $(SolutionDir)..\copy-headers-64.bat</Command>
       <AdditionalLibraryDirectories>$(ProjectDir)..\..\..\comm\_build\msvc\2019\bin\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>comm_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <ResourceCompile>
+      <PreprocessorDefinitions>VERSTR="$(VERSTR)";VERLST=$(VERLST);REVISION=0$(REVISION)</PreprocessorDefinitions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseLTCG|Win32'">
     <ClCompile>
@@ -229,7 +238,7 @@ $(SolutionDir)..\copy-headers-64.bat</Command>
       <AdditionalDependencies>comm_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ResourceCompile>
-      <PreprocessorDefinitions>USERVER="$(USERVER)";VERSTR="$(VERSTR)";VERLST=$(VERLST);REVISION=$(REVISION);</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VERSTR="$(VERSTR)";VERLST=$(VERLST);REVISION=0$(REVISION)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -255,6 +264,9 @@ $(SolutionDir)..\copy-headers-64.bat</Command>
       <AdditionalDependencies>comm_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)..\..\..\comm\_build\msvc\2019\bin\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <ResourceCompile>
+      <PreprocessorDefinitions>VERSTR="$(VERSTR)";VERLST=$(VERLST);REVISION=0$(REVISION)</PreprocessorDefinitions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseLTCG|x64'">
     <ClCompile>
@@ -282,7 +294,7 @@ $(SolutionDir)..\copy-headers-64.bat</Command>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
     <ResourceCompile>
-      <PreprocessorDefinitions>USERVER="$(USERVER)";VERSTR="$(VERSTR)";VERLST=$(VERLST);REVISION=$(REVISION);</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VERSTR="$(VERSTR)";VERLST=$(VERLST);REVISION=0$(REVISION)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
