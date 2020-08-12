@@ -228,6 +228,9 @@ $(SolutionDir)..\copy-headers-64.bat</Command>
       <AdditionalLibraryDirectories>$(ProjectDir)..\..\..\comm\_build\msvc\2019\bin\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>comm_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <ResourceCompile>
+      <PreprocessorDefinitions>USERVER="$(USERVER)";VERSTR="$(VERSTR)";VERLST=$(VERLST);REVISION=$(REVISION);</PreprocessorDefinitions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -278,6 +281,9 @@ $(SolutionDir)..\copy-headers-64.bat</Command>
       <AdditionalLibraryDirectories>$(ProjectDir)..\..\..\comm\_build\msvc\2019\bin\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
+    <ResourceCompile>
+      <PreprocessorDefinitions>USERVER="$(USERVER)";VERSTR="$(VERSTR)";VERLST=$(VERLST);REVISION=$(REVISION);</PreprocessorDefinitions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\otbullet\discrete_dynamics_world.cpp" />
@@ -319,6 +325,9 @@ $(SolutionDir)..\copy-headers-64.bat</Command>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\otbullet\otbullet.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="version.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
