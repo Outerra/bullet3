@@ -271,8 +271,8 @@ namespace ot {
                     });
 
                     DASSERT(proxy_owner);
-
-                    proxy_owner->_broadphase->destroyProxy(proxy,getDispatcher());
+                    if (proxy_owner)
+                        proxy_owner->_broadphase->destroyProxy(proxy, getDispatcher());
                     proxy->m_ot_revision = 0xffffffff; /// INVALIDATE HANDLE
                 }
 
