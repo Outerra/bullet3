@@ -150,7 +150,7 @@
       <AdditionalDependencies>comm_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ResourceCompile>
-      <PreprocessorDefinitions>VERSTR="$(VERSTR)";VERLST=$(VERLST);REVISION=0$(REVISION)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VERSTR="$(VERSTR)";VERLST=$(VERLST)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -178,7 +178,7 @@
       </Command>
     </PostBuildEvent>
     <ResourceCompile>
-      <PreprocessorDefinitions>VERSTR="$(VERSTR)";VERLST=$(VERLST);REVISION=0$(REVISION)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VERSTR="$(VERSTR)";VERLST=$(VERLST)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -207,7 +207,7 @@
       <AdditionalDependencies>comm_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ResourceCompile>
-      <PreprocessorDefinitions>VERSTR="$(VERSTR)";VERLST=$(VERLST);REVISION=0$(REVISION)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VERSTR="$(VERSTR)";VERLST=$(VERLST)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseLTCG|Win32'">
@@ -238,7 +238,7 @@
       <AdditionalDependencies>comm_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ResourceCompile>
-      <PreprocessorDefinitions>VERSTR="$(VERSTR)";VERLST=$(VERLST);REVISION=0$(REVISION)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VERSTR="$(VERSTR)";VERLST=$(VERLST)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -265,7 +265,7 @@
       <AdditionalLibraryDirectories>$(ProjectDir)..\..\..\comm\_build\msvc\2019\bin\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ResourceCompile>
-      <PreprocessorDefinitions>VERSTR="$(VERSTR)";VERLST=$(VERLST);REVISION=0$(REVISION)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VERSTR="$(VERSTR)";VERLST=$(VERLST)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseLTCG|x64'">
@@ -294,7 +294,7 @@
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
     <ResourceCompile>
-      <PreprocessorDefinitions>VERSTR="$(VERSTR)";VERLST=$(VERLST);REVISION=0$(REVISION)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VERSTR="$(VERSTR)";VERLST=$(VERLST)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
