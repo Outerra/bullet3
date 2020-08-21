@@ -155,6 +155,8 @@ void physics::set_rigid_body_transform( btRigidBody* obj, const btTransform& tr,
     obj->setCenterOfMassTransform(tr);
     obj->setGravity(btVector3(gravity[0], gravity[1], gravity[2]));
     
+   /* if(obj->getBroadphaseProxy())
+       _world->updateSingleAabb(obj);*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////

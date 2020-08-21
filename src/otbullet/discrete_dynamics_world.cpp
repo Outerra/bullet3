@@ -688,9 +688,9 @@ namespace ot {
                             CPU_PROFILE_SCOPE("process_triangle_cache");
                             _common_data->process_triangle_cache(_triangles);
                         }
-                        uint time_ms = timer.time_ns() * 0.000001f;
-                        static bool ass = false;
-                        DASSERT(ass || time_ms < 2.f);
+                        //uint time_ms = timer.time_ns() * 0.000001f;
+                        //static bool ass = false;
+                        //DASSERT(ass || time_ms < 2.f);
                     }
                     else {
                         gContactAddedCallback = plane_contact_added;
