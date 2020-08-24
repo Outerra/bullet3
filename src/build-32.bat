@@ -73,3 +73,5 @@ xcopy ..\bin\Win32\ReleaseLTCG\otbullet.dll ..\..\..\..\bin\ /y
 xcopy ..\bin\Win32\ReleaseLTCG\otbullet.pdb ..\..\..\..\bin\ /y
 xcopy ..\bin\Win32\Debug\otbulletd.dll ..\..\..\..\bin\ /y
 xcopy ..\bin\Win32\Debug\otbulletd.pdb ..\..\..\..\bin\ /y
+
+git commit -m "version update" otbullet/version.last
