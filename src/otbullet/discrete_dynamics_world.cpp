@@ -304,7 +304,7 @@ namespace ot {
                             if (ghost) {
                                 remove_terrain_occluder(ghost);
                             }
-                            removeCollisionObject(proc_obj);
+                            removeCollisionObject_external(proc_obj);
                             delete (proc_obj);
                         });
 
