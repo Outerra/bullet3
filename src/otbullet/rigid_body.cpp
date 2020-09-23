@@ -157,7 +157,8 @@ void physics::set_rigid_body_transform( btRigidBody* obj, const btTransform& tr,
     
     if(obj->getBroadphaseProxy())
     {
-       _world->updateSingleAabb(obj);
+       //_world->updateSingleAabb(obj);
+        obj->m_otFlags |= bt::OTF_TRANSFORMATION_CHANGED;
     }
 }
 

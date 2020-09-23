@@ -257,6 +257,31 @@ void physics::debug_draw_world() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void physics::get_broadphase_handles_aabbs(const bt::external_broadphase* broadphase, coid::dynarray<double3>& minmaxes)
+{
+    bt32BitAxisSweep3* bp = nullptr;
+    uint revision = 0xffffffff;
+    if (broadphase)
+    {
+        bp = broadphase->_broadphase;
+        revision = broadphase->_revision;
+    }
+    else
+    {
+        bp = static_cast<bt32BitAxisSweep3*>(_world->getBroadphase());
+    }
+
+    _world->for_each_object_in_broadphase(bp, revision, [&minmaxes](btCollisionObject* co) {
+        btBroadphaseProxy* bp = co->getBroadphaseHandle();
+        if (bp && (co->getCollisionFlags() & btCollisionObject::CollisionFlags::CF_DISABLE_VISUALIZE_OBJECT) == 0)
+        {
+            minmaxes.push(double3(bp->m_aabbMin[0], bp->m_aabbMin[1], bp->m_aabbMin[2]));
+            minmaxes.push(double3(bp->m_aabbMax[0], bp->m_aabbMax[1], bp->m_aabbMax[2]));
+        }
+    });
+}
+
+////////////////////////////////////////////////////////////////////////////////
 bt::external_broadphase* physics::create_external_broadphase(const double3& min, const double3& max)
 {
     return _world->create_external_broadphase(min,max);
@@ -668,15 +693,21 @@ void physics::set_collision_flags(btCollisionObject * co, int flags)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void physics::force_update_aabbs()
+{
+    _world->updateAabbs();
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void physics::update_collision_object( btCollisionObject* obj, const btTransform& tr, bool update_aabb )
 {
     obj->setWorldTransform(tr);
 
-    if(update_aabb && obj->getBroadphaseHandle())
-        _world->updateSingleAabb(obj);
+    if (update_aabb || obj->getBroadphaseHandle()) {
+        //_world->updateSingleAabb(obj);
+        obj->m_otFlags |= bt::OTF_TRANSFORMATION_CHANGED;
+    }
 }
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 void physics::step_simulation(double step, bt::bullet_stats * stats)

@@ -88,6 +88,8 @@ public:
     ifc_fn int get_collision_flags(const btCollisionObject * co);
     ifc_fn void set_collision_flags(btCollisionObject * co, int flags);
 
+    ifc_fn void force_update_aabbs();
+
     ifc_fn btCompoundShape* create_compound_shape();
     ifc_fn void add_child_shape( btCompoundShape* group, btCollisionShape* child, const btTransform& tr );
     ifc_fn void remove_child_shape(btCompoundShape* group, btCollisionShape* child);
@@ -112,6 +114,8 @@ public:
     ifc_fn void set_debug_draw_enabled(btIDebugDraw * debug_drawer);
     ifc_fn void set_debug_drawer_mode(int debug_mode);
     ifc_fn void debug_draw_world();
+
+    ifc_fn void get_broadphase_handles_aabbs(const bt::external_broadphase * broadphase, coid::dynarray<double3>& minmaxes);
 
     ifc_fn void query_volume_sphere(const double3 & pos, float rad, ifc_inout coid::dynarray<btCollisionObject*>& result);
     ifc_fn void query_volume_frustum(const double3 & pos, const float4 * f_planes_norms, uint8 nplanes, bool include_partial, ifc_inout coid::dynarray<btCollisionObject *>& result);

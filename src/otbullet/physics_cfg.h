@@ -16,11 +16,12 @@ class simple_collider;
 
 namespace bt {
 
-enum EOtCollisionFlags {
-	CF_POTENTIAL_TUNNEL_COLLISION = 1,
-	CF_POTENTIAL_OBJECT_COLLISION = 2,
+enum EOtFlags {
+	OTF_POTENTIAL_TUNNEL_COLLISION = 1,
+    OTF_POTENTIAL_OBJECT_COLLISION = 2,
+    OTF_TRANSFORMATION_CHANGED = 4,
 
-	CF_COUNT
+    OTF_COUNT
 };
 
 enum EShape {

@@ -86,6 +86,22 @@ namespace ot {
             };
     };
 
+    void	discrete_dynamics_world::updateAabbs()
+    {
+        btTransform predictedTrans;
+        for (int i = 0; i < m_collisionObjects.size(); i++)
+        {
+            btCollisionObject* colObj = m_collisionObjects[i];
+
+            //only update aabb of active objects
+            if (m_forceUpdateAllAabbs || colObj->isActive() || (colObj->m_otFlags & bt::OTF_TRANSFORMATION_CHANGED))
+            {
+                updateSingleAabb(colObj);
+                colObj->m_otFlags &= ~bt::OTF_TRANSFORMATION_CHANGED;
+            }
+        }
+    }
+
     bt::external_broadphase * discrete_dynamics_world::create_external_broadphase(const double3& min, const double3& max)
     {
         bt::external_broadphase * result = nullptr;
@@ -261,6 +277,9 @@ namespace ot {
 
             btVector3 min, max;
             entry._collision_object->getCollisionShape()->getAabb(entry._collision_object->getWorldTransform(), min, max);
+            btVector3 contactThreshold(gContactBreakingThreshold, gContactBreakingThreshold, gContactBreakingThreshold);
+            min -= contactThreshold;
+            max += contactThreshold;
 
             if (bp->_broadphase->ownsProxy(proxy) && proxy->m_ot_revision != 0xffffffff) {
                 bp->_broadphase->setAabb(proxy, min, max, getDispatcher());
@@ -345,7 +364,7 @@ namespace ot {
                 ghost->addOverlappingObjectInternal(obj2->getBroadphaseHandle());
             }
 
-            obj2->m_otFlags |= bt::CF_POTENTIAL_OBJECT_COLLISION;
+            obj2->m_otFlags |= bt::OTF_POTENTIAL_OBJECT_COLLISION;
         }
     }
 
@@ -664,8 +683,8 @@ namespace ot {
                 });
 
                 obj->m_otFlags = (is_potentially_inside_tunnel)
-                    ? obj->m_otFlags | (bt::EOtCollisionFlags::CF_POTENTIAL_TUNNEL_COLLISION)
-                    : obj->m_otFlags & ~bt::EOtCollisionFlags::CF_POTENTIAL_TUNNEL_COLLISION;
+                    ? obj->m_otFlags | (bt::EOtFlags::OTF_POTENTIAL_TUNNEL_COLLISION)
+                    : obj->m_otFlags & ~bt::EOtFlags::OTF_POTENTIAL_TUNNEL_COLLISION;
 
                 tri_count += uint(_triangles.size());
 
@@ -723,7 +742,7 @@ namespace ot {
 
 
             //
-            if (obj->m_otFlags & bt::EOtCollisionFlags::CF_POTENTIAL_TUNNEL_COLLISION) {
+            if (obj->m_otFlags & bt::EOtFlags::OTF_POTENTIAL_TUNNEL_COLLISION) {
                 btPersistentManifold* man = res.getPersistentManifold();
                 int num_contacts = man->getNumContacts();
                 for (int j = 0; j < num_contacts; j++) {
@@ -1172,6 +1191,23 @@ namespace ot {
         _debug_lines.push(v7);
         _debug_lines.push(color);
             }
+
+        return false;
+    }
+
+
+    void discrete_dynamics_world::set_potential_collision_flag(btRigidBody * rb)
+    {
+        rb->m_otFlags &= ~bt::EOtFlags::OTF_POTENTIAL_OBJECT_COLLISION;
+
+        int num_pairs = m_broadphasePairCache->getOverlappingPairCache()->getNumOverlappingPairs();
+        btBroadphasePairArray& bpa = m_broadphasePairCache->getOverlappingPairCache()->getOverlappingPairArray();
+        for (int i = 0; i < num_pairs;i++) {
+            if (bpa[i].m_pProxy0->m_clientObject == rb || bpa[i].m_pProxy1->m_clientObject == rb) {
+                rb->m_otFlags |= bt::EOtFlags::OTF_POTENTIAL_OBJECT_COLLISION;
+            }
+        }
+    }
 
     void discrete_dynamics_world::add_debug_aabb(const btVector3 & min, const btVector3 & max, const btVector3& color)
     {
