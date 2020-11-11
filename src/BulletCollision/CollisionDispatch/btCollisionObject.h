@@ -306,18 +306,18 @@ public:
 
 	///Avoid using this internal API call, the extension pointer is used by some Bullet extensions. 
 	///If you need to store your own user pointer, use 'setUserPointer/getUserPointer' instead.
-	void*		internalGetExtensionPointer() const
+	void* internalGetExtensionPointer() const
 	{
 		return m_extensionPointer;
 	}
 	///Avoid using this internal API call, the extension pointer is used by some Bullet extensions
 	///If you need to store your own user pointer, use 'setUserPointer/getUserPointer' instead.
-	void	internalSetExtensionPointer(void* pointer)
+	void internalSetExtensionPointer(void* pointer)
 	{
 		m_extensionPointer = pointer;
 	}
 
-	SIMD_FORCE_INLINE	int	getActivationState() const { return m_activationState1;}
+	SIMD_FORCE_INLINE int getActivationState() const { return m_activationState1;}
 	
 	void setActivationState(int newState) const
     { 
@@ -325,16 +325,19 @@ public:
             m_activationState1 = newState;
     }
 
-	void	setDeactivationTime(btScalar time)
+	void setDeactivationTime(btScalar time)
 	{
 		m_deactivationTime = time;
 	}
-	btScalar	getDeactivationTime() const
+	btScalar getDeactivationTime() const
 	{
 		return m_deactivationTime;
 	}
 
-	void forceActivationState(int newState) const;
+	void forceActivationState(int newState) const
+	{
+		m_activationState1 = newState;
+	}
 
 	void activate(bool forceActivation = false) const
     {

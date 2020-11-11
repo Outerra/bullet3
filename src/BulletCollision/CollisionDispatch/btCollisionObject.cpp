@@ -59,11 +59,6 @@ btCollisionObject::~btCollisionObject()
 {
 }
 
-void btCollisionObject::forceActivationState(int newState) const
-{
-	m_activationState1 = newState;
-}
-
 const char* btCollisionObject::serialize(void* dataBuffer, btSerializer* serializer) const
 {
 	btCollisionObjectData* dataOut = (btCollisionObjectData*)dataBuffer;

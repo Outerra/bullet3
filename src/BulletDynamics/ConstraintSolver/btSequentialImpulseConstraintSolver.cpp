@@ -1809,24 +1809,25 @@ void btSequentialImpulseConstraintSolver::writeBackBodies(int iBegin, int iEnd, 
 	{
 	for (int i = iBegin; i < iEnd; i++)
 	{
-		btRigidBody* body = m_tmpSolverBodyPool[i].m_originalBody;
+		btSolverBody& solverbody = m_tmpSolverBodyPool[i];
+		btRigidBody* body = solverbody.m_originalBody;
 		if (body)
 		{
 			if (infoGlobal.m_splitImpulse)
-				m_tmpSolverBodyPool[i].writebackVelocityAndTransform(infoGlobal.m_timeStep, infoGlobal.m_splitImpulseTurnErp);
+				solverbody.writebackVelocityAndTransform(infoGlobal.m_timeStep, infoGlobal.m_splitImpulseTurnErp);
 			else
-				m_tmpSolverBodyPool[i].writebackVelocity();
+				solverbody.writebackVelocity();
 
 			body->setLinearVelocity(
-				m_tmpSolverBodyPool[i].m_linearVelocity+
-				m_tmpSolverBodyPool[i].m_externalForceImpulse);
+				solverbody.m_linearVelocity+
+				solverbody.m_externalForceImpulse);
 
 			body->setAngularVelocity(
-				m_tmpSolverBodyPool[i].m_angularVelocity+
-				m_tmpSolverBodyPool[i].m_externalTorqueImpulse);
+				solverbody.m_angularVelocity+
+				solverbody.m_externalTorqueImpulse);
 
 			if (infoGlobal.m_splitImpulse)
-				body->setWorldTransform(m_tmpSolverBodyPool[i].m_worldTransform);
+				body->setWorldTransform(solverbody.m_worldTransform);
 
 			body->setCompanionId(-1);
 		}
