@@ -801,7 +801,7 @@ namespace ot {
 
                 float3 p = float3(glm::normalize(tb->trees[j].pos)) * tb->trees[j].height;
                 float3 cen_rel(_from - tb->trees[j].pos);
-                if (coal::distance_point_segment_sqr(cen_rel, float3(0, 0, 0), p) < glm::pow(tb->trees[j].radius + _rad,2.f)) {
+                if (coal3d::distance_point_segment_sqr(cen_rel, float3(0, 0, 0), p) < glm::pow(tb->trees[j].radius + _rad,2.f)) {
                     tree_collision_pair tcp(cur_obj, bid, j);
                     tree_collision_pair * cached_tcp = _tree_collision_pairs.find_if([&](const tree_collision_pair& _tcp) {
                         return tcp == _tcp;
