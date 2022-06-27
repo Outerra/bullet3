@@ -267,7 +267,7 @@ void ot_terrain_contact_common::collide_sphere_triangle(const bt::triangle & tri
 	glm::vec3 cp;
     float u, v, w;
 	glm::vec3 tn = glm::normalize(glm::cross(triangle.b - triangle.a, triangle.c - triangle.a));
-	const float dist_sq = coal::distance_point_trinagle_sqr(_sphere_origin,
+	const float dist_sq = coal3d::distance_point_trinagle_sqr(_sphere_origin,
 		triangle.a, 
 		triangle.b, 
 		triangle.c,
@@ -311,7 +311,7 @@ void ot_terrain_contact_common::collide_capsule_triangle(const bt::triangle & tr
     const float3 ac = triangle.c - triangle.a;
     const float3 tn = glm::normalize(glm::cross(ab,ac));
     float t, u, v, w;
-    const float dist_sq = coal::distance_segment_triangle_sqr(_capsule_p0, _capsule_p1, triangle.a, triangle.b, triangle.c, t, u, v, w);
+    const float dist_sq = coal3d::distance_segment_triangle_sqr(_capsule_p0, _capsule_p1, triangle.a, triangle.b, triangle.c, t, u, v, w);
 
     if (dist_sq >= inf_rad_sq) {
         return;
@@ -450,7 +450,7 @@ bool GJK_contact_added(btManifoldPoint & cp, const btCollisionObjectWrapper * co
         cp.m_localPointB[1] - offset->y - current_processed_triangle->a.y,
         cp.m_localPointB[2] - offset->z - current_processed_triangle->a.z);
     float u, v, w;
-    coal::calculate_barycentric_coords(ab,ac,ap,u,v,w);
+    coal3d::calculate_barycentric_coords(ab,ac,ap,u,v,w);
     coal::EVoronoiFeature vf = coal::uvw_to_voronoi_feature(u,v,w);
 
     if (!coal::is_contact_on_convex_edge(vf,current_processed_triangle->t_flags)) {

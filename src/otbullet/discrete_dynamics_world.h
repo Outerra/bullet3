@@ -316,7 +316,7 @@ public:
             const btVector3& bt_aabb_half = cur_node->volume.Extents();
             double3 aabb_cen(bt_aabb_cen[0], bt_aabb_cen[1], bt_aabb_cen[2]);
             double3 aabb_half(bt_aabb_half[0], bt_aabb_half[1], bt_aabb_half[2]);
-            if (coal::intersects_sphere_aabb(pos, (double)rad, aabb_cen, aabb_half, (double*)nullptr)) {
+            if (coal3d::intersects_sphere_aabb(pos, (double)rad, aabb_cen, aabb_half, nullptr)) {
                 if (cur_node->isleaf()) {
                     if (cur_node->data) {
                         btDbvtProxy* dat = reinterpret_cast<btDbvtProxy*>(cur_node->data);
@@ -362,7 +362,7 @@ public:
             double3 node_aabb_cen(bt_node_aabb_cen[0], bt_node_aabb_cen[1], bt_node_aabb_cen[2]);
             double3 node_aabb_half(bt_node_aabb_half[0], bt_node_aabb_half[1], bt_node_aabb_half[2]);
 
-            if (coal::intersects_aabb_aabb(node_aabb_cen, node_aabb_half, aabb_cen, aabb_half)) {
+            if (coal3d::intersects_aabb_aabb(node_aabb_cen, node_aabb_half, aabb_cen, aabb_half)) {
 
                 if (cur_node->isleaf()) {
                     //add_debug_aabb(bt_node_aabb_cen - bt_node_aabb_half, bt_node_aabb_cen + bt_node_aabb_half, btVector3(1, 0, 0));
@@ -412,7 +412,7 @@ public:
             double3 aabb_cen(bt_aabb_cen[0], bt_aabb_cen[1], bt_aabb_cen[2]);
             float3 aabb_half(bt_aabb_half[0], bt_aabb_half[1], bt_aabb_half[2]);
 
-            if (coal::intersects_frustum_aabb(aabb_cen, aabb_half, pos, f_planes_norms, nplanes, true)) {
+            if (coal3d::intersects_frustum_aabb(aabb_cen, aabb_half, pos, f_planes_norms, nplanes, true)) {
                 if (cur_node->isleaf()) {
                     if (cur_node->data) {
                         btDbvtProxy* dat = reinterpret_cast<btDbvtProxy*>(cur_node->data);
