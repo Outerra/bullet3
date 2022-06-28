@@ -652,6 +652,8 @@ public:
 	virtual	const char*	serialize(void* dataBuffer, class btSerializer* serializer) const;
 
 	virtual void serializeSingleObject(class btSerializer* serializer) const;
+	virtual void predictIntegratedTransform(btScalar step, btTransform& predictedTransform);
+
 };
 
 // clang-format off

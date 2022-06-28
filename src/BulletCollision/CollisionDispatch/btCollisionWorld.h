@@ -173,7 +173,7 @@ public:
 		return m_debugDrawer;
 	}
 
-	virtual void	debugDrawWorld();
+	virtual void	debugDrawWorld(btScalar extrapolation_step);
 
 	virtual void debugDrawObject(const btTransform& worldTransform, const btCollisionShape* shape, const btVector3& color);
 

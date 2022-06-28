@@ -203,7 +203,7 @@ public:
 	}
 	
 	/// continuous collision detection needs prediction
-	void			predictIntegratedTransform(btScalar step, btTransform& predictedTransform) ;
+	virtual void			predictIntegratedTransform(btScalar step, btTransform& predictedTransform) override;
 	
 	void			saveKinematicState(btScalar step);
 	

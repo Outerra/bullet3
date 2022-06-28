@@ -177,9 +177,9 @@ static void _ext_add_static_collider(const void * context,btCollisionObject * ob
 #endif
 
 
-void debug_draw_world() {
+void debug_draw_world(btScalar extrapolation_step) {
     if (_physics) {
-        _physics->debug_draw_world();
+        _physics->debug_draw_world(extrapolation_step);
     }
 }
 
@@ -250,9 +250,9 @@ void physics::set_simulation_frame(uint frame)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::debug_draw_world() {
+void physics::debug_draw_world(btScalar extrapolation_step) {
     if (_dbg_drawer) {
-        _world->debugDrawWorld();
+        _world->debugDrawWorld(extrapolation_step);
     }
 }
 

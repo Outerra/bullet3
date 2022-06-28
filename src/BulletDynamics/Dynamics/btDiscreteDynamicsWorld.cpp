@@ -266,11 +266,11 @@ void	btDiscreteDynamicsWorld::saveKinematicState(btScalar timeStep)
 	}
 }
 
-void	btDiscreteDynamicsWorld::debugDrawWorld()
+void	btDiscreteDynamicsWorld::debugDrawWorld(btScalar extrapolation_step)
 {
 	BT_PROFILE("debugDrawWorld");
 
-	btCollisionWorld::debugDrawWorld();
+	btCollisionWorld::debugDrawWorld(extrapolation_step);
 
 	bool drawConstraints = false;
 	if (getDebugDrawer())
