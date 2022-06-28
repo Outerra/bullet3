@@ -155,9 +155,9 @@ void	btSoftRigidDynamicsWorld::removeCollisionObject(btCollisionObject* collisio
 		btDiscreteDynamicsWorld::removeCollisionObject(collisionObject);
 }
 
-void	btSoftRigidDynamicsWorld::debugDrawWorld()
+void	btSoftRigidDynamicsWorld::debugDrawWorld(btScalar extrapolation_step)
 {
-	btDiscreteDynamicsWorld::debugDrawWorld();
+	btDiscreteDynamicsWorld::debugDrawWorld(extrapolation_step);
 
 	if (getDebugDrawer())
 	{
