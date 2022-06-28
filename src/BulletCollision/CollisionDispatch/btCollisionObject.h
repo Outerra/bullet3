@@ -548,6 +548,8 @@ public:
 
 	virtual void serializeSingleObject(class btSerializer* serializer) const;
 
+	virtual void predictIntegratedTransform(btScalar step, btTransform& predictedTransform);
+
 };
 
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64

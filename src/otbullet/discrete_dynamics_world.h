@@ -217,7 +217,7 @@ public:
     virtual void removeCollisionObject(btCollisionObject* collisionObject) override;
     void removeCollisionObject_external(btCollisionObject* collisionObject);
 
-    virtual void debugDrawWorld() override;
+    virtual void debugDrawWorld(btScalar extrapolation_step) override;
 
     void set_ot_stats(bt::bullet_stats * stats) { _stats2 = stats; };
 

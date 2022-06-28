@@ -1449,7 +1449,7 @@ void btCollisionWorld::debugDrawObject(const btTransform& worldTransform, const 
 }
 
 
-void	btCollisionWorld::debugDrawWorld()
+void	btCollisionWorld::debugDrawWorld(btScalar extrapolation_step)
 {
 	if (getDebugDrawer())
 	{
@@ -1510,7 +1510,9 @@ void	btCollisionWorld::debugDrawWorld()
 							}
 						};
 
-						debugDrawObject(colObj->getWorldTransform(),colObj->getCollisionShape(),color);
+						btTransform obj_transform;
+						colObj->predictIntegratedTransform(extrapolation_step,obj_transform);
+						debugDrawObject(obj_transform,colObj->getCollisionShape(),color);
 					}
 					if (m_debugDrawer && (m_debugDrawer->getDebugMode() & btIDebugDraw::DBG_DrawAabb))
 					{

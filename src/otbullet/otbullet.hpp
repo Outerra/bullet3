@@ -114,7 +114,7 @@ public:
     ifc_fn bt::ot_world_physics_stats* get_stats_ptr();
     ifc_fn void set_debug_draw_enabled(btIDebugDraw * debug_drawer);
     ifc_fn void set_debug_drawer_mode(int debug_mode);
-    ifc_fn void debug_draw_world();
+    ifc_fn void debug_draw_world(btScalar extrapolation_step);
 
     ifc_fn void get_broadphase_handles_aabbs(const bt::external_broadphase * broadphase, coid::dynarray<double3>& minmaxes);
 
