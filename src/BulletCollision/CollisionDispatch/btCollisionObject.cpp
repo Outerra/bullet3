@@ -97,3 +97,8 @@ void btCollisionObject::serializeSingleObject(class btSerializer* serializer) co
 	const char* structType = serialize(chunk->m_oldPtr, serializer);
 	serializer->finalizeChunk(chunk,structType,BT_COLLISIONOBJECT_CODE,(void*)this);
 }
+
+void btCollisionObject::predictIntegratedTransform(btScalar step, btTransform& predictedTransform)
+{
+	predictedTransform = getWorldTransform();
+}

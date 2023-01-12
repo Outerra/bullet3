@@ -153,7 +153,7 @@ public:
 
 	virtual void	debugDrawConstraint(btTypedConstraint* constraint);
 
-	virtual void	debugDrawWorld();
+	virtual void	debugDrawWorld(btScalar extrapolation_step);
 
 	virtual void	setConstraintSolver(btConstraintSolver* solver);
 

@@ -794,7 +794,7 @@ void btMultiBodyDynamicsWorld::debugDrawMultiBodyConstraint(btMultiBodyConstrain
 }
 
 
-void	btMultiBodyDynamicsWorld::debugDrawWorld()
+void	btMultiBodyDynamicsWorld::debugDrawWorld(btScalar extrapolation_step)
 {
 	BT_PROFILE("btMultiBodyDynamicsWorld debugDrawWorld");
 
@@ -867,7 +867,7 @@ void	btMultiBodyDynamicsWorld::debugDrawWorld()
 		}
 	}
 
-	btDiscreteDynamicsWorld::debugDrawWorld();
+	btDiscreteDynamicsWorld::debugDrawWorld(extrapolation_step);
 }
 
 

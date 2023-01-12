@@ -52,7 +52,7 @@ public:
 
 	virtual ~btSoftRigidDynamicsWorld();
 
-	virtual void	debugDrawWorld();
+	virtual void	debugDrawWorld(btScalar extrapolation_step);
 
 	void	addSoftBody(btSoftBody* body,short int collisionFilterGroup=btBroadphaseProxy::DefaultFilter,short int collisionFilterMask=btBroadphaseProxy::AllFilter);
 

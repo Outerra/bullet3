@@ -93,7 +93,7 @@ public:
 
 	virtual void	integrateTransforms(btScalar timeStep);
 
-	virtual void	debugDrawWorld();
+	virtual void	debugDrawWorld(btScalar extrapolation_step);
 
 	virtual void	debugDrawMultiBodyConstraint(btMultiBodyConstraint* constraint);
 	

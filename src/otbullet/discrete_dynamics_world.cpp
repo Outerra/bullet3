@@ -992,13 +992,13 @@ namespace ot {
         return &tb->trees[tid];
     }
 
-    void discrete_dynamics_world::debugDrawWorld()
+    void discrete_dynamics_world::debugDrawWorld(btScalar extrapolation_step)
     {
         if (!m_debugDrawer) {
             return;
         }
 
-        btDiscreteDynamicsWorld::debugDrawWorld();
+        btDiscreteDynamicsWorld::debugDrawWorld(extrapolation_step);
 
         btVector3 cl_white(1, 1, 1);
 
