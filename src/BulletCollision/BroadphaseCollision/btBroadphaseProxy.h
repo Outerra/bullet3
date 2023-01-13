@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  https://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -60,8 +60,8 @@ CONCAVE_SHAPES_START_HERE,
 ///Used for GIMPACT Trimesh integration
 	GIMPACT_SHAPE_PROXYTYPE,
 ///Multimaterial mesh
-    MULTIMATERIAL_TRIANGLE_MESH_PROXYTYPE,
-	
+	MULTIMATERIAL_TRIANGLE_MESH_PROXYTYPE,
+
 	EMPTY_SHAPE_PROXYTYPE,
 	STATIC_PLANE_PROXYTYPE,
 	CUSTOM_CONCAVE_SHAPE_TYPE,
@@ -76,26 +76,26 @@ CONCAVE_SHAPES_END_HERE,
 	INVALID_SHAPE_PROXYTYPE,
 
 	MAX_BROADPHASE_COLLISION_TYPES
-	
+
 };
 
-///The btBroadphaseProxy is the main class that can be used with the Bullet broadphases. 
+///The btBroadphaseProxy is the main class that can be used with the Bullet broadphases.
 ///It stores collision shape type information, collision filter information and a client object, typically a btCollisionObject or btRigidBody.
 ATTRIBUTE_ALIGNED16(struct)
 btBroadphaseProxy
 {
 BT_DECLARE_ALIGNED_ALLOCATOR();
-	
+
 	///optional filtering to cull potential collisions
 	enum CollisionFilterGroups
 	{
-	        DefaultFilter = 1,
-	        StaticFilter = 2,
-	        KinematicFilter = 4,
-	        DebrisFilter = 8,
+			DefaultFilter = 1,
+			StaticFilter = 2,
+			KinematicFilter = 4,
+			DebrisFilter = 8,
 			SensorTrigger = 16,
 			CharacterFilter = 32,
-	        AllFilter = -1 //all bits sets: DefaultFilter | StaticFilter | KinematicFilter | DebrisFilter | SensorTrigger
+			AllFilter = -1 //all bits sets: DefaultFilter | StaticFilter | KinematicFilter | DebrisFilter | SensorTrigger
 	};
 
 	//Usually the client btCollisionObject or Rigidbody class
@@ -104,7 +104,7 @@ BT_DECLARE_ALIGNED_ALLOCATOR();
 	int m_collisionFilterMask;
 
 	int			m_uniqueId;//m_uniqueId is introduced for paircache. could get rid of this, by calculating the address offset etc.
-    unsigned int m_ot_revision = 0xffffffff;
+	unsigned int m_ot_revision = 0xffffffff;
 
 	btVector3	m_aabbMin;
 	btVector3	m_aabbMax;
@@ -192,23 +192,23 @@ BT_DECLARE_ALIGNED_ALLOCATOR();
 	{
 		//keep them sorted, so the std::set operations work
 		if (proxy0.m_uniqueId < proxy1.m_uniqueId)
-        { 
-            m_pProxy0 = &proxy0; 
-            m_pProxy1 = &proxy1; 
-        }
-        else 
-        { 
-			m_pProxy0 = &proxy1; 
-            m_pProxy1 = &proxy0; 
-        }
+		{
+			m_pProxy0 = &proxy0;
+			m_pProxy1 = &proxy1;
+		}
+		else
+		{
+			m_pProxy0 = &proxy1;
+			m_pProxy1 = &proxy0;
+		}
 
 		m_algorithm = 0;
 		m_internalInfo1 = 0;
 	}
-	
+
 	btBroadphaseProxy* m_pProxy0;
 	btBroadphaseProxy* m_pProxy1;
-	
+
 	mutable btCollisionAlgorithm* m_algorithm;
 	union {
 		void* m_internalInfo1;
@@ -218,10 +218,10 @@ BT_DECLARE_ALIGNED_ALLOCATOR();
 
 /*
 //comparison for set operation, see Solid DT_Encounter
-SIMD_FORCE_INLINE bool operator<(const btBroadphasePair& a, const btBroadphasePair& b) 
-{ 
-    return a.m_pProxy0 < b.m_pProxy0 || 
-        (a.m_pProxy0 == b.m_pProxy0 && a.m_pProxy1 < b.m_pProxy1); 
+SIMD_FORCE_INLINE bool operator<(const btBroadphasePair& a, const btBroadphasePair& b)
+{
+	return a.m_pProxy0 < b.m_pProxy0 ||
+		(a.m_pProxy0 == b.m_pProxy0 && a.m_pProxy1 < b.m_pProxy1);
 }
 */
 
@@ -235,13 +235,13 @@ class btBroadphasePairSortPredicate
 			const int uidA1 = a.m_pProxy1 ? a.m_pProxy1->m_uniqueId : -1;
 			const int uidB1 = b.m_pProxy1 ? b.m_pProxy1->m_uniqueId : -1;
 
-			 return uidA0 > uidB0 || 
+			 return uidA0 > uidB0 ||
 				(a.m_pProxy0 == b.m_pProxy0 && uidA1 > uidB1) ||
-				(a.m_pProxy0 == b.m_pProxy0 && a.m_pProxy1 == b.m_pProxy1 && a.m_algorithm > b.m_algorithm); 
+				(a.m_pProxy0 == b.m_pProxy0 && a.m_pProxy1 == b.m_pProxy1 && a.m_algorithm > b.m_algorithm);
 		}
 };
 
-SIMD_FORCE_INLINE bool operator==(const btBroadphasePair& a, const btBroadphasePair& b) 
+SIMD_FORCE_INLINE bool operator==(const btBroadphasePair& a, const btBroadphasePair& b)
 {
 	 return (a.m_pProxy0 == b.m_pProxy0) && (a.m_pProxy1 == b.m_pProxy1);
 }

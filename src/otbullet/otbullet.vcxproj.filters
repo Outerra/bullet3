@@ -20,6 +20,7 @@
     <ClInclude Include="..\..\src\otbullet\tree_batch.h" />
     <ClInclude Include="physics.h" />
     <ClInclude Include="multithread_default_collision_configuration.h" />
+    <ClInclude Include="otflags.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\otbullet\otbullet.inl" />

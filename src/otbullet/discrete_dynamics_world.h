@@ -288,7 +288,7 @@ public:
     }
 
     void get_obb(const btCollisionShape * cs, const btTransform& t, double3& cen, float3x3& basis);
-    
+
     template<class fn> // void (*fn)(btCollisionObject * obj)
     void query_volume_sphere(bt32BitAxisSweep3 * broadphase, const double3& pos, float rad, fn process_fn)
     {
@@ -450,7 +450,7 @@ public:
     void add_terrain_occluder(btGhostObject * go) { _terrain_occluders.push(go); }
     void remove_terrain_occluder(btGhostObject * go);
     bool is_point_inside_terrain_occluder(const btVector3& pt);
-    void set_potential_collision_flag(btRigidBody * rb);
+    //void set_potential_collision_flag(btRigidBody * rb);
     template<class fn> // void (*fn)(btCollisionObject * obj)
     void for_each_object_in_broadphase(bt32BitAxisSweep3 * broadphase, uint revision, fn process_fn) {
         static coid::dynarray<const btDbvtNode *> _processing_stack(1024);

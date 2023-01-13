@@ -272,38 +272,37 @@ void	btDiscreteDynamicsWorld::debugDrawWorld(btScalar extrapolation_step)
 
 	btCollisionWorld::debugDrawWorld(extrapolation_step);
 
-	bool drawConstraints = false;
-	if (getDebugDrawer())
+	int mode = 0;
+	btIDebugDraw* ddraw = getDebugDrawer();
+
+	if (ddraw)
+		mode = ddraw->getDebugMode();
+
+	if (mode & (btIDebugDraw::DBG_DrawConstraints | btIDebugDraw::DBG_DrawConstraintLimits))
 	{
-		int mode = getDebugDrawer()->getDebugMode();
-		if(mode  & (btIDebugDraw::DBG_DrawConstraints | btIDebugDraw::DBG_DrawConstraintLimits))
-		{
-			drawConstraints = true;
-		}
-	}
-	if(drawConstraints)
-	{
-		for(int i = getNumConstraints()-1; i>=0 ;i--)
+		for (int i = getNumConstraints() - 1; i >= 0; i--)
 		{
 			btTypedConstraint* constraint = getConstraint(i);
 			debugDrawConstraint(constraint);
 		}
 	}
 
-    if (getDebugDrawer() && (getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb | btIDebugDraw::DBG_DrawNormals)))
+	if (ddraw)
 	{
-		int i;
-
-		if (getDebugDrawer() && getDebugDrawer()->getDebugMode())
+		if (mode & (btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb | btIDebugDraw::DBG_DrawNormals))
 		{
-			for (i=0;i<m_actions.size();i++)
+			int i;
+
+			if (getDebugDrawer() && mode)
 			{
-				m_actions[i]->debugDraw(m_debugDrawer);
+				for (i = 0; i < m_actions.size(); i++)
+				{
+					m_actions[i]->debugDraw(m_debugDrawer);
+				}
 			}
 		}
+		ddraw->flushLines();
 	}
-    if (getDebugDrawer())
-        getDebugDrawer()->flushLines();
 }
 
 void	btDiscreteDynamicsWorld::clearForces()
@@ -582,7 +581,7 @@ bool btDiscreteDynamicsWorld::addRigidBody(btRigidBody* body, int group, int mas
             return false;
         }
 
-        
+
         if (!body->isStaticObject())
 		{
 			m_nonStaticRigidBodies.push_back(body);
@@ -648,7 +647,7 @@ void	btDiscreteDynamicsWorld::addConstraint(btTypedConstraint* constraint,bool d
 	m_constraints.push_back(constraint);
     //Make sure the two bodies of a type constraint are different (possibly add this to the btTypedConstraint constructor?)
     btAssert(&constraint->getRigidBodyA()!=&constraint->getRigidBodyB());
-    
+
 	if (disableCollisionsBetweenLinkedBodies)
 	{
 		constraint->getRigidBodyA().addConstraintRef(constraint);
