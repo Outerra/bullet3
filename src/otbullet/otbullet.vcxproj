@@ -326,6 +326,7 @@
     <ClInclude Include="..\..\src\otbullet\physics.js.h" />
     <ClInclude Include="..\..\src\otbullet\physics_cfg.h" />
     <ClInclude Include="..\..\src\otbullet\tree_batch.h" />
+    <ClInclude Include="otflags.h" />
     <ClInclude Include="multithread_default_collision_configuration.h" />
     <ClInclude Include="shape_info_cfg.h" />
     <ClInclude Include="physics.h" />

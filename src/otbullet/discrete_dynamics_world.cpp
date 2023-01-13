@@ -127,14 +127,14 @@ namespace ot {
 
 
     void discrete_dynamics_world::delete_external_broadphase(bt::external_broadphase * bp) {
-        
+
         bp->_procedural_objects.for_each([&](btCollisionObject*& proc_obj)
         {
             btGhostObject * ghost = btGhostObject::upcast(proc_obj);
             if (ghost) {
                 remove_terrain_occluder(ghost);
             }
-            
+
             removeCollisionObject_external(proc_obj);
             delete (proc_obj);
         });
@@ -260,7 +260,7 @@ namespace ot {
                     bp->_broadphase->destroyProxy(proxy,getDispatcher());
                     proxy->m_ot_revision = 0xffffffff; // invalidate proxy
                     btCollisionObject* client_object = static_cast<btCollisionObject*>(proxy->m_clientObject);
-                    
+
                     if (client_object && client_object->getBroadphaseHandle() == proxy) { // client object has still same proxy that is invalid so clear it (it happens when object is set not visible)
                         client_object->setBroadphaseHandle(nullptr);
                     }
@@ -365,7 +365,7 @@ namespace ot {
                 ghost->addOverlappingObjectInternal(obj2->getBroadphaseHandle());
             }
 
-            obj2->m_otFlags |= bt::OTF_POTENTIAL_OBJECT_COLLISION;
+            obj2->m_otFlags |= bt::OTF_POTENTIAL_TERRAIN_OBJECT_COLLISION;
         }
     }
 
@@ -434,8 +434,8 @@ namespace ot {
     void discrete_dynamics_world::rayTest(const btVector3 & rayFromWorld, const btVector3 & rayToWorld, RayResultCallback & resultCallback, bt::external_broadphase* bp) const
     {
             btCollisionWorld::btSingleRayCallback rayCB(rayFromWorld, rayToWorld, this, resultCallback);
-            if (bp) { 
-                bp->_broadphase->rayTest(rayFromWorld, rayToWorld, rayCB); 
+            if (bp) {
+                bp->_broadphase->rayTest(rayFromWorld, rayToWorld, rayCB);
             }
             else {
                 m_broadphasePairCache->rayTest(rayFromWorld, rayToWorld, rayCB);
@@ -508,10 +508,10 @@ namespace ot {
         for (int i = 0; i < m_collisionObjects.size(); i++) {
             _cow_internal.clear();
             _compound_processing_stack.clear();
-            btCollisionObject * obj = m_collisionObjects[i];
-            btRigidBody * rb = btRigidBody::upcast(obj);
+            btCollisionObject* obj = m_collisionObjects[i];
+            btRigidBody* rb = btRigidBody::upcast(obj);
 
-            if (!rb || 
+            if (!rb ||
                 (obj->getCollisionShape()->getShapeType() != SPHERE_SHAPE_PROXYTYPE &&
                 obj->getCollisionShape()->getShapeType() != CAPSULE_SHAPE_PROXYTYPE &&
                 !obj->getCollisionShape()->isConvex() &&
@@ -524,6 +524,8 @@ namespace ot {
             if (rb->getActivationState() == ISLAND_SLEEPING) {
                 continue;
             }
+
+            rb->m_otFlags &= ~(bt::OTF_POTENTIAL_OBJECT_COLLISION | bt::OTF_POTENTIAL_TERRAIN_OBJECT_COLLISION);
 
             btPersistentManifold * manifold;
             if (rb->getTerrainManifoldHandle() == UMAX32) {
@@ -1028,10 +1030,8 @@ namespace ot {
             m_debugDrawer->drawLine(c, a, cl_white);
         }
 
-        _debug_trees.for_each([&](uint tid) {
-
-
-
+        _debug_trees.for_each([&](uint tid)
+        {
                // const tree_flex_inf* tfi = _debug_terrain_trees_active.find_value(t->identifier);
                 //float3 displacement = (tfi) ? tfi->_flex : float3(0);
 
@@ -1166,7 +1166,7 @@ namespace ot {
     }
 
 
-    void discrete_dynamics_world::set_potential_collision_flag(btRigidBody * rb)
+    /*void discrete_dynamics_world::set_potential_collision_flag(btRigidBody * rb)
     {
         rb->m_otFlags &= ~bt::EOtFlags::OTF_POTENTIAL_OBJECT_COLLISION;
 
@@ -1177,7 +1177,7 @@ namespace ot {
                 rb->m_otFlags |= bt::EOtFlags::OTF_POTENTIAL_OBJECT_COLLISION;
             }
         }
-    }
+    }*/
 
     void discrete_dynamics_world::add_debug_aabb(const btVector3 & min, const btVector3 & max, const btVector3& color)
     {

@@ -222,11 +222,11 @@ public:
 	{
 		btScalar	m_closestHitFraction;
 		const btCollisionObject*		m_collisionObject;
-		short int	m_collisionFilterGroup;
-		short int	m_collisionFilterMask;
+		unsigned short int	m_collisionFilterGroup;
+		unsigned short int	m_collisionFilterMask;
 		//@BP Mod - Custom flags, currently used to enable backface culling on tri-meshes, see btRaycastCallback.h. Apply any of the EFlags defined there on m_flags here to invoke.
 		unsigned int m_flags;
-        bool m_check_ot_local_broadphases;
+		bool m_check_ot_local_broadphases;
 
 		virtual ~RayResultCallback()
 		{
@@ -243,9 +243,9 @@ public:
 			m_collisionFilterMask(btBroadphaseProxy::AllFilter),
 			//@BP Mod
 			m_flags(0),
-            m_check_ot_local_broadphases(true)
-        {
-        }
+			m_check_ot_local_broadphases(true)
+		{
+		}
 
 		virtual bool needsCollision(btBroadphaseProxy* proxy0) const
 		{
@@ -437,8 +437,8 @@ public:
 	struct	ConvexResultCallback
 	{
 		btScalar	m_closestHitFraction;
-		short int	m_collisionFilterGroup;
-		short int	m_collisionFilterMask;
+		unsigned short int	m_collisionFilterGroup;
+		unsigned short int	m_collisionFilterMask;
 
 		ConvexResultCallback()
 			:m_closestHitFraction(btScalar(1.)),
@@ -507,8 +507,8 @@ public:
 	///ContactResultCallback is used to report contact points
 	struct	ContactResultCallback
 	{
-		short int	m_collisionFilterGroup;
-		short int	m_collisionFilterMask;
+		unsigned short int	m_collisionFilterGroup;
+		unsigned short int	m_collisionFilterMask;
 
 		ContactResultCallback()
 			:m_collisionFilterGroup(btBroadphaseProxy::DefaultFilter),

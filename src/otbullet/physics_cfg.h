@@ -6,6 +6,7 @@
 #include <ot/glm/glm_types.h>
 
 #include <comm/dynarray.h>
+#include "otflags.h"
 
 class rigid_body_constraint;
 class terrain_mesh;
@@ -15,14 +16,6 @@ class btRigidBody;
 class simple_collider;
 
 namespace bt {
-
-enum EOtFlags {
-	OTF_POTENTIAL_TUNNEL_COLLISION = 1,
-    OTF_POTENTIAL_OBJECT_COLLISION = 2,
-    OTF_TRANSFORMATION_CHANGED = 4,
-
-    OTF_COUNT
-};
 
 enum EShape {
     SHAPE_NONE = 0,
@@ -53,7 +46,7 @@ struct triangle
     uint32 idx_a;
     uint32 idx_b;
     uint32 idx_c;
-	const double3 * parent_offset_p;
+    const double3 * parent_offset_p;
     uint32 tri_idx;
     float fric;
     float roll_fric;
@@ -67,7 +60,7 @@ struct triangle
         uint32 ib,
         uint32 ic,
         uint8 flags,
-		const double3 * offsetp,
+        const double3 * offsetp,
         uint32 tri_idx)
         : a(va)
         , b(vb)
@@ -76,7 +69,7 @@ struct triangle
         , idx_b(ib)
         , idx_c(ic)
         , t_flags(flags)
-		, parent_offset_p(offsetp)
+        , parent_offset_p(offsetp)
         , tri_idx(tri_idx)
         , fric(1.0f)
         , roll_fric(1.0f)
@@ -143,7 +136,7 @@ struct tree_collision_contex {
 
     float just_temp_r;
 
-    tree_collision_contex() 
+    tree_collision_contex()
         : tree_identifier(0xffffffff)
     , braking_force(0)
     , collision_duration(0)
@@ -218,7 +211,7 @@ struct external_broadphase {
     uint _revision = 0;
     bool _was_used_this_frame = false;
 
-    external_broadphase(const double3& min, const double3& max) 
+    external_broadphase(const double3& min, const double3& max)
     {
         _broadphase = new bt32BitAxisSweep3(btVector3(min.x, min.y, min.z), btVector3(max.x, max.y, max.z), 5000);
     }

@@ -22,6 +22,7 @@ subject to the following restrictions:
 #include "LinearMath/btAabbUtil2.h"
 
 #include "../CollisionDispatch/btCollisionObject.h"
+#include "../src/otbullet/otflags.h"
 
 #include <stdio.h>
 
@@ -56,11 +57,9 @@ void	btHashedOverlappingPairCache::cleanOverlappingPair(btBroadphasePair& pair,b
 {
 	if (pair.m_algorithm && dispatcher)
 	{
-		{
-			pair.m_algorithm->~btCollisionAlgorithm();
-			dispatcher->freeCollisionAlgorithm(pair.m_algorithm);
-			pair.m_algorithm=0;
-		}
+		pair.m_algorithm->~btCollisionAlgorithm();
+		dispatcher->freeCollisionAlgorithm(pair.m_algorithm);
+		pair.m_algorithm=0;
 	}
 }
 
@@ -377,25 +376,28 @@ void* btHashedOverlappingPairCache::removeOverlappingPair(btBroadphaseProxy* pro
 
 void	btHashedOverlappingPairCache::processAllOverlappingPairs(btOverlapCallback* callback,btDispatcher* dispatcher)
 {
-
 	int i;
 
 //	printf("m_overlappingPairArray.size()=%d\n",m_overlappingPairArray.size());
-	for (i=0;i<m_overlappingPairArray.size();)
+	for (i = 0; i < m_overlappingPairArray.size();)
 	{
 		btBroadphasePair* pair = &m_overlappingPairArray[i];
-		
-		static_cast<btCollisionObject*>(pair->m_pProxy0->m_clientObject)->m_otFlags |= 2; // 	CF_POTENTIAL_OBJECT_COLLISION = 2
+
+		if (pair->m_pProxy1->m_collisionFilterGroup & (2|4)) //dynamic objects
+			static_cast<btCollisionObject*>(pair->m_pProxy0->m_clientObject)->m_otFlags |= bt::OTF_POTENTIAL_OBJECT_COLLISION;
 		static_cast<btCollisionObject*>(pair->m_pProxy0->m_clientObject)->m_last_collision_pair_frame = gCurrentFrame;
-		static_cast<btCollisionObject*>(pair->m_pProxy1->m_clientObject)->m_otFlags |= 2; // 	CF_POTENTIAL_OBJECT_COLLISION = 2
+
+		if (pair->m_pProxy0->m_collisionFilterGroup & (2|4)) //dynamic objects
+			static_cast<btCollisionObject*>(pair->m_pProxy1->m_clientObject)->m_otFlags |= bt::OTF_POTENTIAL_OBJECT_COLLISION;
 		static_cast<btCollisionObject*>(pair->m_pProxy1->m_clientObject)->m_last_collision_pair_frame = gCurrentFrame;
-		
+
 		if (callback->processOverlap(*pair))
 		{
-			removeOverlappingPair(pair->m_pProxy0,pair->m_pProxy1,dispatcher);
+			removeOverlappingPair(pair->m_pProxy0, pair->m_pProxy1, dispatcher);
 
 			gOverlappingPairs--;
-		} else
+		}
+		else
 		{
 			i++;
 		}

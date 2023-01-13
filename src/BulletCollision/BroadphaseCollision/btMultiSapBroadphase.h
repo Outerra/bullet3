@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -35,7 +35,7 @@ typedef btAlignedObjectArray<btBroadphaseInterface*> btSapBroadphaseArray;
 class btMultiSapBroadphase :public btBroadphaseInterface
 {
 	btSapBroadphaseArray	m_sapBroadphases;
-	
+
 	btSimpleBroadphase*		m_simpleBroadphase;
 
 	btOverlappingPairCache*	m_overlappingPairs;
@@ -44,7 +44,7 @@ class btMultiSapBroadphase :public btBroadphaseInterface
 
 
 	bool					m_ownsPairCache;
-	
+
 	btOverlapFilterCallback*	m_filterCallback;
 
 	int			m_invalidPair;
@@ -69,8 +69,8 @@ public:
 		int	m_shapeType;
 
 /*		void*	m_userPtr;
-		short int	m_collisionFilterGroup;
-		short int	m_collisionFilterMask;
+		unsigned short int	m_collisionFilterGroup;
+		unsigned short int	m_collisionFilterMask;
 */
 		btMultiSapProxy(const btVector3& aabbMin,  const btVector3& aabbMax,int shapeType,void* userPtr, short int collisionFilterGroup,short int collisionFilterMask)
 			:btBroadphaseProxy(aabbMin,aabbMax,userPtr,collisionFilterGroup,collisionFilterMask),
@@ -81,7 +81,7 @@ public:
 			m_multiSapParentProxy =this;
 		}
 
-		
+
 	};
 
 protected:
