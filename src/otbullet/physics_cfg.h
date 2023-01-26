@@ -46,21 +46,21 @@ struct triangle
     uint32 idx_a;
     uint32 idx_b;
     uint32 idx_c;
-    const double3 * parent_offset_p;
+    const double3* parent_offset_p;
     uint32 tri_idx;
     float fric;
     float roll_fric;
     float rest;
 
-    triangle(){}
-    triangle(const float3 & va,
-        const float3 & vb,
-        const float3 & vc,
+    triangle() {}
+    triangle(const float3& va,
+        const float3& vb,
+        const float3& vc,
         uint32 ia,
         uint32 ib,
         uint32 ic,
         uint8 flags,
-        const double3 * offsetp,
+        const double3* offsetp,
         uint32 tri_idx)
         : a(va)
         , b(vb)
@@ -88,7 +88,7 @@ struct tree
     float radius;
     float height;
     float max_flex;
-    int8 * spring_force_uv;
+    int8* spring_force_uv;
     //uint8 objbuf[sizeof(btCollisionObject)];
     //uint8 shapebuf[sizeof(btCapsuleShape)];
 };
@@ -137,13 +137,13 @@ struct tree_collision_contex {
 
     tree_collision_contex()
         : tree_identifier(0xffffffff)
-    , braking_force(0)
-    , collision_duration(0)
-    , collision_started(false)
-    , custom_handling(false)
-    , force_apply_pt(0,0,0)
-    , force_dir(0,0,0)
-    , orig_tree_dir(0,0,0)
+        , braking_force(0)
+        , collision_duration(0)
+        , collision_started(false)
+        , custom_handling(false)
+        , force_apply_pt(0, 0, 0)
+        , force_dir(0, 0, 0)
+        , orig_tree_dir(0, 0, 0)
     {}
 };
 
@@ -175,27 +175,23 @@ class constraint_info
 {
 public:
 
-    constraint_info()
-        : _constraint(0)
-    {}
-
-    virtual void getInfo1( btTypedConstraint::btConstraintInfo1* info ) = 0;
-    virtual void getInfo2( btTypedConstraint::btConstraintInfo2* info ) = 0;
+    virtual void getInfo1(btTypedConstraint::btConstraintInfo1* info, void* userptr, int usertype) = 0;
+    virtual void getInfo2(btTypedConstraint::btConstraintInfo2* info, void* userptr, int usertype) = 0;
 
     virtual ~constraint_info()
     {}
 
-    rigid_body_constraint* _constraint;
+    btTypedConstraint* _constraint = 0;
 };
 
 struct external_broadphase {
     struct broadphase_entry {
-        btCollisionObject * _collision_object = nullptr;
+        btCollisionObject* _collision_object = nullptr;
         uint _collision_mask = 0;
         uint _collision_group = 0;
         bool _procedural = false;
 
-        broadphase_entry(btCollisionObject * col_obj, uint col_mask, uint col_group, bool procedural = false)
+        broadphase_entry(btCollisionObject* col_obj, uint col_mask, uint col_group, bool procedural = false)
             : _collision_object(col_obj)
             , _collision_mask(col_mask)
             , _collision_group(col_group)
@@ -203,7 +199,7 @@ struct external_broadphase {
         {}
     };
 
-    bt32BitAxisSweep3 * _broadphase;
+    bt32BitAxisSweep3* _broadphase;
     coid::dynarray<broadphase_entry> _entries;
     coid::dynarray<btCollisionObject*> _procedural_objects;
     bool _dirty = false;

@@ -26,12 +26,12 @@ public:
     virtual ~rigid_body_constraint()
     {}
 
-    virtual void getInfo1( btTypedConstraint::btConstraintInfo1* info ) {
-        return _info->getInfo1(info);
+    virtual void getInfo1(btTypedConstraint::btConstraintInfo1* info) {
+        return _info->getInfo1(info, getUserConstraintPtr(), getUserConstraintType());
     }
 
-    virtual void getInfo2( btTypedConstraint::btConstraintInfo2* info ) {
-        return _info->getInfo2(info);
+    virtual void getInfo2(btTypedConstraint::btConstraintInfo2* info) {
+        return _info->getInfo2(info, getUserConstraintPtr(), getUserConstraintType());
     }
 
     virtual	void setParam(int num, btScalar value, int axis = -1) {}
@@ -46,15 +46,15 @@ btRigidBody* physics::fixed_object()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-btRigidBody* physics::create_rigid_body( float mass, btCollisionShape* shape, void* usr1, void* usr2 )
+btRigidBody* physics::create_rigid_body(float mass, btCollisionShape* shape, void* usr1, void* usr2)
 {
     btAssert((!shape || shape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
 
     //rigidbody is dynamic if and only if mass is non zero, otherwise static
     bool dynamic = (mass != 0.f);
 
-    btVector3 localInertia(0,0,0);
-    if(dynamic)
+    btVector3 localInertia(0, 0, 0);
+    if (dynamic)
         shape->calculateLocalInertia(mass, localInertia);
 
     //using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
@@ -76,27 +76,27 @@ btRigidBody* physics::create_rigid_body( float mass, btCollisionShape* shape, vo
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::destroy_rigid_body( btRigidBody*& obj )
+void physics::destroy_rigid_body(btRigidBody*& obj)
 {
     delete obj;
     obj = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool physics::add_rigid_body( btRigidBody* obj, unsigned int group, unsigned int mask,
-    btActionInterface* action, bt::constraint_info* constraint )
+bool physics::add_rigid_body(btRigidBody* obj, unsigned int group, unsigned int mask,
+    btActionInterface* action, bt::constraint_info* constraint)
 {
-//    if(action)
-//		obj->setActivationState(DISABLE_DEACTIVATION);
+    //    if(action)
+    //		obj->setActivationState(DISABLE_DEACTIVATION);
 
     if (!_world->addRigidBody(obj, group, mask)) {
         return false;
     };
 
-    if(action)
+    if (action)
         _world->addAction(action);
 
-    if(constraint) {
+    if (constraint) {
         rigid_body_constraint* btcon = new rigid_body_constraint(constraint, obj);
         constraint->_constraint = btcon;
 
@@ -107,12 +107,12 @@ bool physics::add_rigid_body( btRigidBody* obj, unsigned int group, unsigned int
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::remove_rigid_body( btRigidBody* obj, btActionInterface* action, bt::constraint_info* constraint )
+void physics::remove_rigid_body(btRigidBody* obj, btActionInterface* action, bt::constraint_info* constraint)
 {
-    if(action)
+    if (action)
         _world->removeAction(action);
-    if(constraint) {
-        rigid_body_constraint* btcon = constraint->_constraint;
+    if (constraint) {
+        btTypedConstraint* btcon = constraint->_constraint;
         _world->removeConstraint(btcon);
 
         delete btcon;
@@ -126,44 +126,44 @@ void physics::remove_rigid_body( btRigidBody* obj, btActionInterface* action, bt
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::pause_rigid_body( btRigidBody* obj, bool pause )
+void physics::pause_rigid_body(btRigidBody* obj, bool pause)
 {
     obj->forceActivationState(pause ? DISABLE_SIMULATION : ACTIVE_TAG);
 
-    if(pause) {
-        btVector3 v(0,0,0);
+    if (pause) {
+        btVector3 v(0, 0, 0);
         obj->setLinearVelocity(v);
         obj->setAngularVelocity(v);
     }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::set_rigid_body_mass( btRigidBody* obj, float mass, const float inertia[3] )
+void physics::set_rigid_body_mass(btRigidBody* obj, float mass, const float inertia[3])
 {
     obj->setMassProps(mass, btVector3(inertia[0], inertia[1], inertia[2]));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::set_rigid_body_gravity( btRigidBody* obj, const double gravity[3] )
+void physics::set_rigid_body_gravity(btRigidBody* obj, const double gravity[3])
 {
     obj->setGravity(btVector3(gravity[0], gravity[1], gravity[2]));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::set_rigid_body_transform( btRigidBody* obj, const btTransform& tr, const double gravity[3] )
+void physics::set_rigid_body_transform(btRigidBody* obj, const btTransform& tr, const double gravity[3])
 {
     obj->setCenterOfMassTransform(tr);
     obj->setGravity(btVector3(gravity[0], gravity[1], gravity[2]));
-    
-    if(obj->getBroadphaseProxy())
+
+    if (obj->getBroadphaseProxy())
     {
-       //_world->updateSingleAabb(obj);
+        //_world->updateSingleAabb(obj);
         obj->m_otFlags |= bt::OTF_TRANSFORMATION_CHANGED;
     }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::predict_rigid_body_transform( btRigidBody* obj, double dt, btTransform& tr )
+void physics::predict_rigid_body_transform(btRigidBody* obj, double dt, btTransform& tr)
 {
     obj->predictIntegratedTransform(dt, tr);
 }
