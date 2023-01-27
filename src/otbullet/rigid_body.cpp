@@ -21,7 +21,9 @@ public:
     rigid_body_constraint(bt::constraint_info* ci, btRigidBody* rb)
         : btTypedConstraint(CONTACT_CONSTRAINT_TYPE, *rb)
         , _info(ci)
-    {}
+    {
+        ci->_constraint = this;
+    }
 
     virtual ~rigid_body_constraint()
     {}
@@ -84,7 +86,7 @@ void physics::destroy_rigid_body(btRigidBody*& obj)
 
 ////////////////////////////////////////////////////////////////////////////////
 bool physics::add_rigid_body(btRigidBody* obj, unsigned int group, unsigned int mask,
-    btActionInterface* action, bt::constraint_info* constraint)
+    btActionInterface* action, bt::constraint_info* constraint_info, int constraint_type)
 {
     //    if(action)
     //		obj->setActivationState(DISABLE_DEACTIVATION);
@@ -96,10 +98,10 @@ bool physics::add_rigid_body(btRigidBody* obj, unsigned int group, unsigned int 
     if (action)
         _world->addAction(action);
 
-    if (constraint) {
-        rigid_body_constraint* btcon = new rigid_body_constraint(constraint, obj);
-        constraint->_constraint = btcon;
-
+    if (constraint_info) {
+        rigid_body_constraint* btcon = new rigid_body_constraint(constraint_info, obj);
+        btcon->setUserConstraintPtr(constraint_info);
+        btcon->setUserConstraintType(constraint_type);
         _world->addConstraint(btcon);
     }
 

@@ -299,12 +299,12 @@ btSimdScalar btSequentialImpulseConstraintSolver::resolveSingleConstraintRowLowe
 
 
 void	btSequentialImpulseConstraintSolver::resolveSplitPenetrationImpulseCacheFriendly(
-        btSolverBody& body1,
-        btSolverBody& body2,
-        const btSolverConstraint& c)
+		btSolverBody& body1,
+		btSolverBody& body2,
+		const btSolverConstraint& c)
 {
 		if (c.m_rhsPenetration)
-        {
+		{
 			gNumSplitImpulseRecoveries++;
 			btScalar deltaImpulse = c.m_rhsPenetration-btScalar(c.m_appliedPushImpulse)*c.m_cfm;
 			const btScalar deltaVel1Dotn	=	c.m_contactNormal1.dot(body1.internalGetPushVelocity()) 	+ c.m_relpos1CrossNormal.dot(body1.internalGetTurnVelocity());
@@ -324,7 +324,7 @@ void	btSequentialImpulseConstraintSolver::resolveSplitPenetrationImpulseCacheFri
 			}
 			body1.internalApplyPushImpulse(c.m_contactNormal1*body1.internalGetInvMass(),c.m_angularComponentA,deltaImpulse);
 			body2.internalApplyPushImpulse(c.m_contactNormal2*body2.internalGetInvMass(),c.m_angularComponentB,deltaImpulse);
-        }
+		}
 }
 
  void btSequentialImpulseConstraintSolver::resolveSplitPenetrationSIMD(btSolverBody& body1,btSolverBody& body2,const btSolverConstraint& c)
@@ -723,7 +723,7 @@ int	btSequentialImpulseConstraintSolver::getOrInitSolverBody(btCollisionObject& 
 	{
 		//body has already been converted
 		solverBodyIdA = body.getCompanionId();
-        btAssert(solverBodyIdA < m_tmpSolverBodyPool.size());
+		btAssert(solverBodyIdA < m_tmpSolverBodyPool.size());
 	} else
 	{
 		btRigidBody* rb = btRigidBody::upcast(&body);
@@ -889,7 +889,7 @@ void btSequentialImpulseConstraintSolver::setupContactConstraint(btSolverConstra
 					btScalar	velocityError = restitution - rel_vel;// * damping;
 
 
-				
+
 					if (penetration>0)
 					{
 						positionalError = 0;
@@ -1212,37 +1212,37 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 			}
 		}
 	}
-    //make sure that dynamic bodies exist for all contact manifolds
-    for (int i=0;i<numManifolds;i++)
-    {
-        if (!manifoldPtr[i]->getBody0()->isStaticOrKinematicObject())
-        {
-            bool found=false;
-            for (int b=0;b<numBodies;b++)
-            {
+	//make sure that dynamic bodies exist for all contact manifolds
+	for (int i=0;i<numManifolds;i++)
+	{
+		if (!manifoldPtr[i]->getBody0()->isStaticOrKinematicObject())
+		{
+			bool found=false;
+			for (int b=0;b<numBodies;b++)
+			{
 
-                if (manifoldPtr[i]->getBody0()==bodies[b])
-                {
-                    found = true;
-                    break;
-                }
-            }
-            btAssert(found);
-        }
-        if (!manifoldPtr[i]->getBody1()->isStaticOrKinematicObject())
-        {
-            bool found=false;
-            for (int b=0;b<numBodies;b++)
-            {
-                if (manifoldPtr[i]->getBody1()==bodies[b])
-                {
-                    found = true;
-                    break;
-                }
-            }
-            btAssert(found);
-        }
-    }
+				if (manifoldPtr[i]->getBody0()==bodies[b])
+				{
+					found = true;
+					break;
+				}
+			}
+			btAssert(found);
+		}
+		if (!manifoldPtr[i]->getBody1()->isStaticOrKinematicObject())
+		{
+			bool found=false;
+			for (int b=0;b<numBodies;b++)
+			{
+				if (manifoldPtr[i]->getBody1()==bodies[b])
+				{
+					found = true;
+					break;
+				}
+			}
+			btAssert(found);
+		}
+	}
 #endif //BT_ADDITIONAL_DEBUG
 
 
@@ -1256,7 +1256,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 	m_tmpSolverBodyPool.resize(0);
 
 	//btSolverBody& fixedBody = m_tmpSolverBodyPool.expand();
-    //initSolverBody(&fixedBody,0);
+	//initSolverBody(&fixedBody,0);
 
 	//convert all bodies
 
@@ -1286,7 +1286,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 				solverBody.m_externalTorqueImpulse += gyroForce;
 
 			}
-			
+
 
 		}
 	}
@@ -1327,11 +1327,9 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 
 				if (constraints[i]->isEnabled())
 				{
-				}
-				if (constraints[i]->isEnabled())
-				{
 					constraints[i]->getInfo1(&info1);
-				} else
+				}
+				else
 				{
 					info1.m_numConstraintRows = 0;
 					info1.nub = 0;
@@ -1358,10 +1356,10 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 					btRigidBody& rbB = constraint->getRigidBodyB();
 
 					int solverBodyIdA = getOrInitSolverBody(rbA,infoGlobal.m_timeStep);
-                    int solverBodyIdB = getOrInitSolverBody(rbB,infoGlobal.m_timeStep);
+					int solverBodyIdB = getOrInitSolverBody(rbB,infoGlobal.m_timeStep);
 
-                    btSolverBody* bodyAPtr = &m_tmpSolverBodyPool[solverBodyIdA];
-                    btSolverBody* bodyBPtr = &m_tmpSolverBodyPool[solverBodyIdB];
+					btSolverBody* bodyAPtr = &m_tmpSolverBodyPool[solverBodyIdA];
+					btSolverBody* bodyBPtr = &m_tmpSolverBodyPool[solverBodyIdB];
 
 
 
@@ -1403,7 +1401,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 					info2.m_J2angularAxis = currentConstraintRow->m_relpos2CrossNormal;
 					info2.rowskip = sizeof(btSolverConstraint)/sizeof(btScalar);//check this
 					///the size of btSolverConstraint needs be a multiple of btScalar
-		            btAssert(info2.rowskip*sizeof(btScalar)== sizeof(btSolverConstraint));
+					btAssert(info2.rowskip*sizeof(btScalar)== sizeof(btSolverConstraint));
 					info2.m_constraintError = &currentConstraintRow->m_rhs;
 					currentConstraintRow->m_cfm = infoGlobal.m_globalCfm;
 					info2.m_damping = infoGlobal.m_damping;
@@ -1411,6 +1409,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 					info2.m_lowerLimit = &currentConstraintRow->m_lowerLimit;
 					info2.m_upperLimit = &currentConstraintRow->m_upperLimit;
 					info2.m_numIterations = infoGlobal.m_numIterations;
+					info2.m_numConstraintRows = info1.m_numConstraintRows;
 					constraints[i]->getInfo2(&info2);
 
 					///finalize the constraint setup
