@@ -6,7 +6,6 @@
 #include "physics_cfg.h"
 #include <comm/alloc/slotalloc.h>
 
-class btDynamicsWorld;
 class btCollisionShape;
 class btCompoundShape;
 class btCollisionObject;
@@ -65,7 +64,7 @@ public:
     ifc_fn btRigidBody* create_rigid_body( float mass, btCollisionShape* shape, void* usr1, void* usr2 );
     ifc_fn void destroy_rigid_body( btRigidBody*& obj );
     ifc_fn bool add_rigid_body( btRigidBody* obj, unsigned int group, unsigned int mask,
-        btActionInterface* action, bt::constraint_info* constraint );
+        btActionInterface* action, bt::constraint_info* constraint, int constraint_type = -1 );
     ifc_fn void remove_rigid_body( btRigidBody* obj, btActionInterface* action, bt::constraint_info* constraint );
     ifc_fn void pause_rigid_body( btRigidBody* obj, bool pause );
     ifc_fn void set_rigid_body_mass( btRigidBody* obj, float mass, const float inertia[3] );
@@ -127,8 +126,8 @@ public:
     ifc_fn void pause_simulation(bool pause);
 
     /// CONSTAINTS
-    ifc_fn btTypedConstraint* add_constraint_ball_socket(btDynamicsWorld * world, btRigidBody* rb_a,const btVector3& pivot_a, btRigidBody* rb_b, const btVector3& pivot_b, bool disable_collision);
-    ifc_fn void remove_constraint(btDynamicsWorld * world, btTypedConstraint * constraint);
+    ifc_fn btTypedConstraint* add_constraint_ball_socket(btRigidBody* rb_a,const btVector3& pivot_a, btRigidBody* rb_b, const btVector3& pivot_b, bool disable_collision);
+    ifc_fn void remove_constraint(btTypedConstraint * constraint);
 
     ifc_event bool external_broadphases_in_radius(
         const void* context,
@@ -190,9 +189,9 @@ public:
         const float2& minmaxlen,
         ifc_out coid::dynarray32<bt::external_broadphase*>& bps);
 
-    ifc_event float elevation_above_terrain(const double3& pos, 
-        float maxlen, 
-        ifc_out float3* norm, 
+    ifc_event float elevation_above_terrain(const double3& pos,
+        float maxlen,
+        ifc_out float3* norm,
         ifc_out double3* hitpoint);
 
 

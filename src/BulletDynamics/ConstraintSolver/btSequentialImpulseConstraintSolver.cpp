@@ -284,12 +284,12 @@ btScalar btSequentialImpulseConstraintSolver::resolveSingleConstraintRowLowerLim
 static btScalar gResolveSplitPenetrationImpulse_scalar_reference(
 	btSolverBody& bodyA,
 	btSolverBody& bodyB,
-        const btSolverConstraint& c)
+		const btSolverConstraint& c)
 {
 	btScalar deltaImpulse = 0.f;
 
 		if (c.m_rhsPenetration)
-        {
+		{
 			gNumSplitImpulseRecoveries++;
 		deltaImpulse = c.m_rhsPenetration - btScalar(c.m_appliedPushImpulse) * c.m_cfm;
 		const btScalar deltaVel1Dotn = c.m_contactNormal1.dot(bodyA.internalGetPushVelocity()) + c.m_relpos1CrossNormal.dot(bodyA.internalGetTurnVelocity());
@@ -309,7 +309,7 @@ static btScalar gResolveSplitPenetrationImpulse_scalar_reference(
 			}
 		bodyA.internalApplyPushImpulse(c.m_contactNormal1 * bodyA.internalGetInvMass(), c.m_angularComponentA, deltaImpulse);
 		bodyB.internalApplyPushImpulse(c.m_contactNormal2 * bodyB.internalGetInvMass(), c.m_angularComponentB, deltaImpulse);
-        }
+		}
 	return deltaImpulse * (1. / c.m_jacDiagABInv);
 }
 
@@ -762,7 +762,7 @@ int	btSequentialImpulseConstraintSolver::getOrInitSolverBody(btCollisionObject& 
 	{
 		//body has already been converted
 		solverBodyIdA = body.getCompanionId();
-        btAssert(solverBodyIdA < m_tmpSolverBodyPool.size());
+		btAssert(solverBodyIdA < m_tmpSolverBodyPool.size());
 	}
 	else
 	{
@@ -1242,14 +1242,14 @@ void btSequentialImpulseConstraintSolver::convertJoint(btSolverConstraint* curre
 
 		solverConstraint.m_originalContactPoint = constraint;
 
-                {
+				{
 			const btVector3& ftorqueAxis1 = solverConstraint.m_relpos1CrossNormal;
 			solverConstraint.m_angularComponentA = constraint->getRigidBodyA().getInvInertiaTensorWorld() * ftorqueAxis1 * constraint->getRigidBodyA().getAngularFactor();
-                }
-        {
+				}
+		{
 			const btVector3& ftorqueAxis2 = solverConstraint.m_relpos2CrossNormal;
 			solverConstraint.m_angularComponentB = constraint->getRigidBodyB().getInvInertiaTensorWorld() * ftorqueAxis2 * constraint->getRigidBodyB().getAngularFactor();
-                }
+				}
 
 		{
 			btVector3 iMJlA = solverConstraint.m_contactNormal1 * rbA.getInvMass();
@@ -1290,7 +1290,7 @@ void btSequentialImpulseConstraintSolver::convertJoint(btSolverConstraint* curre
 			}
 			}
 			}
-			
+
 void btSequentialImpulseConstraintSolver::convertJoints(btTypedConstraint** constraints, int numConstraints, const btContactSolverInfo& infoGlobal)
 	{
 	BT_PROFILE("convertJoints");
@@ -1319,9 +1319,9 @@ void btSequentialImpulseConstraintSolver::convertJoints(btTypedConstraint** cons
 
 				if (constraints[i]->isEnabled())
 				{
-			constraints[i]->getInfo1(&info1);
+					constraints[i]->getInfo1(&info1);
 				}
-		else
+				else
 				{
 					info1.m_numConstraintRows = 0;
 					info1.nub = 0;
@@ -1347,7 +1347,7 @@ void btSequentialImpulseConstraintSolver::convertJoints(btTypedConstraint** cons
 					btRigidBody& rbB = constraint->getRigidBodyB();
 
 					int solverBodyIdA = getOrInitSolverBody(rbA,infoGlobal.m_timeStep);
-                    int solverBodyIdB = getOrInitSolverBody(rbB,infoGlobal.m_timeStep);
+					int solverBodyIdB = getOrInitSolverBody(rbB,infoGlobal.m_timeStep);
 
 			convertJoint(currentConstraintRow, constraint, info1, solverBodyIdA, solverBodyIdB, infoGlobal);
 		}

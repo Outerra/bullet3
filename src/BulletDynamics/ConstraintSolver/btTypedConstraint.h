@@ -4,8 +4,8 @@ Copyright (c) 2003-2010 Erwin Coumans  https://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -25,7 +25,7 @@ subject to the following restrictions:
 #define btTypedConstraintDataName	"btTypedConstraintDoubleData"
 #else
 #define btTypedConstraintData2 		btTypedConstraintFloatData
-#define btTypedConstraintDataName  "btTypedConstraintFloatData" 
+#define btTypedConstraintDataName  "btTypedConstraintFloatData"
 #endif //BT_USE_DOUBLE_PRECISION
 
 class btSerializer;
@@ -55,7 +55,7 @@ enum btConstraintParams
 };
 
 #if 1
-	#define btAssertConstrParams(_par) btAssert(_par) 
+	#define btAssertConstrParams(_par) btAssert(_par)
 #else
 	#define btAssertConstrParams(_par)
 #endif
@@ -102,7 +102,7 @@ protected:
 
 	///internal method used by the constraint solver, don't use them directly
 	btScalar getMotorFactor(btScalar pos, btScalar lowLim, btScalar uppLim, btScalar vel, btScalar timeFact);
-	
+
 public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
@@ -121,30 +121,33 @@ public:
 	{
 		// integrator parameters: frames per second (1/stepsize), default error
 		// reduction parameter (0..1).
-		btScalar fps,erp;
+		btScalar fps, erp;
 
 		// for the first and second body, pointers to two (linear and angular)
 		// n*3 jacobian sub matrices, stored by rows. these matrices will have
 		// been initialized to 0 on entry. if the second body is zero then the
 		// J2xx pointers may be 0.
-		btScalar *m_J1linearAxis,*m_J1angularAxis,*m_J2linearAxis,*m_J2angularAxis;
-
-		// elements to jump from one row to the next in J's
-		int rowskip;
+		btScalar* m_J1linearAxis, * m_J1angularAxis, * m_J2linearAxis, * m_J2angularAxis;
 
 		// right hand sides of the equation J*v = c + cfm * lambda. cfm is the
 		// "constraint force mixing" vector. c is set to zero on entry, cfm is
 		// set to a constant value (typically very small or zero) value on entry.
-		btScalar *m_constraintError,*cfm;
+		btScalar* m_constraintError, * cfm;
 
 		// lo and hi limits for variables (set to -/+ infinity on entry).
-		btScalar *m_lowerLimit,*m_upperLimit;
+		btScalar* m_lowerLimit, * m_upperLimit;
+
+		//damping of the velocity
+		btScalar	m_damping;
 
 		// number of solver iterations
 		int m_numIterations;
 
-		//damping of the velocity
-		btScalar	m_damping;
+		// elements to jump from one row to the next in J's
+		int rowskip;
+
+		// number of constraint rows reported by getInfo1
+		int m_numConstraintRows;
 	};
 
 	int	getOverrideNumSolverIterations() const
@@ -165,12 +168,12 @@ public:
 	///internal method used by the constraint solver, don't use them directly
 	virtual	void	setupSolverConstraint(btConstraintArray& ca, int solverBodyA,int solverBodyB, btScalar timeStep)
 	{
-        (void)ca;
-        (void)solverBodyA;
-        (void)solverBodyB;
-        (void)timeStep;
+		(void)ca;
+		(void)solverBodyA;
+		(void)solverBodyB;
+		(void)timeStep;
 	}
-	
+
 	///internal method used by the constraint solver, don't use them directly
 	virtual void getInfo1 (btConstraintInfo1* info)=0;
 
@@ -220,7 +223,7 @@ public:
 		return *m_rbB;
 	}
 
-	btRigidBody& getRigidBodyA() 
+	btRigidBody& getRigidBodyA()
 	{
 		return *m_rbA;
 	}
@@ -229,9 +232,9 @@ public:
 		return *m_rbB;
 	}
 
-    void setRigidBodyB(btRigidBody* rbB) {
-        m_rbB = rbB;
-    }
+	void setRigidBodyB(btRigidBody* rbB) {
+		m_rbB = rbB;
+	}
 
 	int getUserConstraintType() const
 	{
@@ -280,8 +283,8 @@ public:
 
 	int getUid() const
 	{
-		return m_userConstraintId;   
-	} 
+		return m_userConstraintId;
+	}
 
 	bool	needsFeedback() const
 	{
@@ -295,7 +298,7 @@ public:
 		m_needsFeedback = needsFeedback;
 	}
 
-	///getAppliedImpulse is an estimated total applied impulse. 
+	///getAppliedImpulse is an estimated total applied impulse.
 	///This feedback could be used to determine breaking constraints or playing sounds.
 	btScalar	getAppliedImpulse() const
 	{
@@ -307,7 +310,7 @@ public:
 	{
 		return btTypedConstraintType(m_objectType);
 	}
-	
+
 	void setDbgDrawSize(btScalar dbgDrawSize)
 	{
 		m_dbgDrawSize = dbgDrawSize;
@@ -317,20 +320,20 @@ public:
 		return m_dbgDrawSize;
 	}
 
-	///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5). 
+	///override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5).
 	///If no axis is provided, it uses the default axis for this constraint.
 	virtual	void	setParam(int num, btScalar value, int axis = -1) = 0;
 
 	///return the local value of parameter
 	virtual	btScalar getParam(int num, int axis = -1) const = 0;
-	
+
 	virtual	int	calculateSerializeBufferSize() const;
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
 	virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
 };
 
-// returns angle in range [-SIMD_2_PI, SIMD_2_PI], closest to one of the limits 
+// returns angle in range [-SIMD_2_PI, SIMD_2_PI], closest to one of the limits
 // all arguments should be normalized angles (i.e. in range [-SIMD_PI, SIMD_PI])
 SIMD_FORCE_INLINE btScalar btAdjustAngleToLimits(btScalar angleInRadians, btScalar angleLowerLimitInRadians, btScalar angleUpperLimitInRadians)
 {
@@ -378,7 +381,7 @@ struct	btTypedConstraintFloatData
 
 	float	m_breakingImpulseThreshold;
 	int		m_isEnabled;
-	
+
 };
 
 
@@ -407,7 +410,7 @@ struct	btTypedConstraintData
 
 	float	m_breakingImpulseThreshold;
 	int		m_isEnabled;
-	
+
 };
 #endif //BACKWARDS_COMPATIBLE
 
@@ -431,7 +434,7 @@ struct	btTypedConstraintDoubleData
 	double	m_breakingImpulseThreshold;
 	int		m_isEnabled;
 	char	padding[4];
-	
+
 };
 
 // clang-format on
@@ -444,7 +447,7 @@ SIMD_FORCE_INLINE	int	btTypedConstraint::calculateSerializeBufferSize() const
 class btAngularLimit
 {
 private:
-	btScalar 
+	btScalar
 		m_center,
 		m_halfRange,
 		m_softness,
@@ -497,13 +500,13 @@ public:
 		return m_relaxationFactor;
 	}
 
-	/// Returns correction value evaluated when test() was invoked 
+	/// Returns correction value evaluated when test() was invoked
 	inline btScalar getCorrection() const
 	{
 		return m_correction;
 	}
 
-	/// Returns sign value evaluated when test() was invoked 
+	/// Returns sign value evaluated when test() was invoked
 	inline btScalar getSign() const
 	{
 		return m_sign;

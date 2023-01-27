@@ -299,7 +299,7 @@ bool physics::add_collision_object_to_external_broadphase(bt::external_broadphas
     if (bp->_broadphase->is_full()) {
         return false;
     }
-    
+
     btTransform trans = co->getWorldTransform();
 
     btVector3	minAabb;
@@ -737,19 +737,22 @@ void physics::set_current_frame(uint frame)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bt::ot_world_physics_stats physics::get_stats() {
+bt::ot_world_physics_stats physics::get_stats()
+{
     return ((ot::discrete_dynamics_world*)(_world))->get_stats();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bt::ot_world_physics_stats* physics::get_stats_ptr() {
+bt::ot_world_physics_stats* physics::get_stats_ptr()
+{
     return const_cast<bt::ot_world_physics_stats*>(&((ot::discrete_dynamics_world*)(_world))->get_stats());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void physics::set_debug_draw_enabled(btIDebugDraw * debug_drawer) {
+void physics::set_debug_draw_enabled(btIDebugDraw * debug_drawer)
+{
     _dbg_drawer = debug_drawer;
     ((ot::discrete_dynamics_world*)_world)->setDebugDrawer(debug_drawer);
 
@@ -760,7 +763,8 @@ void physics::set_debug_draw_enabled(btIDebugDraw * debug_drawer) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void physics::set_debug_drawer_mode(int debug_mode) {
+void physics::set_debug_drawer_mode(int debug_mode)
+{
     _dbg_draw_mode = debug_mode;
 
     if (_dbg_drawer) {
@@ -770,7 +774,8 @@ void physics::set_debug_drawer_mode(int debug_mode) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-btTypedConstraint* physics::add_constraint_ball_socket(btDynamicsWorld * world, btRigidBody* rb_a, const btVector3& pivot_a, btRigidBody* rb_b, const btVector3& pivot_b, bool disable_collision) {
+btTypedConstraint* physics::add_constraint_ball_socket(btRigidBody* rb_a, const btVector3& pivot_a, btRigidBody* rb_b, const btVector3& pivot_b, bool disable_collision)
+{
     btPoint2PointConstraint * p2p = new btPoint2PointConstraint(*rb_a,*rb_b,pivot_a,pivot_b);
     _physics->_world->addConstraint(p2p,disable_collision);
     return p2p;
@@ -778,7 +783,7 @@ btTypedConstraint* physics::add_constraint_ball_socket(btDynamicsWorld * world, 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void physics::remove_constraint(btDynamicsWorld * world, btTypedConstraint * constraint) {
+void physics::remove_constraint(btTypedConstraint * constraint) {
     _physics->_world->removeConstraint(constraint);
 }
 
