@@ -680,7 +680,7 @@ void	btMultiBodyDynamicsWorld::debugDrawWorld(btScalar extrapolation_step)
 {
 	BT_PROFILE("btMultiBodyDynamicsWorld debugDrawWorld");
 
-	btDiscreteDynamicsWorld::debugDrawWorld();
+	btDiscreteDynamicsWorld::debugDrawWorld(extrapolation_step);
 
 	bool drawConstraints = false;
 	if (getDebugDrawer())

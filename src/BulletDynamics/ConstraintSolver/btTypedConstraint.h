@@ -145,9 +145,6 @@ public:
 
 		// elements to jump from one row to the next in J's
 		int rowskip;
-
-		// number of constraint rows reported by getInfo1
-		int m_numConstraintRows;
 	};
 
 	int	getOverrideNumSolverIterations() const

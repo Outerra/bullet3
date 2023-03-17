@@ -304,7 +304,7 @@ namespace ot {
                     entry._collision_object,
                     entry._collision_group,
                     entry._collision_mask,
-                    0, 0
+                    0
                 );
                 entry._collision_object->setBroadphaseHandle(proxy);
 
@@ -572,7 +572,7 @@ namespace ot {
             uint tri_count = 0;
 
             THREAD_LOCAL_SINGLETON_DEF(coid::dynarray<bt::external_broadphase*>) broadphase_tls;
-            coid::dynarray<bt::external_broadphase*> broadphases = *broadphase_tls;
+            coid::dynarray<bt::external_broadphase*>& broadphases = *broadphase_tls;
             broadphases.reset();
 
             for (uints j = 0; j < _cow_internal.size(); j++) {
@@ -631,7 +631,7 @@ namespace ot {
                     _rad = (float)rad;
 
                     min = (max - min) * 0.5;
-                    _lod_dim = min[min.minAxis()];
+                    _lod_dim = (float)min[min.minAxis()];
                     _common_data->prepare_bt_convex_collision(&res, &internal_obj_wrapper, getDispatcher());
                     gContactAddedCallback = GJK_contact_added;
                 }
@@ -731,7 +731,7 @@ namespace ot {
                 }
 
                 if (_tree_batches.size() > 0) {
-                    prepare_tree_collision_pairs(obj, _tree_batches, gOuterraSimulationFrame);
+                    prepare_tree_collision_pairs(obj, _tree_batches, gCurrentFrame);
                 }
 
                 _common_data->process_collision_points();
@@ -842,12 +842,9 @@ namespace ot {
     void discrete_dynamics_world::process_tree_collisions(btScalar time_step)
     {
         _tree_collision_pairs.for_each([&](tree_collision_pair&  tcp) {
-            if (!tcp.active) {
-                tcp.tree->spring_force_uv[0] = 0;
-                tcp.tree->spring_force_uv[1] = 0;
-                _tree_collision_pairs.del(&tcp);
-                return;
-            }
+            btDispatcher * dispatcher = getDispatcher();
+            btPersistentManifold * manifold = tcp.manifold;
+            DASSERT(manifold);
 
             if (!tcp.reused) {
                 dispatcher->releaseManifold(manifold);
@@ -864,14 +861,13 @@ namespace ot {
             btManifoldResult res(&obj1_wrapper, &obj2_wrapper);
             res.setPersistentManifold(manifold);
 
-            btCollisionAlgorithm * algo = dispatcher->findAlgorithm(&obj1_wrapper, &obj2_wrapper, manifold);
+            btCollisionAlgorithm * algo = dispatcher->findAlgorithm(&obj1_wrapper, &obj2_wrapper, manifold,ebtDispatcherQueryType::BT_CONTACT_POINT_ALGORITHMS);
 
             if (algo) {
                 algo->processCollision(&obj1_wrapper, &obj2_wrapper, getDispatchInfo(), &res);
                 algo->~btCollisionAlgorithm();
                 dispatcher->freeCollisionAlgorithm(algo);
             }
-    }
 
             tcp.reused = false;
             res.refreshContactPoints();
@@ -1145,50 +1141,26 @@ namespace ot {
         point_transform.setIdentity();
         point_transform.setOrigin(pt);
 
-        btVector3 v4 = btVector3(min[0], min[1], max[2]);
-        btVector3 v5 = btVector3(max[0], min[1], max[2]);
-        btVector3 v6 = btVector3(max[0], max[1], max[2]);
-        btVector3 v7 = btVector3(min[0], max[1], max[2]);
+        btCollisionObject point;
+        btSphereShape point_shape(0.0);
+        point_shape.setMargin(0.0);
+        point.setCollisionShape(&point_shape);
+        point.setWorldTransform(point_transform);
 
-        _debug_lines.push(v0);
-        _debug_lines.push(v1);
-        _debug_lines.push(color);
-        _debug_lines.push(v1);
-        _debug_lines.push(v2);
-        _debug_lines.push(color);
-        _debug_lines.push(v2);
-        _debug_lines.push(v3);
-        _debug_lines.push(color);
-        _debug_lines.push(v3);
-        _debug_lines.push(v0);
-        _debug_lines.push(color);
 
-        _debug_lines.push(v4);
-        _debug_lines.push(v5);
-        _debug_lines.push(color);
-        _debug_lines.push(v5);
-        _debug_lines.push(v6);
-        _debug_lines.push(color);
-        _debug_lines.push(v6);
-        _debug_lines.push(v7);
-        _debug_lines.push(color);
-        _debug_lines.push(v7);
-        _debug_lines.push(v4);
-        _debug_lines.push(color);
+        btGhostObject ** go_ptr = _terrain_occluders.ptr();
+        btGhostObject ** go_pte = _terrain_occluders.ptre();
+        for (; go_ptr < go_pte; go_ptr++) {
+            btGhostObject *go = *go_ptr;
 
-        _debug_lines.push(v0);
-        _debug_lines.push(v4);
-        _debug_lines.push(color);
-        _debug_lines.push(v1);
-        _debug_lines.push(v5);
-        _debug_lines.push(color);
-        _debug_lines.push(v2);
-        _debug_lines.push(v6);
-        _debug_lines.push(color);
-        _debug_lines.push(v3);
-        _debug_lines.push(v7);
-        _debug_lines.push(color);
+            is_inside_callback result;
+
+            contactPairTest(const_cast<btGhostObject*>(go), &point, result);
+
+            if (result.is_inside) {
+                return true;
             }
+        }
 
         return false;
     }

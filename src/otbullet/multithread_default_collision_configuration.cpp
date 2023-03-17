@@ -4,7 +4,7 @@
 #include <BulletCollision/NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.h>
 #include <BulletCollision/NarrowPhaseCollision/btMinkowskiPenetrationDepthSolver.h>
 #include <BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h>
-
+/*
 btVoronoiSimplexSolver*	multithread_default_collision_configuration::getSimplexSolver()
 {
     THREAD_LOCAL_SINGLETON_DEF(btVoronoiSimplexSolver) solver;
@@ -22,4 +22,4 @@ btConvexPenetrationDepthSolver* multithread_default_collision_configuration::get
         THREAD_LOCAL_SINGLETON_DEF(btMinkowskiPenetrationDepthSolver)solver;
         return solver.get();
     }
-}
+}*/

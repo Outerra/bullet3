@@ -200,6 +200,21 @@ m_minimumPointsPerturbationThreshold(minimumPointsPerturbationThreshold)
 	(void)body1Wrap;
 }
 
+btConvexConvexAlgorithm::btConvexConvexAlgorithm(btPersistentManifold* mf, const btCollisionAlgorithmConstructionInfo& ci, btConvexPenetrationDepthSolver* pdSolver, int numPerturbationIterations, int minimumPointsPerturbationThreshold)
+	: btActivatingCollisionAlgorithm(ci, 0, 0),
+	  m_pdSolver(pdSolver),
+	  m_ownManifold(false),
+	  m_manifoldPtr(mf),
+	  m_lowLevelOfDetail(false),
+#ifdef USE_SEPDISTANCE_UTIL2
+	  m_sepDistance((static_cast<btConvexShape*>(body0->getCollisionShape()))->getAngularMotionDisc(),
+					(static_cast<btConvexShape*>(body1->getCollisionShape()))->getAngularMotionDisc()),
+#endif
+	  m_numPerturbationIterations(numPerturbationIterations),
+	  m_minimumPointsPerturbationThreshold(minimumPointsPerturbationThreshold)
+{
+}
+
 btConvexConvexAlgorithm::~btConvexConvexAlgorithm()
 {
 	if (m_ownManifold)

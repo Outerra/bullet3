@@ -361,6 +361,8 @@ void	btHashedOverlappingPairCache::processAllOverlappingPairs(btOverlapCallback*
 		if (callback->processOverlap(*pair))
 		{
 			removeOverlappingPair(pair->m_pProxy0, pair->m_pProxy1, dispatcher);
+			gOverlappingPairs--;
+
 		}
 		else
 		{
@@ -369,11 +371,8 @@ void	btHashedOverlappingPairCache::processAllOverlappingPairs(btOverlapCallback*
 	}
 }
 
-			gOverlappingPairs--;
-		}
-		else
 struct MyPairIndex
-		{
+{
 	int m_orgIndex;
 	int m_uidA0;
 	int m_uidA1;

@@ -89,6 +89,7 @@ struct tree
     float height;
     float max_flex;
     int8* spring_force_uv;
+    uint16 identifier;
     //uint8 objbuf[sizeof(btCollisionObject)];
     //uint8 shapebuf[sizeof(btCapsuleShape)];
 };

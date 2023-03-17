@@ -157,7 +157,6 @@ protected:
     btRigidBody * _planet_body;
     btCollisionObjectWrapper * _pb_wrap;
     coid::slotalloc<btPersistentManifold *> _manifolds;
-	//coid::slotalloc<tree_batch> _tree_cache;
     coid::slotalloc<tree_collision_pair> _tree_collision_pairs;
     coid::dynarray<btCollisionObjectWrapperCtorArgs> _cow_internal;
     coid::dynarray<compound_processing_entry> _compound_processing_stack;
@@ -167,6 +166,8 @@ protected:
     //void * _relocation_offset;
 
     coid::dynarray<uint> _tree_batches;
+
+    coid::dynarray<btGhostObject*> _terrain_occluders;
 
     coid::slotalloc<btBroadphasePair> _terrain_mesh_broadphase_pairs;
 
@@ -198,6 +199,7 @@ public:
     void updateAabbs() override;
 
     bt::external_broadphase * create_external_broadphase(const double3& min, const double3& max);
+    void delete_external_broadphase(bt::external_broadphase * bp);
 
 #ifdef _DEBUG
     void dump_triangle_list_to_obj(const char * fname,float off_x, float off_y, float off_z, float rx, float ry, float rz, float rw);

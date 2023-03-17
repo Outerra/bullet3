@@ -18,6 +18,7 @@
     <ClInclude Include="..\..\src\otbullet\ot_terrain_contact_common.h" />
     <ClInclude Include="..\..\src\otbullet\physics.js.h" />
     <ClInclude Include="..\..\src\otbullet\tree_batch.h" />
+    <ClInclude Include="shape_info_cfg.h" />
     <ClInclude Include="physics.h" />
     <ClInclude Include="multithread_default_collision_configuration.h" />
     <ClInclude Include="otflags.h" />

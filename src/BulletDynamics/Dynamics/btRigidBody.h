@@ -219,10 +219,16 @@ public:
 	}
 
 	void setDamping(btScalar lin_damping, btScalar ang_damping)
-    {
-        m_linearDamping = btClamped(lin_damping, (btScalar)btScalar(0.0), (btScalar)btScalar(1.0));
-        m_angularDamping = btClamped(ang_damping, (btScalar)btScalar(0.0), (btScalar)btScalar(1.0));
-    }
+	{
+	
+#ifdef BT_USE_OLD_DAMPING_METHOD
+		m_linearDamping = btMax(lin_damping, btScalar(0.0));
+		m_angularDamping = btMax(ang_damping, btScalar(0.0));
+#else
+		m_linearDamping = btClamped(lin_damping, btScalar(0.0), btScalar(1.0));
+		m_angularDamping = btClamped(ang_damping, btScalar(0.0), btScalar(1.0));
+#endif	
+	}
 
 	btScalar getLinearDamping() const
 	{
@@ -431,11 +437,12 @@ public:
 	{
 		return m_worldTransform.getOrigin(); 
 	}
-	btQuaternion getOrientation() const {
-        btQuaternion orn;
-        m_worldTransform.getBasis().getRotation(orn);
-        return orn;
-    }
+	btQuaternion getOrientation() const
+	{
+		btQuaternion orn;
+		m_worldTransform.getBasis().getRotation(orn);
+		return orn;
+	}
 	
 	const btTransform& getCenterOfMassTransform() const
 	{

@@ -288,6 +288,12 @@ bt::external_broadphase* physics::create_external_broadphase(const double3& min,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void physics::delete_external_broadphase(bt::external_broadphase * bp)
+{
+    return _world->delete_external_broadphase(bp);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void physics::update_external_broadphase(bt::external_broadphase * bp)
 {
     return _world->update_terrain_mesh_broadphase(bp);
@@ -314,7 +320,7 @@ bool physics::add_collision_object_to_external_broadphase(bt::external_broadphas
         co,
         group,
         mask,
-        0, 0
+        0
     ));
 
     //bp->_colliders.push(sc);

@@ -137,17 +137,6 @@ void btRigidBody::setGravity(const btVector3& acceleration)
 	m_gravity_acceleration = acceleration;
 }
 
-void btRigidBody::setDamping(btScalar lin_damping, btScalar ang_damping)
-{
-#ifdef BT_USE_OLD_DAMPING_METHOD
-	m_linearDamping = btMax(lin_damping, btScalar(0.0));
-	m_angularDamping = btMax(ang_damping, btScalar(0.0));
-#else
-	m_linearDamping = btClamped(lin_damping, btScalar(0.0), btScalar(1.0));
-	m_angularDamping = btClamped(ang_damping, btScalar(0.0), btScalar(1.0));
-#endif
-}
-
 ///applyDamping damps the velocity, using the given m_linearDamping and m_angularDamping
 void			btRigidBody::applyDamping(btScalar timeStep)
 {
@@ -390,13 +379,6 @@ void btRigidBody::integrateVelocities(btScalar step)
 	#if defined(BT_CLAMP_VELOCITY_TO) && BT_CLAMP_VELOCITY_TO > 0
 	clampVelocity(m_angularVelocity);
 	#endif
-}
-
-btQuaternion btRigidBody::getOrientation() const
-{
-	btQuaternion orn;
-	m_worldTransform.getBasis().getRotation(orn);
-	return orn;
 }
 	
 void btRigidBody::setCenterOfMassTransform(const btTransform& xform)

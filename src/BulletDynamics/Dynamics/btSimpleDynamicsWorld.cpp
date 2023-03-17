@@ -143,6 +143,8 @@ bool	btSimpleDynamicsWorld::addRigidBody(btRigidBody* body)
 	{
 		return addCollisionObject(body);
 	}
+
+	return false;
 }
 
 bool btSimpleDynamicsWorld::addRigidBody(btRigidBody* body, int group, int mask)
@@ -153,6 +155,8 @@ bool btSimpleDynamicsWorld::addRigidBody(btRigidBody* body, int group, int mask)
 	{
 		return addCollisionObject(body,group,mask);
 	}
+
+	return false;
 }
 
 void	btSimpleDynamicsWorld::debugDrawWorld()

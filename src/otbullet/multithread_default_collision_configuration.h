@@ -12,8 +12,8 @@ public:
     {
     }
 
-    virtual	btVoronoiSimplexSolver*	getSimplexSolver() override;
-    virtual btConvexPenetrationDepthSolver* getPdSolver() override;
+    //virtual	btVoronoiSimplexSolver*	getSimplexSolver() override;
+    //virtual btConvexPenetrationDepthSolver* getPdSolver() override;
 
 };
 

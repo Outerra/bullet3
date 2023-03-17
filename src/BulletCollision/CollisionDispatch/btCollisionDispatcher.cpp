@@ -172,7 +172,7 @@ btCollisionAlgorithm* btCollisionDispatcher::findAlgorithm2(int body0ShapeType, 
 	ci.m_dispatcher1 = this;
 	ci.m_manifold = sharedManifold;
 
-	btCollisionAlgorithm* algo = m_doubleDispatch[body0ShapeType][body1ShapeType]->CreateCollisionAlgorithm(ci, 0, 0);
+	btCollisionAlgorithm* algo = m_doubleDispatchContactPoints[body0ShapeType][body1ShapeType]->CreateCollisionAlgorithm(ci, 0, 0);
 
 	return algo;
 }

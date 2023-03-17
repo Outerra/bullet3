@@ -94,14 +94,8 @@ protected:
 	///m_internalType is reserved to distinguish Bullet's btCollisionObject, btRigidBody, btSoftBody, btGhostObject etc.
 	///do not assign your own m_internalType unless you write a new dynamics object class.
 	int				m_internalType;
-
-	///users can point to their objects, m_userPointer is not used by Bullet, see setUserPointer/getUserPointer
-
-    void*			m_userObjectPointer;
     
 	int m_userIndex2;
-
-    int	m_userIndex;
 
 	int m_userIndex3;
 
@@ -124,10 +118,9 @@ protected:
 
 	btVector3 m_customDebugColorRGB;
 public:
+	///users can point to their objects, m_userPointer is not used by Bullet, see setUserPointer/getUserPointer
 
-    ///users can point to their objects, m_userPointer is not used by Bullet, see setUserPointer/getUserPointer
-
-    void*			m_userObjectPointer;
+	void* m_userObjectPointer;
 	
 	/// outerra internal flags
 	unsigned int	m_otFlags = 0;

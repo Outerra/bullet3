@@ -124,6 +124,11 @@ public:
 		return m_numHandles;
 	}
 
+	bool ownsProxy(btBroadphaseProxy* proxy)
+	{
+		return (m_pHandles < proxy) && (proxy < m_pHandles + m_maxHandles);
+	}
+
 	virtual void calculateOverlappingPairs(btDispatcher* dispatcher);
 
 	BP_FP_INT_TYPE addHandle(const btVector3& aabbMin, const btVector3& aabbMax, void* pOwner, int collisionFilterGroup, int collisionFilterMask, btDispatcher* dispatcher);
@@ -159,6 +164,11 @@ public:
 		return m_pairCache;
 	}
 
+	const btDbvtBroadphase* getRaycastAccelerator() const
+	{
+		return m_raycastAccelerator;
+	}
+
 	void setOverlappingPairUserCallback(btOverlappingPairCallback* pairCallback)
 	{
 		m_userPairCallback = pairCallback;
@@ -183,6 +193,11 @@ public:
 		printf("aabbMin=%f,%f,%f,aabbMax=%f,%f,%f\n",m_worldAabbMin.getX(),m_worldAabbMin.getY(),m_worldAabbMin.getZ(),
 			m_worldAabbMax.getX(),m_worldAabbMax.getY(),m_worldAabbMax.getZ());
 			*/
+	}
+
+	virtual bool is_full() const override
+	{
+		return m_firstFreeHandle == 0;
 	}
 };
 

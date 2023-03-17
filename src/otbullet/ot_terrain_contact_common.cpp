@@ -382,7 +382,7 @@ void ot_terrain_contact_common::collide_object_plane(fn_elevation_above_terrain 
 	const btCollisionObjectWrapper * curr_col_obj_wrapper = _manifold->getBody0Wrap();
 	_manifold->setBody0Wrap(_internal_object);
 
-    btCollisionAlgorithm* colAlgo = _collision_world->getDispatcher()->findAlgorithm(_manifold->getBody0Wrap(), &planeObWrap, _manifold->getPersistentManifold());
+    btCollisionAlgorithm* colAlgo = _collision_world->getDispatcher()->findAlgorithm(_manifold->getBody0Wrap(), &planeObWrap, _manifold->getPersistentManifold(), BT_CONTACT_POINT_ALGORITHMS);
 
     const btCollisionObjectWrapper* tmpWrap = 0;
 

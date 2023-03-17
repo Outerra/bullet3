@@ -128,7 +128,7 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld,const b
 		localB = m_body1Wrap->getCollisionObject()->getWorldTransform().invXform(pointInWorld);
 	}
 
-	btManifoldPoint newPt(localA,localB,normalOnBInWorld, normalOnBInWorld,depth);
+	btManifoldPoint newPt(localA,localB,normalOnBInWorld,depth);
 	newPt.m_positionWorldOnA = pointA;
 	newPt.m_positionWorldOnB = pointInWorld;
 	

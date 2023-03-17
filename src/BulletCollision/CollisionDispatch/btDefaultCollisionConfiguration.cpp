@@ -38,21 +38,17 @@ btDefaultCollisionConfiguration::btDefaultCollisionConfiguration(const btDefault
 //btDefaultCollisionConfiguration::btDefaultCollisionConfiguration(btStackAlloc*	stackAlloc,btPoolAllocator*	persistentManifoldPool,btPoolAllocator*	collisionAlgorithmPool)
 {
 	void* mem = NULL;
-        if (constructionInfo.m_useEpaPenetrationAlgorithm)
-        {
+    if (constructionInfo.m_useEpaPenetrationAlgorithm)
+    {
 		mem = btAlignedAlloc(sizeof(btGjkEpaPenetrationDepthSolver), 16);
 		m_pdSolver = new (mem) btGjkEpaPenetrationDepthSolver;
 	}
 	else
-        {
+    {
 		mem = btAlignedAlloc(sizeof(btMinkowskiPenetrationDepthSolver), 16);
-		m_pdSolver = new (mem) btMinkowskiPenetrationDepthSolver;
-        }
+		m_pdSolver = new (mem) btMinkowskiPenetrationDepthSolver;    
     }
-    else {
-        m_simplexSolver = nullptr;
-        m_pdSolver = nullptr;
-    }
+
 	
 	//default CreationFunctions, filling the m_doubleDispatch table
 	mem = btAlignedAlloc(sizeof(btConvexConvexAlgorithm::CreateFunc),16);
