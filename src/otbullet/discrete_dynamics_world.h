@@ -51,11 +51,11 @@ struct tree_collision_pair
     uint tree_col_info;
 
     bool reused;
-    btPersistentManifold * manifold;
+    btPersistentManifold* manifold;
 
     bt::tree_collision_contex tc_ctx;
 
-    bool operator==(const tree_collision_pair & tcp) const {
+    bool operator==(const tree_collision_pair& tcp) const {
         return obj == tcp.obj && tree_col_info == tcp.tree_col_info;
     }
 
@@ -68,12 +68,12 @@ struct tree_collision_pair
     {}
 
     tree_collision_pair(btCollisionObject* col_obj, uint bid, uint8 tid)
-        :tree_collision_pair(){
+        :tree_collision_pair() {
         obj = col_obj;
-        tree_col_info = bid << 4 | (tid &0xf);
+        tree_col_info = bid << 4 | (tid & 0xf);
     }
 
-    void init_with (btCollisionObject* col_obj, uint bid, uint8 tid,const bt::tree& tree_props) {
+    void init_with(btCollisionObject* col_obj, uint bid, uint8 tid, const bt::tree& tree_props) {
         obj = col_obj;
         tree_col_info = bid << 4 | (tid & 0xf);
         tc_ctx.tree_identifier = tree_props.identifier;
@@ -82,21 +82,21 @@ struct tree_collision_pair
 
 ///
 struct raw_collision_pair {
-    btCollisionObject * _obj1;
-    btCollisionObject * _obj2;
+    btCollisionObject* _obj1;
+    btCollisionObject* _obj2;
     raw_collision_pair()
         :_obj1(0), _obj2(0) {}
-    raw_collision_pair(btCollisionObject * obj1, btCollisionObject * obj2)
+    raw_collision_pair(btCollisionObject* obj1, btCollisionObject* obj2)
         :_obj1(obj1), _obj2(obj2) {}
 };
 
 ///
 struct compound_processing_entry {
-    btCollisionShape * _shape;
+    btCollisionShape* _shape;
     btTransform _world_trans;
-    compound_processing_entry(btCollisionShape * shape, const btTransform & world_trans)
+    compound_processing_entry(btCollisionShape* shape, const btTransform& world_trans)
         :_shape(shape)
-        ,_world_trans(world_trans)
+        , _world_trans(world_trans)
     {};
     compound_processing_entry() {
     }
@@ -104,7 +104,7 @@ struct compound_processing_entry {
 
 struct p_treebatch_key_extractor {
     typedef uints ret_type;
-    uints operator()(const bt::tree_batch* tb) const{
+    uints operator()(const bt::tree_batch* tb) const {
         return (uints)tb;
     }
 };
@@ -152,11 +152,11 @@ protected:
         btCollisionObjectWrapperCtorArgs();
     };
 
-    coid::taskmaster * _task_master;
+    coid::taskmaster* _task_master;
 
-    btRigidBody * _planet_body;
-    btCollisionObjectWrapper * _pb_wrap;
-    coid::slotalloc<btPersistentManifold *> _manifolds;
+    btRigidBody* _planet_body;
+    btCollisionObjectWrapper* _pb_wrap;
+    coid::slotalloc<btPersistentManifold*> _manifolds;
     coid::slotalloc<tree_collision_pair> _tree_collision_pairs;
     coid::dynarray<btCollisionObjectWrapperCtorArgs> _cow_internal;
     coid::dynarray<compound_processing_entry> _compound_processing_stack;
@@ -192,21 +192,21 @@ protected:
 
     coid::local<ot_terrain_contact_common> _common_data;
 
-    bt::bullet_stats * _stats2;
+    bt::bullet_stats* _stats2;
     bool _simulation_running = true;
 
 public:
     void updateAabbs() override;
 
-    bt::external_broadphase * create_external_broadphase(const double3& min, const double3& max);
-    void delete_external_broadphase(bt::external_broadphase * bp);
+    bt::external_broadphase* create_external_broadphase(const double3& min, const double3& max);
+    void delete_external_broadphase(bt::external_broadphase* bp);
 
 #ifdef _DEBUG
-    void dump_triangle_list_to_obj(const char * fname,float off_x, float off_y, float off_z, float rx, float ry, float rz, float rw);
+    void dump_triangle_list_to_obj(const char* fname, float off_x, float off_y, float off_z, float rx, float ry, float rz, float rw);
 #endif
-    void process_terrain_broadphases(const coid::dynarray<bt::external_broadphase*>& broadphase, btCollisionObject * col_obj);
+    void process_terrain_broadphases(const coid::dynarray<bt::external_broadphase*>& broadphase, btCollisionObject* col_obj);
     void update_terrain_mesh_broadphase(bt::external_broadphase* bp);
-    void add_terrain_broadphase_collision_pair(btCollisionObject * obj1, btCollisionObject * obj2);
+    void add_terrain_broadphase_collision_pair(btCollisionObject* obj1, btCollisionObject* obj2);
     void remove_terrain_broadphase_collision_pair(btBroadphasePair& pair);
     void process_terrain_broadphase_collision_pairs();
 
@@ -219,7 +219,7 @@ public:
 
     virtual void debugDrawWorld(btScalar extrapolation_step) override;
 
-    void set_ot_stats(bt::bullet_stats * stats) { _stats2 = stats; };
+    void set_ot_stats(bt::bullet_stats* stats) { _stats2 = stats; };
 
     void pause_simulation(bool pause) { _simulation_running = !pause; };
 
@@ -231,7 +231,7 @@ public:
         coid::dynarray<bt::triangle>& data,
         coid::dynarray<uint>& trees,
         coid::slotalloc<bt::tree_batch>& tree_batches,
-        uint frame );
+        uint frame);
 
     typedef int(*fn_ext_collision_2)(
         const void* context,
@@ -247,7 +247,7 @@ public:
         float3& under_normal,
         coid::dynarray<bt::external_broadphase*>& broadphases);
 
-    typedef float3(*fn_process_tree_collision)(btRigidBody * obj, bt::tree_collision_contex & ctx, float time_step, coid::slotalloc<bt::tree_batch>& tree_batches );
+    typedef float3(*fn_process_tree_collision)(btRigidBody* obj, bt::tree_collision_contex& ctx, float time_step, coid::slotalloc<bt::tree_batch>& tree_batches);
 
     typedef float(*fn_terrain_ray_intersect)(
         const void* context,
@@ -283,27 +283,27 @@ public:
         fn_terrain_ray_intersect ext_terrain_ray_intersect,
         fn_elevation_above_terrain ext_elevation_above_terrain,
         const void* context = 0,
-        coid::taskmaster * tm = 0);
+        coid::taskmaster* tm = 0);
 
-    const bt::ot_world_physics_stats & get_stats() const {
+    const bt::ot_world_physics_stats& get_stats() const {
         return _stats;
     }
 
-    void get_obb(const btCollisionShape * cs, const btTransform& t, double3& cen, float3x3& basis);
+    void get_obb(const btCollisionShape* cs, const btTransform& t, double3& cen, float3x3& basis);
 
     template<class fn> // void (*fn)(btCollisionObject * obj)
-    void query_volume_sphere(bt32BitAxisSweep3 * broadphase, const double3& pos, float rad, fn process_fn)
+    void query_volume_sphere(bt32BitAxisSweep3* broadphase, const double3& pos, float rad, fn process_fn)
     {
-        static coid::dynarray<const btDbvtNode *> _processing_stack(1024);
+        static coid::dynarray<const btDbvtNode*> _processing_stack(1024);
         _processing_stack.reset();
 
         const btDbvtBroadphase* raycast_acc = broadphase->getRaycastAccelerator();
         DASSERT(raycast_acc);
 
-        const btDbvt * dyn_set = &raycast_acc->m_sets[0];
-        const btDbvt * stat_set = &raycast_acc->m_sets[1];
+        const btDbvt* dyn_set = &raycast_acc->m_sets[0];
+        const btDbvt* stat_set = &raycast_acc->m_sets[1];
 
-        const btDbvtNode * cur_node = nullptr;
+        const btDbvtNode* cur_node = nullptr;
 
         if (dyn_set && dyn_set->m_root) {
             _processing_stack.push(dyn_set->m_root);
@@ -335,18 +335,18 @@ public:
 
 
     template<typename fn> //void(*fn)(btBroadphaseProxy * proxy);
-    void query_volume_aabb(bt32BitAxisSweep3 * broadphase, const double3& aabb_cen, const double3& aabb_half, fn process_fn)
+    void query_volume_aabb(bt32BitAxisSweep3* broadphase, const double3& aabb_cen, const double3& aabb_half, fn process_fn)
     {
-        static coid::dynarray<const btDbvtNode *> _processing_stack(1024);
+        static coid::dynarray<const btDbvtNode*> _processing_stack(1024);
         _processing_stack.reset();
 
         const btDbvtBroadphase* raycast_acc = broadphase->getRaycastAccelerator();
         DASSERT(raycast_acc);
 
-        const btDbvt * dyn_set = &raycast_acc->m_sets[0];
-        const btDbvt * stat_set = &raycast_acc->m_sets[1];
+        const btDbvt* dyn_set = &raycast_acc->m_sets[0];
+        const btDbvt* stat_set = &raycast_acc->m_sets[1];
 
-        const btDbvtNode * cur_node = nullptr;
+        const btDbvtNode* cur_node = nullptr;
 
         if (dyn_set && dyn_set->m_root) {
             _processing_stack.push(dyn_set->m_root);
@@ -384,19 +384,19 @@ public:
 
 
     template<class fn> // void (*fn)(btCollisionObject * obj)
-    void query_volume_frustum(bt32BitAxisSweep3* broadphase, const double3&pos, const float4 * f_planes_norms, uint8 nplanes, bool include_partial, fn process_fn)
+    void query_volume_frustum(bt32BitAxisSweep3* broadphase, const double3& pos, const float4* f_planes_norms, uint8 nplanes, bool include_partial, fn process_fn)
     {
 
-        static coid::dynarray<const btDbvtNode *> _processing_stack(1024);
+        static coid::dynarray<const btDbvtNode*> _processing_stack(1024);
         _processing_stack.reset();
 
         const btDbvtBroadphase* raycast_acc = broadphase->getRaycastAccelerator();
         DASSERT(raycast_acc);
 
-        const btDbvt * dyn_set = &raycast_acc->m_sets[0];
-        const btDbvt * stat_set = &raycast_acc->m_sets[1];
+        const btDbvt* dyn_set = &raycast_acc->m_sets[0];
+        const btDbvt* stat_set = &raycast_acc->m_sets[1];
 
-        const btDbvtNode * cur_node = nullptr;
+        const btDbvtNode* cur_node = nullptr;
 
         if (dyn_set && dyn_set->m_root) {
             _processing_stack.push(dyn_set->m_root);
@@ -449,22 +449,22 @@ public:
         }
     }
 
-    void add_terrain_occluder(btGhostObject * go) { _terrain_occluders.push(go); }
-    void remove_terrain_occluder(btGhostObject * go);
+    void add_terrain_occluder(btGhostObject* go) { _terrain_occluders.push(go); }
+    void remove_terrain_occluder(btGhostObject* go);
     bool is_point_inside_terrain_occluder(const btVector3& pt);
     //void set_potential_collision_flag(btRigidBody * rb);
     template<class fn> // void (*fn)(btCollisionObject * obj)
-    void for_each_object_in_broadphase(bt32BitAxisSweep3 * broadphase, uint revision, fn process_fn) {
-        static coid::dynarray<const btDbvtNode *> _processing_stack(1024);
+    void for_each_object_in_broadphase(bt32BitAxisSweep3* broadphase, uint revision, fn process_fn) {
+        static coid::dynarray<const btDbvtNode*> _processing_stack(1024);
         _processing_stack.reset();
 
         const btDbvtBroadphase* raycast_acc = broadphase->getRaycastAccelerator();
         DASSERT(raycast_acc);
 
-        const btDbvt * dyn_set = &raycast_acc->m_sets[0];
-        const btDbvt * stat_set = &raycast_acc->m_sets[1];
+        const btDbvt* dyn_set = &raycast_acc->m_sets[0];
+        const btDbvt* stat_set = &raycast_acc->m_sets[1];
 
-        const btDbvtNode * cur_node = nullptr;
+        const btDbvtNode* cur_node = nullptr;
 
         if (dyn_set && dyn_set->m_root) {
             _processing_stack.push(dyn_set->m_root);
@@ -485,8 +485,8 @@ public:
             if (cur_node->isleaf()) {
                 if (cur_node->data) {
                     btDbvtProxy* dat = reinterpret_cast<btDbvtProxy*>(cur_node->data);
-                    btCollisionObject * co = reinterpret_cast<btCollisionObject*>(dat->m_clientObject);
-                    if(co->getBroadphaseHandle() && broadphase->ownsProxy(co->getBroadphaseHandle()) && (co->getBroadphaseHandle()->m_ot_revision == revision || revision == 0xffffffff))
+                    btCollisionObject* co = reinterpret_cast<btCollisionObject*>(dat->m_clientObject);
+                    if (co->getBroadphaseHandle() && broadphase->ownsProxy(co->getBroadphaseHandle()) && (co->getBroadphaseHandle()->m_ot_revision == revision || revision == 0xffffffff))
                         process_fn(co);
                 }
             }
@@ -505,8 +505,8 @@ protected:
 
     void ot_terrain_collision_step();
 
-    void prepare_tree_collision_pairs(btCollisionObject * cur_obj, const coid::dynarray<uint>& trees_cache, uint32 frame);
-    void build_tb_collision_info(bt::tree_batch * tb);
+    void prepare_tree_collision_pairs(btCollisionObject* cur_obj, const coid::dynarray<uint>& trees_cache, uint32 frame);
+    void build_tb_collision_info(bt::tree_batch* tb);
 
     fn_ext_collision _sphere_intersect;
     fn_process_tree_collision _tree_collision;

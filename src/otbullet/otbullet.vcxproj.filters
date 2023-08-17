@@ -24,9 +24,6 @@
     <ClInclude Include="otflags.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\src\otbullet\otbullet.inl" />
-  </ItemGroup>
-  <ItemGroup>
     <ResourceCompile Include="version.rc" />
   </ItemGroup>
 </Project>

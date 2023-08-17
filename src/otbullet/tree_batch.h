@@ -10,17 +10,17 @@ class terrain_mesh;
 
 struct tree_batch
 {
-	terrain_mesh * _parent_mesh;
-	uint32 _last_frame_used;
-	uint8 _tree_count;
-	double3 _pos[16];
-	btCapsuleShape * _shapes_cache[16];
-	btCollisionObject _objects_cache[16];
+    terrain_mesh* _parent_mesh;
+    uint32 _last_frame_used;
+    uint8 _tree_count;
+    double3 _pos[16];
+    btCapsuleShape* _shapes_cache[16];
+    btCollisionObject _objects_cache[16];
 
-	tree_batch();
-	~tree_batch();
+    tree_batch();
+    ~tree_batch();
 
 private:
-	uint8 _shapes_mem[sizeof(btCapsuleShape) * 16];
+    uint8 _shapes_mem[sizeof(btCapsuleShape) * 16];
 };
 

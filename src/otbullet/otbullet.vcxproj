@@ -335,9 +335,6 @@
     </hpp>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\src\otbullet\otbullet.inl" />
-  </ItemGroup>
-  <ItemGroup>
     <ResourceCompile Include="version.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

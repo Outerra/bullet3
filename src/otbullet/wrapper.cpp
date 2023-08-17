@@ -35,7 +35,7 @@ static btCollisionDispatcher* _dispatcher = 0;
 static btConstraintSolver* _constraintSolver = 0;
 static btDefaultCollisionConfiguration* _collisionConfiguration = 0;
 
-static physics * _physics = nullptr;
+static physics* _physics = nullptr;
 
 extern uint gOuterraSimulationFrame;
 
@@ -49,10 +49,10 @@ extern bool _ext_collider(const void* context,
     coid::dynarray<bt::triangle>& data,
     coid::dynarray<uint>& trees,
     coid::slotalloc<bt::tree_batch>& tree_batches,
-    uint frame );
+    uint frame);
 
 extern int _ext_collider_obb(
-    const void * context,
+    const void* context,
     const double3& center,
     const float3x3& basis,
     float lod_dimension,
@@ -80,8 +80,8 @@ extern static float _ext_elevation_above_terrain(
 
 
 
-extern float3 _ext_tree_col(btRigidBody * obj,
-        bt::tree_collision_contex & ctx,
+extern float3 _ext_tree_col(btRigidBody* obj,
+    bt::tree_collision_contex& ctx,
     float time_step,
     coid::slotalloc<bt::tree_batch>& tree_baFBtches);
 #else
@@ -94,13 +94,13 @@ static bool _ext_collider(
     coid::dynarray<bt::triangle>& data,
     coid::dynarray<uint>& trees,
     coid::slotalloc<bt::tree_batch>& tree_batches,
-    uint frame )
+    uint frame)
 {
     return _physics->terrain_collisions(planet, center, radius, lod_dimension, data, trees, tree_batches, frame);
 }
 
 static int _ext_collider_obb(
-    const void * planet,
+    const void* planet,
     const double3& center,
     const float3x3& basis,
     float lod_dimension,
@@ -163,16 +163,16 @@ static float _ext_elevation_above_terrain(
 }
 
 
-static float3 _ext_tree_col(btRigidBody * obj,
-    bt::tree_collision_contex & ctx,
+static float3 _ext_tree_col(btRigidBody* obj,
+    bt::tree_collision_contex& ctx,
     float time_step,
     coid::slotalloc<bt::tree_batch>& tree_batches) {
 
-    return _physics->tree_collisions(obj, ctx, time_step,tree_batches);
+    return _physics->tree_collisions(obj, ctx, time_step, tree_batches);
 }
 
-static void _ext_add_static_collider(const void * context,btCollisionObject * obj, const double3& cen, const float3x3& basis) {
-    _physics->add_static_collider(context,obj,cen,basis);
+static void _ext_add_static_collider(const void* context, btCollisionObject* obj, const double3& cen, const float3x3& basis) {
+    _physics->add_static_collider(context, obj, cen, basis);
 }
 #endif
 
@@ -183,7 +183,7 @@ void debug_draw_world(btScalar extrapolation_step) {
     }
 }
 
-void set_debug_drawer_enabled(btIDebugDraw * debug_draw) {
+void set_debug_drawer_enabled(btIDebugDraw* debug_draw) {
     if (_physics) {
         _physics->set_debug_draw_enabled(debug_draw);
     }
@@ -198,14 +198,14 @@ iref<physics> physics::create(double r, void* context, coid::taskmaster* tm)
 
     _collisionConfiguration = new multithread_default_collision_configuration(dccinfo);
     _dispatcher = new btCollisionDispatcher(_collisionConfiguration);
-    btVector3 worldMin(-r,-r,-r);
-    btVector3 worldMax(r,r,r);
+    btVector3 worldMin(-r, -r, -r);
+    btVector3 worldMax(r, r, r);
 
-    _overlappingPairCache = new bt32BitAxisSweep3(worldMin, worldMax,10000);
+    _overlappingPairCache = new bt32BitAxisSweep3(worldMin, worldMax, 10000);
     _overlappingPairCache->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
     _constraintSolver = new btSequentialImpulseConstraintSolver();
 
-    ot::discrete_dynamics_world * wrld = new ot::discrete_dynamics_world(
+    ot::discrete_dynamics_world* wrld = new ot::discrete_dynamics_world(
         _dispatcher,
         _overlappingPairCache,
         _constraintSolver,
@@ -284,23 +284,23 @@ void physics::get_broadphase_handles_aabbs(const bt::external_broadphase* broadp
 ////////////////////////////////////////////////////////////////////////////////
 bt::external_broadphase* physics::create_external_broadphase(const double3& min, const double3& max)
 {
-    return _world->create_external_broadphase(min,max);
+    return _world->create_external_broadphase(min, max);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::delete_external_broadphase(bt::external_broadphase * bp)
+void physics::delete_external_broadphase(bt::external_broadphase* bp)
 {
     return _world->delete_external_broadphase(bp);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::update_external_broadphase(bt::external_broadphase * bp)
+void physics::update_external_broadphase(bt::external_broadphase* bp)
 {
     return _world->update_terrain_mesh_broadphase(bp);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool physics::add_collision_object_to_external_broadphase(bt::external_broadphase * bp, btCollisionObject * co, unsigned int group, unsigned int mask)
+bool physics::add_collision_object_to_external_broadphase(bt::external_broadphase* bp, btCollisionObject* co, unsigned int group, unsigned int mask)
 {
     if (bp->_broadphase->is_full()) {
         return false;
@@ -342,19 +342,19 @@ void physics::remove_collision_object_from_external_broadphase(bt::external_broa
 }*/
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::query_volume_sphere(const double3 & pos, float rad, coid::dynarray<btCollisionObject*>& result)
+void physics::query_volume_sphere(const double3& pos, float rad, coid::dynarray<btCollisionObject*>& result)
 {
 #ifdef _DEBUG
-    bt32BitAxisSweep3 * broad = dynamic_cast<bt32BitAxisSweep3 *>(_world->getBroadphase());
+    bt32BitAxisSweep3* broad = dynamic_cast<bt32BitAxisSweep3*>(_world->getBroadphase());
     DASSERT(broad != nullptr);
 #else
-    bt32BitAxisSweep3 * broad = static_cast<bt32BitAxisSweep3 *>(_world->getBroadphase());
+    bt32BitAxisSweep3* broad = static_cast<bt32BitAxisSweep3*>(_world->getBroadphase());
 #endif
 
     _world->query_volume_sphere(broad, pos, rad, [&](btCollisionObject* obj) {
         if (obj->getUserPointer())
             result.push(obj);
-        });
+    });
 
     coid::dynarray <bt::external_broadphase*> ebps;
     _physics->external_broadphases_in_radius(_world->getContext(), pos, rad, gCurrentFrame, ebps);
@@ -369,12 +369,12 @@ void physics::query_volume_sphere(const double3 & pos, float rad, coid::dynarray
         _world->query_volume_sphere(ebp->_broadphase, pos, rad, [&](btCollisionObject* obj) {
             if (obj->getUserPointer())
                 result.push(obj);
-            });
         });
+    });
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::query_volume_frustum(const double3 & pos,const float4 * f_planes_norms, uint8 nplanes, bool include_partial, coid::dynarray<btCollisionObject*>& result)
+void physics::query_volume_frustum(const double3& pos, const float4* f_planes_norms, uint8 nplanes, bool include_partial, coid::dynarray<btCollisionObject*>& result)
 {
 #ifdef _DEBUG
     bt32BitAxisSweep3* broad = dynamic_cast<bt32BitAxisSweep3*>(_world->getBroadphase());
@@ -406,15 +406,15 @@ void physics::query_volume_frustum(const double3 & pos,const float4 * f_planes_n
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::wake_up_objects_in_radius(const double3 & pos, float rad) {
+void physics::wake_up_objects_in_radius(const double3& pos, float rad) {
 #ifdef _DEBUG
-    bt32BitAxisSweep3 * broad = dynamic_cast<bt32BitAxisSweep3 *>(_world->getBroadphase());
+    bt32BitAxisSweep3* broad = dynamic_cast<bt32BitAxisSweep3*>(_world->getBroadphase());
     DASSERT(broad != nullptr);
 #else
-    bt32BitAxisSweep3 * broad = static_cast<bt32BitAxisSweep3 *>(_world->getBroadphase());
+    bt32BitAxisSweep3* broad = static_cast<bt32BitAxisSweep3*>(_world->getBroadphase());
 #endif
 
-    _world->query_volume_sphere(broad,pos, rad, [&](btCollisionObject* obj) {
+    _world->query_volume_sphere(broad, pos, rad, [&](btCollisionObject* obj) {
         obj->setActivationState(ACTIVE_TAG);
         obj->setDeactivationTime(0);
     });
@@ -427,9 +427,9 @@ void physics::wake_up_object(btCollisionObject* obj) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool physics::is_point_inside_terrain_ocluder(const double3 & pt)
+bool physics::is_point_inside_terrain_ocluder(const double3& pt)
 {
-    return _world->is_point_inside_terrain_occluder(btVector3(pt.x,pt.y,pt.z));
+    return _world->is_point_inside_terrain_occluder(btVector3(pt.x, pt.y, pt.z));
 }
 
 void physics::pause_simulation(bool pause)
@@ -461,26 +461,26 @@ void physics::add_triangle(btTriangleMesh* mesh, const float v0[3], const float 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-btCollisionShape* physics::create_shape( bt::EShape sh, const float hvec[3], void* data)
+btCollisionShape* physics::create_shape(bt::EShape sh, const float hvec[3], void* data)
 {
-    switch(sh) {
+    switch (sh) {
     case bt::SHAPE_CONVEX:          return new btConvexHullShape();
-    case bt::SHAPE_MESH_STATIC:     return new btBvhTriangleMeshShape(reinterpret_cast<btTriangleMesh*>(data),false);
+    case bt::SHAPE_MESH_STATIC:     return new btBvhTriangleMeshShape(reinterpret_cast<btTriangleMesh*>(data), false);
     case bt::SHAPE_SPHERE:          return new btSphereShape(hvec[0]);
     case bt::SHAPE_BOX:             return new btBoxShape(btVector3(hvec[0], hvec[1], hvec[2]));
     case bt::SHAPE_CYLINDER:        return new btCylinderShapeZ(btVector3(hvec[0], hvec[1], hvec[2]));
     case bt::SHAPE_CAPSULE: {
         if (glm::abs(hvec[1] - hvec[2]) < 0.000001f) {
-           //btCapsuleX
-            return new btCapsuleShapeX(hvec[1], 2.f*(hvec[0] - hvec[1]));
+            //btCapsuleX
+            return new btCapsuleShapeX(hvec[1], 2.f * (hvec[0] - hvec[1]));
         }
-        else if(glm::abs(hvec[0] - hvec[2]) < 0.000001f){
+        else if (glm::abs(hvec[0] - hvec[2]) < 0.000001f) {
             //btCapsuleY
-            return new btCapsuleShape(hvec[0], 2.f*(hvec[1] - hvec[0]));
+            return new btCapsuleShape(hvec[0], 2.f * (hvec[1] - hvec[0]));
         }
-        else{
+        else {
             //btCapsuleZ
-            return new btCapsuleShapeZ(hvec[1], 2.f*(hvec[2] - hvec[1]));
+            return new btCapsuleShapeZ(hvec[1], 2.f * (hvec[2] - hvec[1]));
         }
     }
     case bt::SHAPE_CONE:    return new btConeShapeZ(hvec[0], hvec[2]);
@@ -490,33 +490,33 @@ btCollisionShape* physics::create_shape( bt::EShape sh, const float hvec[3], voi
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-ifc_fn btCollisionShape * physics::clone_shape(const btCollisionShape * shape)
+ifc_fn btCollisionShape* physics::clone_shape(const btCollisionShape* shape)
 {
     return shape->getClone();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::destroy_shape( btCollisionShape*& shape )
+void physics::destroy_shape(btCollisionShape*& shape)
 {
     delete shape;
     shape = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::add_convex_point( btCollisionShape* shape, const float pt[3] )
+void physics::add_convex_point(btCollisionShape* shape, const float pt[3])
 {
     static_cast<btConvexHullShape*>(shape)->addPoint(btVector3(pt[0], pt[1], pt[2]), false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::close_convex_shape( btCollisionShape* shape )
+void physics::close_convex_shape(btCollisionShape* shape)
 {
     shape->setMargin(0.005);
     static_cast<btConvexHullShape*>(shape)->recalcLocalAabb();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::set_collision_shape_local_scaling(btCollisionShape * shape, const float3 & scale)
+void physics::set_collision_shape_local_scaling(btCollisionShape* shape, const float3& scale)
 {
     shape->setLocalScaling(btVector3(scale[0], scale[1], scale[2]));
 }
@@ -524,12 +524,12 @@ void physics::set_collision_shape_local_scaling(btCollisionShape * shape, const 
 ////////////////////////////////////////////////////////////////////////////////
 btCompoundShape* physics::create_compound_shape()
 {
-    btCompoundShape * res = new btCompoundShape();
+    btCompoundShape* res = new btCompoundShape();
     return res;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::add_child_shape( btCompoundShape* group, btCollisionShape* child, const btTransform& tr )
+void physics::add_child_shape(btCompoundShape* group, btCollisionShape* child, const btTransform& tr)
 {
     group->addChildShape(tr, child);
 }
@@ -541,7 +541,7 @@ void physics::remove_child_shape(btCompoundShape* group, btCollisionShape* child
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::update_child( btCompoundShape* group, btCollisionShape * child, const btTransform& tr )
+void physics::update_child(btCompoundShape* group, btCollisionShape* child, const btTransform& tr)
 {
     int index = -1;
     const int num_children = group->getNumChildShapes();
@@ -556,7 +556,7 @@ void physics::update_child( btCompoundShape* group, btCollisionShape * child, co
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::get_child_transform(btCompoundShape * group, btCollisionShape * child, btTransform& tr)
+void physics::get_child_transform(btCompoundShape* group, btCollisionShape* child, btTransform& tr)
 {
     int index = -1;
     const int num_children = group->getNumChildShapes();
@@ -571,13 +571,13 @@ void physics::get_child_transform(btCompoundShape * group, btCollisionShape * ch
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::recalc_compound_shape( btCompoundShape* shape )
+void physics::recalc_compound_shape(btCompoundShape* shape)
 {
     shape->recalculateLocalAabb();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::destroy_compound_shape( btCompoundShape*& shape )
+void physics::destroy_compound_shape(btCompoundShape*& shape)
 {
     delete shape;
     shape = 0;
@@ -586,7 +586,7 @@ void physics::destroy_compound_shape( btCompoundShape*& shape )
 
 
 ////////////////////////////////////////////////////////////////////////////////
-btCollisionObject* physics::create_collision_object( btCollisionShape* shape, void* usr1, void* usr2 )
+btCollisionObject* physics::create_collision_object(btCollisionShape* shape, void* usr1, void* usr2)
 {
     btCollisionObject* obj = new btCollisionObject;
     obj->setCollisionShape(shape);
@@ -620,9 +620,9 @@ void physics::set_collision_info(btCollisionObject* obj, unsigned int group, uns
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::destroy_collision_object( btCollisionObject*& obj )
+void physics::destroy_collision_object(btCollisionObject*& obj)
 {
-    if(obj) delete obj;
+    if (obj) delete obj;
     obj = 0;
 }
 
@@ -634,21 +634,21 @@ void physics::destroy_ghost_object(btGhostObject*& obj)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool physics::add_collision_object( btCollisionObject* obj, unsigned int group, unsigned int mask, bool inactive )
+bool physics::add_collision_object(btCollisionObject* obj, unsigned int group, unsigned int mask, bool inactive)
 {
-    if(inactive)
+    if (inactive)
         obj->setActivationState(DISABLE_SIMULATION);
 
-   /* if (obj->isStaticObject()) {
-        float3x3 basis;
-        double3 cen;
+    /* if (obj->isStaticObject()) {
+         float3x3 basis;
+         double3 cen;
 
-        _world->get_obb(obj->getCollisionShape(),obj->getWorldTransform(),cen,basis);
-        add_static_collider(_world->get_context(),obj,cen,basis);
-    }
-    else {
-        _world->addCollisionObject(obj, group, mask);
-    }*/
+         _world->get_obb(obj->getCollisionShape(),obj->getWorldTransform(),cen,basis);
+         add_static_collider(_world->get_context(),obj,cen,basis);
+     }
+     else {
+         _world->addCollisionObject(obj, group, mask);
+     }*/
 
     if (!_world->addCollisionObject(obj, group, mask)) {
         return false;
@@ -665,7 +665,7 @@ bool physics::add_collision_object( btCollisionObject* obj, unsigned int group, 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::remove_collision_object( btCollisionObject* obj )
+void physics::remove_collision_object(btCollisionObject* obj)
 {
     _world->removeCollisionObject(obj);
 
@@ -687,13 +687,13 @@ void physics::remove_collision_object_external(btCollisionObject* obj)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int physics::get_collision_flags(const btCollisionObject * co)
+int physics::get_collision_flags(const btCollisionObject* co)
 {
     return co->getCollisionFlags();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::set_collision_flags(btCollisionObject * co, int flags)
+void physics::set_collision_flags(btCollisionObject* co, int flags)
 {
     return co->setCollisionFlags(flags);
 }
@@ -705,7 +705,7 @@ void physics::force_update_aabbs()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::update_collision_object( btCollisionObject* obj, const btTransform& tr, bool update_aabb )
+void physics::update_collision_object(btCollisionObject* obj, const btTransform& tr, bool update_aabb)
 {
     obj->setWorldTransform(tr);
 
@@ -716,14 +716,14 @@ void physics::update_collision_object( btCollisionObject* obj, const btTransform
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::step_simulation(double step, bt::bullet_stats * stats)
+void physics::step_simulation(double step, bt::bullet_stats* stats)
 {
     _world->set_ot_stats(stats);
     _world->stepSimulation(step, 0, step);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::ray_test( const double from[3], const double to[3], void* cb, bt::external_broadphase* bp)
+void physics::ray_test(const double from[3], const double to[3], void* cb, bt::external_broadphase* bp)
 {
     btVector3 afrom = btVector3(from[0], from[1], from[2]);
     btVector3 ato = btVector3(to[0], to[1], to[2]);
@@ -757,7 +757,7 @@ bt::ot_world_physics_stats* physics::get_stats_ptr()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void physics::set_debug_draw_enabled(btIDebugDraw * debug_drawer)
+void physics::set_debug_draw_enabled(btIDebugDraw* debug_drawer)
 {
     _dbg_drawer = debug_drawer;
     ((ot::discrete_dynamics_world*)_world)->setDebugDrawer(debug_drawer);
@@ -782,14 +782,14 @@ void physics::set_debug_drawer_mode(int debug_mode)
 
 btTypedConstraint* physics::add_constraint_ball_socket(btRigidBody* rb_a, const btVector3& pivot_a, btRigidBody* rb_b, const btVector3& pivot_b, bool disable_collision)
 {
-    btPoint2PointConstraint * p2p = new btPoint2PointConstraint(*rb_a,*rb_b,pivot_a,pivot_b);
-    _physics->_world->addConstraint(p2p,disable_collision);
+    btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*rb_a, *rb_b, pivot_a, pivot_b);
+    _physics->_world->addConstraint(p2p, disable_collision);
     return p2p;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void physics::remove_constraint(btTypedConstraint * constraint) {
+void physics::remove_constraint(btTypedConstraint* constraint) {
     _physics->_world->removeConstraint(constraint);
 }
 

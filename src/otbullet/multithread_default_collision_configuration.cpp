@@ -5,7 +5,7 @@
 #include <BulletCollision/NarrowPhaseCollision/btMinkowskiPenetrationDepthSolver.h>
 #include <BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h>
 
-btVoronoiSimplexSolver*	multithread_default_collision_configuration::getSimplexSolver()
+btVoronoiSimplexSolver* multithread_default_collision_configuration::getSimplexSolver()
 {
     THREAD_LOCAL_SINGLETON_DEF(btVoronoiSimplexSolver) solver;
     return solver.get();

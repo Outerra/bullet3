@@ -36,7 +36,7 @@ set /p revision=<otbullet\revision.last
 
 echo Revision: %revision%
 
-set VERSTR=%userver%.%revision%
+set VERSTR=%userver%
 set VERLST=%userver%
 set VERLST=%VERLST:.=,%
 

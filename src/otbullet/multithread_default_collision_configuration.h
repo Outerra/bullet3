@@ -4,7 +4,7 @@
 
 #include <BulletCollision/CollisionDispatch/btDefaultCollisionConfiguration.h>
 
-class multithread_default_collision_configuration: public btDefaultCollisionConfiguration
+class multithread_default_collision_configuration : public btDefaultCollisionConfiguration
 {
 public:
     multithread_default_collision_configuration(const btDefaultCollisionConstructionInfo& constructionInfo = btDefaultCollisionConstructionInfo())
@@ -12,7 +12,7 @@ public:
     {
     }
 
-    virtual	btVoronoiSimplexSolver*	getSimplexSolver() override;
+    virtual	btVoronoiSimplexSolver* getSimplexSolver() override;
     virtual btConvexPenetrationDepthSolver* getPdSolver() override;
 
 };
