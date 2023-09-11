@@ -178,7 +178,7 @@
       </Command>
     </PostBuildEvent>
     <ResourceCompile>
-      <PreprocessorDefinitions>VERSTR="$(VERSTR)";VERLST=$(VERLST);REVISION=0x0$(REVISION)ULL;</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VERSTR="$(VERSTR)";VERLST=$(VERLST);REVISION=0$(REVISION);</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -265,7 +265,7 @@
       <AdditionalLibraryDirectories>$(ProjectDir)..\..\..\comm\_build\msvc\2022\bin\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ResourceCompile>
-      <PreprocessorDefinitions>VERSTR="$(VERSTR)";VERLST=$(VERLST);REVISION=0x0$(REVISION)ULL;</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VERSTR="$(VERSTR)";VERLST=$(VERLST);REVISION=0$(REVISION);</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseLTCG|x64'">
@@ -294,7 +294,7 @@
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
     <ResourceCompile>
-      <PreprocessorDefinitions>VERSTR="$(VERSTR)";VERLST=$(VERLST);REVISION=0x0$(REVISION)ULL;</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VERSTR="$(VERSTR)";VERLST=$(VERLST);REVISION=0$(REVISION);</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
