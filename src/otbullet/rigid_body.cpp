@@ -116,8 +116,6 @@ void physics::remove_rigid_body(btRigidBody* obj, btActionInterface* action, bt:
     if (constraint) {
         btTypedConstraint* btcon = constraint->_constraint;
         _world->removeConstraint(btcon);
-
-        delete btcon;
     }
 
     const static btVector3 zero(0.0, 0.0, 0.0);

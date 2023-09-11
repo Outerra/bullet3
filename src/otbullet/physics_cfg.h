@@ -203,8 +203,8 @@ struct external_broadphase {
     bt32BitAxisSweep3* _broadphase;
     coid::dynarray<broadphase_entry> _entries;
     coid::dynarray<btCollisionObject*> _procedural_objects;
-    bool _dirty = false;
     uint _revision = 0;
+    bool _dirty = false;
     bool _was_used_this_frame = false;
 
     external_broadphase(const double3& min, const double3& max)
