@@ -48,14 +48,14 @@ msbuild otbullet\otbullet.sln /m /target:Build /p:Configuration=Debug /p:Platfor
 
 set BUILD_STATUS=%ERRORLEVEL%
 echo build status (x64 Debug) %BUILD_STATUS%
-if "%BUILD_STATUS%" neq "0" goto :eof
+if "%BUILD_STATUS%" neq "0" goto :fail
 
 
 msbuild otbullet\otbullet.sln /m /target:Build /p:Configuration=ReleaseLTCG /p:Platform=x64
 
 set BUILD_STATUS=%ERRORLEVEL%
 echo build status (x64 ReleaseLTCG) %BUILD_STATUS%
-if "%BUILD_STATUS%" neq "0" goto :eof
+if "%BUILD_STATUS%" neq "0" goto :fail
 
 
 del /S /Q /F ..\..\..\include\bullet\*.*
@@ -76,3 +76,10 @@ xcopy ..\bin\x64\Debug\otbulletd.dll ..\..\..\..\bin\ /y
 xcopy ..\bin\x64\Debug\otbulletd.pdb ..\..\..\..\bin\ /y
 
 git commit --amend --no-edit otbullet/version.last
+
+goto :eof
+
+:fail
+echo Build failed or cancelled
+pause > nul
+goto :eof
