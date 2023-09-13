@@ -39,7 +39,7 @@ class	btIDebugDraw
 		btVector3	m_disabledDeactivationObject;
 		btVector3	m_disabledSimulationObject;
 		btVector3	m_aabb;
-		btVector3 m_contactPoint;
+		btVector3	m_contactPoint;
 
 		DefaultColors()
 			: m_activeObject(1, 1, 1),

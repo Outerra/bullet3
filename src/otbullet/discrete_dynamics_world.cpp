@@ -1056,7 +1056,7 @@ void discrete_dynamics_world::debugDrawWorld(btScalar extrapolation_step)
 
         bp._was_used_this_frame = false;
 
-        btIDebugDraw::DefaultColors defaultColors = getDebugDrawer()->getDefaultColors();
+        const btIDebugDraw::DefaultColors& defaultColors = getDebugDrawer()->getDefaultColors();
         if ((getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb)))
         {
 
@@ -1085,7 +1085,7 @@ void discrete_dynamics_world::debugDrawWorld(btScalar extrapolation_step)
                         }
                         };
 
-                        debugDrawObject(colObj->getWorldTransform(), colObj->getCollisionShape(), color);
+                        debugDrawObject(colObj->getWorldTransform(), colObj->getCollisionShape(), color * 0.5);
                     }
                 }
             });
