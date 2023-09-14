@@ -705,7 +705,7 @@ void discrete_dynamics_world::ot_terrain_collision_step()
                     static coid::nsec_timer timer;
                     timer.reset();
                     {
-                        CPU_PROFILE_SCOPE("process_triangle_cache");
+                        CPU_PROFILE_SCOPE(process_triangle_cache);
                         _common_data->process_triangle_cache(_triangles);
                     }
                     //uint time_ms = timer.time_ns() * 0.000001f;
