@@ -77,7 +77,15 @@ xcopy ..\bin\x64\ReleaseLTCG\otbullet.pdb ..\..\..\..\bin\ /y
 xcopy ..\bin\x64\Debug\otbulletd.dll ..\..\..\..\bin\ /y
 xcopy ..\bin\x64\Debug\otbulletd.pdb ..\..\..\..\bin\ /y
 
-git commit --amend --no-edit otbullet/version.last
+rem check if we can amend
+set amend=
+for /f %%g in ('git rev-list @{u}..@ --count') do set amend=%%g
+
+if "%amend%"=="" (
+    git commit -m "build version update" otbullet/version.last
+) else (
+    git commit --amend --no-edit otbullet/version.last
+)
 
 goto :eof
 
