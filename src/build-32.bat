@@ -32,12 +32,14 @@ echo %userver%>otbullet\version.last
 
 rem rev number
 
-call git rev-parse --short HEAD >otbullet\revision.last
-set /p revision=<otbullet\revision.last
+call git rev-parse --short=8 HEAD >otbullet\revision.last
+set /p REVISION=<otbullet\revision.last
 
 echo Revision: %revision%
 
-set VERSTR=%userver%.%revision%
+set REVISION=x%REVISION%
+
+set VERSTR=%userver%
 set VERLST=%userver%
 set VERLST=%VERLST:.=,%
 
@@ -48,17 +50,17 @@ msbuild otbullet\otbullet.sln /m /target:Build /p:Configuration=Debug /p:Platfor
 
 set BUILD_STATUS=%ERRORLEVEL%
 echo build status (x86 Debug) %BUILD_STATUS%
-if "%BUILD_STATUS%" neq "0" goto :eof
+if "%BUILD_STATUS%" neq "0" goto :fail
 
 
 msbuild otbullet\otbullet.sln /m /target:Build /p:Configuration=ReleaseLTCG /p:Platform=Win32
 
 set BUILD_STATUS=%ERRORLEVEL%
 echo build status (x86 ReleaseLTCG) %BUILD_STATUS%
-if "%BUILD_STATUS%" neq "0" goto :eof
+if "%BUILD_STATUS%" neq "0" goto :fail
 
 
-del /S /Q ..\..\..\include\bullet\*.*
+del /S /Q /F ..\..\..\include\bullet\*.*
 
 xcopy BulletCollision ..\..\..\include\bullet\BulletCollision\ /sy /exclude:copy-headers.exc
 xcopy BulletDynamics ..\..\..\include\bullet\BulletDynamics\ /sy /exclude:copy-headers.exc
@@ -66,6 +68,7 @@ xcopy LinearMath ..\..\..\include\bullet\LinearMath\ /sy /exclude:copy-headers.e
 xcopy *.h ..\..\..\include\bullet\ /y
 xcopy otbullet\physics.h ..\..\..\include\bullet\otbullet\ /y
 xcopy otbullet\physics_cfg.h ..\..\..\include\bullet\otbullet\ /y
+xcopy otbullet\otflags.h ..\..\..\include\bullet\otbullet\ /y
 xcopy otbullet\shape_info_cfg.h ..\..\..\include\bullet\otbullet\ /y
 xcopy otbullet\docs\*.html ..\..\..\include\bullet\otbullet\docs\ /sy
 
@@ -74,4 +77,19 @@ xcopy ..\bin\Win32\ReleaseLTCG\otbullet.pdb ..\..\..\..\bin\ /y
 xcopy ..\bin\Win32\Debug\otbulletd.dll ..\..\..\..\bin\ /y
 xcopy ..\bin\Win32\Debug\otbulletd.pdb ..\..\..\..\bin\ /y
 
-git commit --amend --no-edit otbullet/version.last
+rem check if we can amend
+set amend=
+for /f %%g in ('git rev-list @{u}..@ --count') do set amend=%%g
+
+if "%amend%"=="" (
+    git commit -m "build version update" otbullet/version.last
+) else (
+    git commit --amend --no-edit otbullet/version.last
+)
+
+goto :eof
+
+:fail
+echo Build failed or cancelled
+pause > nul
+goto :eof
