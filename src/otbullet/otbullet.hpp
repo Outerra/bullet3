@@ -6,17 +6,17 @@
 #include "physics_cfg.h"
 #include <comm/alloc/slotalloc.h>
 
+class btActionInterface;
+class btCollisionObject;
 class btCollisionShape;
 class btCompoundShape;
-class btCollisionObject;
 class btGhostObject;
-class btRigidBody;
-class btActionInterface;
-class btTransform;
 class btIDebugDraw;
 class btManifoldPoint;
-class btTypedConstraint;
+class btRigidBody;
+class btTransform;
 class btTriangleMesh;
+class btTypedConstraint;
 
 namespace bt {
     class constraint_info;
