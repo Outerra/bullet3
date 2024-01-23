@@ -6,17 +6,17 @@
 #include "physics_cfg.h"
 #include <comm/alloc/slotalloc.h>
 
+class btActionInterface;
+class btCollisionObject;
 class btCollisionShape;
 class btCompoundShape;
-class btCollisionObject;
 class btGhostObject;
-class btRigidBody;
-class btActionInterface;
-class btTransform;
 class btIDebugDraw;
 class btManifoldPoint;
-class btTypedConstraint;
+class btRigidBody;
+class btTransform;
 class btTriangleMesh;
+class btTypedConstraint;
 
 namespace bt {
     class constraint_info;
@@ -50,8 +50,8 @@ public:
 
     ifc_fn void set_simulation_frame(uint frame);
 
-    ifc_fn bt::external_broadphase* create_external_broadphase(const double3& min, const double3& max);
     ifc_fn void delete_external_broadphase(bt::external_broadphase* bp);
+    ifc_fn bt::external_broadphase* create_external_broadphase(const double3& min, const double3& max);
     ifc_fn void update_external_broadphase(bt::external_broadphase* bp);
     ifc_fn bool add_collision_object_to_external_broadphase(bt::external_broadphase* bp, btCollisionObject* co, unsigned int group, unsigned int mask);
     //ifc_fn void remove_collision_object_from_external_broadphase(bt::external_broadphase * bp, simple_collider * sc, btCollisionObject * co);
