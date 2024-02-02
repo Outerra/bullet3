@@ -342,7 +342,7 @@ void physics::remove_collision_object_from_external_broadphase(bt::external_broa
 }*/
 
 ////////////////////////////////////////////////////////////////////////////////
-btCollisionObject* physics::query_volume_sphere(const double3& pos, float rad)
+btCollisionObject* physics::query_volume_sphere(const double3& pos, float rad, const void* exclude_object)
 {
 #ifdef _DEBUG
     bt32BitAxisSweep3* broad = dynamic_cast<bt32BitAxisSweep3*>(_world->getBroadphase());
@@ -354,7 +354,7 @@ btCollisionObject* physics::query_volume_sphere(const double3& pos, float rad)
     btCollisionObject* result = 0;
 
     _world->query_volume_sphere(broad, pos, rad, [&](btCollisionObject* obj) {
-        if (obj->getUserPointer()) {
+        if (obj->getUserPointer() && obj->getUserPointer() != exclude_object) {
             result = obj;
             return true;
         }
@@ -372,7 +372,7 @@ btCollisionObject* physics::query_volume_sphere(const double3& pos, float rad)
         DASSERT(!ebp->_dirty);
 
         _world->query_volume_sphere(ebp->_broadphase, pos, rad, [&](btCollisionObject* obj) {
-            if (obj->getUserPointer()) {
+            if (obj->getUserPointer() && obj->getUserPointer() != exclude_object) {
                 result = obj;
                 return true;
             }
