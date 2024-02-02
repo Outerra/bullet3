@@ -250,22 +250,23 @@ void discrete_dynamics_world::process_terrain_broadphases(const coid::dynarray<b
             double3(cen[0], cen[1], cen[2]),
             double3(half[0], half[1], half[2]),
             [&](btBroadphaseProxy* proxy) {
-
-            if (proxy->m_ot_revision == bp->_revision) {
-                add_debug_aabb(proxy->m_aabbMin, proxy->m_aabbMax, btVector3(1, 0, 0));
-                add_terrain_broadphase_collision_pair(static_cast<btCollisionObject*>(proxy->m_clientObject), col_obj);
-            }
-            else {
-                DASSERT(bp->_broadphase->ownsProxy(proxy));
-                bp->_broadphase->destroyProxy(proxy, getDispatcher());
-                proxy->m_ot_revision = 0xffffffff; // invalidate proxy
-                btCollisionObject* client_object = static_cast<btCollisionObject*>(proxy->m_clientObject);
-
-                if (client_object && client_object->getBroadphaseHandle() == proxy) { // client object has still same proxy that is invalid so clear it (it happens when object is set not visible)
-                    client_object->setBroadphaseHandle(nullptr);
+                if (proxy->m_ot_revision == bp->_revision) {
+                    add_debug_aabb(proxy->m_aabbMin, proxy->m_aabbMax, btVector3(1, 0, 0));
+                    add_terrain_broadphase_collision_pair(static_cast<btCollisionObject*>(proxy->m_clientObject), col_obj);
                 }
+                else {
+                    DASSERT(bp->_broadphase->ownsProxy(proxy));
+                    bp->_broadphase->destroyProxy(proxy, getDispatcher());
+                    proxy->m_ot_revision = 0xffffffff; // invalidate proxy
+                    btCollisionObject* client_object = static_cast<btCollisionObject*>(proxy->m_clientObject);
+
+                    if (client_object && client_object->getBroadphaseHandle() == proxy) { // client object has still same proxy that is invalid so clear it (it happens when object is set not visible)
+                        client_object->setBroadphaseHandle(nullptr);
+                    }
+                }
+                return false;
             }
-        });
+        );
     });
 }
 

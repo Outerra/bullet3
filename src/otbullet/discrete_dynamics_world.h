@@ -322,7 +322,8 @@ public:
                 if (cur_node->isleaf()) {
                     if (cur_node->data) {
                         btDbvtProxy* dat = reinterpret_cast<btDbvtProxy*>(cur_node->data);
-                        process_fn(reinterpret_cast<btCollisionObject*>(dat->m_clientObject));
+                        if (process_fn(reinterpret_cast<btCollisionObject*>(dat->m_clientObject)))
+                            break;
                     }
                 }
                 else {
@@ -452,7 +453,7 @@ public:
     void add_terrain_occluder(btGhostObject* go) { _terrain_occluders.push(go); }
     void remove_terrain_occluder(btGhostObject* go);
     bool is_point_inside_terrain_occluder(const btVector3& pt);
-    //void set_potential_collision_flag(btRigidBody * rb);
+
     template<class fn> // void (*fn)(btCollisionObject * obj)
     void for_each_object_in_broadphase(bt32BitAxisSweep3* broadphase, uint revision, fn process_fn) {
         static coid::dynarray<const btDbvtNode*> _processing_stack(1024);

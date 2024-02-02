@@ -342,6 +342,48 @@ void physics::remove_collision_object_from_external_broadphase(bt::external_broa
 }*/
 
 ////////////////////////////////////////////////////////////////////////////////
+btCollisionObject* physics::query_volume_sphere(const double3& pos, float rad)
+{
+#ifdef _DEBUG
+    bt32BitAxisSweep3* broad = dynamic_cast<bt32BitAxisSweep3*>(_world->getBroadphase());
+    DASSERT(broad != nullptr);
+#else
+    bt32BitAxisSweep3* broad = static_cast<bt32BitAxisSweep3*>(_world->getBroadphase());
+#endif
+
+    btCollisionObject* result = 0;
+
+    _world->query_volume_sphere(broad, pos, rad, [&](btCollisionObject* obj) {
+        if (obj->getUserPointer()) {
+            result = obj;
+            return true;
+        }
+        return false;
+    });
+
+    coid::dynarray <bt::external_broadphase*> ebps;
+    _physics->external_broadphases_in_radius(_world->getContext(), pos, rad, gCurrentFrame, ebps);
+
+    ebps.for_each([&](bt::external_broadphase* ebp) {
+        /*if (ebp->_dirty) {
+            _world->update_terrain_mesh_broadphase(ebp);
+        }*/
+
+        DASSERT(!ebp->_dirty);
+
+        _world->query_volume_sphere(ebp->_broadphase, pos, rad, [&](btCollisionObject* obj) {
+            if (obj->getUserPointer()) {
+                result = obj;
+                return true;
+            }
+            return false;
+        });
+    });
+
+    return result;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void physics::query_volume_sphere(const double3& pos, float rad, coid::dynarray<btCollisionObject*>& result)
 {
 #ifdef _DEBUG
@@ -354,6 +396,7 @@ void physics::query_volume_sphere(const double3& pos, float rad, coid::dynarray<
     _world->query_volume_sphere(broad, pos, rad, [&](btCollisionObject* obj) {
         if (obj->getUserPointer())
             result.push(obj);
+        return false;
     });
 
     coid::dynarray <bt::external_broadphase*> ebps;
@@ -369,6 +412,7 @@ void physics::query_volume_sphere(const double3& pos, float rad, coid::dynarray<
         _world->query_volume_sphere(ebp->_broadphase, pos, rad, [&](btCollisionObject* obj) {
             if (obj->getUserPointer())
                 result.push(obj);
+            return false;
         });
     });
 }
@@ -417,6 +461,7 @@ void physics::wake_up_objects_in_radius(const double3& pos, float rad) {
     _world->query_volume_sphere(broad, pos, rad, [&](btCollisionObject* obj) {
         obj->setActivationState(ACTIVE_TAG);
         obj->setDeactivationTime(0);
+        return false;
     });
 }
 
