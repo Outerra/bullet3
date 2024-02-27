@@ -75,4 +75,4 @@ xcopy ..\bin\x64\ReleaseLTCG\otbullet.pdb ..\..\..\..\bin\ /y
 xcopy ..\bin\x64\Debug\otbulletd.dll ..\..\..\..\bin\ /y
 xcopy ..\bin\x64\Debug\otbulletd.pdb ..\..\..\..\bin\ /y
 
-git commit --amend --no-edit otbullet/version.last
+rem git commit --amend --no-edit otbullet/version.last

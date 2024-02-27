@@ -28,7 +28,7 @@
 #include <comm/profiler/profiler.h>
 
 #include <ot/glm/glm_ext.h>
-#include <ot/object_cfg.h>
+#include <ot/sys/object_cfg.h>
 
 extern unsigned int gOuterraSimulationFrame;
 

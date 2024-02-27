@@ -38,9 +38,9 @@ ot_terrain_contact_common::~ot_terrain_contact_common()
 void ot_terrain_contact_common::set_terrain_mesh_offset(const glm::dvec3 & offset)
 {
 	_mesh_offset = offset; 
-	_sphere_origin = _sphere_origin_g - offset;
-	_capsule_p0 = _capsule_p0_g - offset;
-	_capsule_p1 = _capsule_p1_g - offset;
+	_sphere_origin = glm::vec3(_sphere_origin_g - offset);
+	_capsule_p0 = glm::vec3(_capsule_p0_g - offset);
+	_capsule_p1 = glm::vec3(_capsule_p1_g - offset);
 	if (_convex_object) {
 		_box_local_transform.setOrigin(_convex_object->getWorldTransform().getOrigin() - btVector3(_mesh_offset.x, _mesh_offset.y, _mesh_offset.z));
 	}
