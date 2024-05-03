@@ -367,9 +367,9 @@ btCollisionObject* physics::query_volume_sphere(const double3& pos, float rad, c
     ebps.for_each([&](bt::external_broadphase* ebp) {
         /*if (ebp->_dirty) {
             _world->update_terrain_mesh_broadphase(ebp);
-        }*/
+        }
 
-        DASSERT(!ebp->_dirty);
+        DASSERT(!ebp->_dirty);*/
 
         _world->query_volume_sphere(ebp->_broadphase, pos, rad, [&](btCollisionObject* obj) {
             if (obj->getUserPointer() && obj->getUserPointer() != exclude_object) {
@@ -405,9 +405,9 @@ void physics::query_volume_sphere(const double3& pos, float rad, coid::dynarray<
     ebps.for_each([&](bt::external_broadphase* ebp) {
         /*if (ebp->_dirty) {
             _world->update_terrain_mesh_broadphase(ebp);
-        }*/
+        }
 
-        DASSERT(!ebp->_dirty);
+        DASSERT(!ebp->_dirty);*/
 
         _world->query_volume_sphere(ebp->_broadphase, pos, rad, [&](btCollisionObject* obj) {
             if (obj->getUserPointer())
@@ -438,9 +438,9 @@ void physics::query_volume_frustum(const double3& pos, const float4* f_planes_no
     ebps.for_each([&](bt::external_broadphase* ebp) {
         /*if (ebp->_dirty) {
             _world->update_terrain_mesh_broadphase(ebp);
-        }*/
+        }
 
-        DASSERT(!ebp->_dirty);
+        DASSERT(!ebp->_dirty);*/
 
         _world->query_volume_frustum(ebp->_broadphase, pos, f_planes_norms, nplanes, include_partial, [&](btCollisionObject* obj) {
             if (obj->getUserPointer())
