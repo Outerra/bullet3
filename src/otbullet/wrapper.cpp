@@ -29,6 +29,7 @@
 #include <comm/ref_i.h>
 #include <comm/commexception.h>
 #include <comm/taskmaster.h>
+#include <comm/singleton.h>
 
 static btBroadphaseInterface* _overlappingPairCache = 0;
 static btCollisionDispatcher* _dispatcher = 0;
@@ -361,10 +362,11 @@ btCollisionObject* physics::query_volume_sphere(const double3& pos, float rad, c
         return false;
     });
 
-    coid::dynarray <bt::external_broadphase*> ebps;
-    _physics->external_broadphases_in_radius(_world->getContext(), pos, rad, gCurrentFrame, ebps);
+    THREAD_LOCAL_SINGLETON_DEF(coid::dynarray<bt::external_broadphase*>) ebps;
+    ebps->reset();
+    _physics->external_broadphases_in_radius(_world->getContext(), pos, rad, gCurrentFrame, *ebps);
 
-    ebps.for_each([&](bt::external_broadphase* ebp) {
+    ebps->for_each([&](bt::external_broadphase* ebp) {
         /*if (ebp->_dirty) {
             _world->update_terrain_mesh_broadphase(ebp);
         }
@@ -399,10 +401,11 @@ void physics::query_volume_sphere(const double3& pos, float rad, coid::dynarray<
         return false;
     });
 
-    coid::dynarray <bt::external_broadphase*> ebps;
-    _physics->external_broadphases_in_radius(_world->getContext(), pos, rad, gCurrentFrame, ebps);
+    THREAD_LOCAL_SINGLETON_DEF(coid::dynarray<bt::external_broadphase*>) ebps;
+    ebps->reset();
+    _physics->external_broadphases_in_radius(_world->getContext(), pos, rad, gCurrentFrame, *ebps);
 
-    ebps.for_each([&](bt::external_broadphase* ebp) {
+    ebps->for_each([&](bt::external_broadphase* ebp) {
         /*if (ebp->_dirty) {
             _world->update_terrain_mesh_broadphase(ebp);
         }
@@ -432,10 +435,11 @@ void physics::query_volume_frustum(const double3& pos, const float4* f_planes_no
         result.push(obj);
     });
 
-    coid::dynarray <bt::external_broadphase*> ebps;
-    _physics->external_broadphases_in_frustum(_world->getContext(), pos, f_planes_norms, nplanes, gCurrentFrame, ebps);
+    THREAD_LOCAL_SINGLETON_DEF(coid::dynarray<bt::external_broadphase*>) ebps;
+    ebps->reset();
+    _physics->external_broadphases_in_frustum(_world->getContext(), pos, f_planes_norms, nplanes, gCurrentFrame, *ebps);
 
-    ebps.for_each([&](bt::external_broadphase* ebp) {
+    ebps->for_each([&](bt::external_broadphase* ebp) {
         /*if (ebp->_dirty) {
             _world->update_terrain_mesh_broadphase(ebp);
         }
