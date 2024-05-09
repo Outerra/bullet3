@@ -139,7 +139,7 @@ void discrete_dynamics_world::delete_external_broadphase(bt::external_broadphase
         delete (proc_obj);
     });
 
-    _external_broadphase_pool.del(bp);
+    _external_broadphase_pool.del_item(bp);
 }
 
 
@@ -383,7 +383,7 @@ void discrete_dynamics_world::remove_terrain_broadphase_collision_pair(btBroadph
         ghost->removeOverlappingObjectInternal(pair.m_pProxy1, getDispatcher());
     }
 
-    _terrain_mesh_broadphase_pairs.del(&pair);
+    _terrain_mesh_broadphase_pairs.del_item(&pair);
 }
 
 void discrete_dynamics_world::process_terrain_broadphase_collision_pairs()
@@ -448,7 +448,7 @@ void discrete_dynamics_world::removeRigidBody(btRigidBody* body)
     const uint32 m_id = body->getTerrainManifoldHandle();
     if (m_id != 0xffffffff) {
         btPersistentManifold** m_ptr = _manifolds.get_item(m_id);
-        _manifolds.del(m_ptr);
+        _manifolds.del_item(m_ptr);
         m_dispatcher1->releaseManifold(*m_ptr);
     }
 
@@ -762,7 +762,7 @@ void discrete_dynamics_world::ot_terrain_collision_step()
         if (manifold->getNumContacts() == 0 /*|| (tri_count == 0)*/) {
             getDispatcher()->releaseManifold(manifold);
             _manifolds.get_item(rb->getTerrainManifoldHandle());
-            _manifolds.del(_manifolds.get_item(rb->getTerrainManifoldHandle()));
+            _manifolds.del_item(_manifolds.get_item(rb->getTerrainManifoldHandle()));
             rb->setTerrainManifoldHandle(UMAX32);
         }
 
@@ -849,7 +849,7 @@ void discrete_dynamics_world::process_tree_collisions(btScalar time_step)
 
         if (!tcp.reused) {
             dispatcher->releaseManifold(manifold);
-            _tree_collision_pairs.del(&tcp);
+            _tree_collision_pairs.del_item(&tcp);
             return;
         }
 
