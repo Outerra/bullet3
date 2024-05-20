@@ -27,9 +27,9 @@ public:
 
 BT_DECLARE_ALIGNED_ALLOCATOR();
 
-    virtual btCollisionShape* getClone() const override {
-        return new btTriangleShape(*this);
-    };
+	virtual btCollisionShape* getClone() const override {
+		return new btTriangleShape(*this);
+	};
 
 	btVector3	m_vertices1[3];
 
@@ -72,8 +72,8 @@ BT_DECLARE_ALIGNED_ALLOCATOR();
 
 	btVector3 localGetSupportingVertexWithoutMargin(const btVector3& dir)const 
 	{
-        btVector3 dots = dir.dot3(m_vertices1[0], m_vertices1[1], m_vertices1[2]);
-	  	return m_vertices1[dots.maxAxis()];
+		btVector3 dots = dir.dot3(m_vertices1[0], m_vertices1[1], m_vertices1[2]);
+		return m_vertices1[dots.maxAxis()];
 
 	}
 
@@ -82,24 +82,27 @@ BT_DECLARE_ALIGNED_ALLOCATOR();
 		for (int i=0;i<numVectors;i++)
 		{
 			const btVector3& dir = vectors[i];
-            btVector3 dots = dir.dot3(m_vertices1[0], m_vertices1[1], m_vertices1[2]);
-  			supportVerticesOut[i] = m_vertices1[dots.maxAxis()];
+			btVector3 dots = dir.dot3(m_vertices1[0], m_vertices1[1], m_vertices1[2]);
+			supportVerticesOut[i] = m_vertices1[dots.maxAxis()];
 		}
 
 	}
 
 	btTriangleShape() : btPolyhedralConvexShape ()
-    {
+	{
 		m_shapeType = TRIANGLE_SHAPE_PROXYTYPE;
+		m_vertices1[0] = btVector3(0, 0, 0);
+		m_vertices1[1] = btVector3(0, 0, 0);
+		m_vertices1[2] = btVector3(0, 0, 0);
 	}
 
 	btTriangleShape(const btVector3& p0,const btVector3& p1,const btVector3& p2) : btPolyhedralConvexShape ()
-    {
+	{
 		m_shapeType = TRIANGLE_SHAPE_PROXYTYPE;
-        m_vertices1[0] = p0;
-        m_vertices1[1] = p1;
-        m_vertices1[2] = p2;
-    }
+		m_vertices1[0] = p0;
+		m_vertices1[1] = p1;
+		m_vertices1[2] = p2;
+	}
 
 
 	virtual void getPlane(btVector3& planeNormal,btVector3& planeSupport,int i) const
