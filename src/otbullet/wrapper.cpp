@@ -481,6 +481,15 @@ bool physics::is_point_inside_terrain_ocluder(const double3& pt)
     return _world->is_point_inside_terrain_occluder(btVector3(pt.x, pt.y, pt.z));
 }
 
+////////////////////////////////////////////////////////////////////////////////
+bool physics::contact_pair_test(btCollisionObject* a, btCollisionObject* b)
+{
+    ot::is_inside_callback cbk;
+    _world->contactPairTest(a, b, cbk);
+
+    return cbk.is_inside;
+}
+
 void physics::pause_simulation(bool pause)
 {
     _world->pause_simulation(pause);
@@ -500,17 +509,17 @@ void physics::destroy_triangle_mesh(btTriangleMesh* triangle_mesh)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::add_triangle(btTriangleMesh* mesh, const float v0[3], const float v1[3], const float v2[3])
+void physics::add_triangle(btTriangleMesh* mesh, const float3& v0, const float3& v1, const float3& v2)
 {
-    btVector3 btv0(static_cast<double>(v0[0]), static_cast<double>(v0[1]), static_cast<double>(v0[2]));
-    btVector3 btv1(static_cast<double>(v1[0]), static_cast<double>(v1[1]), static_cast<double>(v1[2]));
-    btVector3 btv2(static_cast<double>(v2[0]), static_cast<double>(v2[1]), static_cast<double>(v2[2]));
+    btVector3 btv0(v0.x, v0.y, v0.z);
+    btVector3 btv1(v1.x, v1.y, v1.z);
+    btVector3 btv2(v2.x, v2.y, v2.z);
 
     mesh->addTriangle(btv0, btv1, btv2);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-btCollisionShape* physics::create_shape(bt::EShape sh, const float hvec[3], void* data)
+btCollisionShape* physics::create_shape(bt::EShape sh, const float3& hvec, void* data)
 {
     switch (sh) {
     case bt::SHAPE_CONVEX:          return new btConvexHullShape();
@@ -552,7 +561,7 @@ void physics::destroy_shape(btCollisionShape*& shape)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::add_convex_point(btCollisionShape* shape, const float pt[3])
+void physics::add_convex_point(btCollisionShape* shape, const float3& pt)
 {
     static_cast<btConvexHullShape*>(shape)->addPoint(btVector3(pt[0], pt[1], pt[2]), false);
 }
@@ -772,7 +781,7 @@ void physics::step_simulation(double step, bt::bullet_stats* stats)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::ray_test(const double from[3], const double to[3], void* cb, bt::external_broadphase* bp)
+void physics::ray_test(const double3& from, const double3& to, void* cb, bt::external_broadphase* bp)
 {
     btVector3 afrom = btVector3(from[0], from[1], from[2]);
     btVector3 ato = btVector3(to[0], to[1], to[2]);

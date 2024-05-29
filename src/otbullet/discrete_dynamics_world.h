@@ -28,6 +28,7 @@ class btManifoldResult;
 struct skewbox;
 class ot_terrain_contact_common;
 class btGhostObject;
+class btCompoundShape;
 
 namespace bt {
     class terrain_mesh_broadphase;
@@ -127,6 +128,17 @@ struct tree_key_extractor {
     ret_type operator()(const tree_flex_inf& t) const {
         return t._tree_iden;
     }
+};
+
+
+class is_inside_callback : public btCollisionWorld::ContactResultCallback {
+public:
+    bool is_inside = false;
+
+    virtual	btScalar addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper*, int partId0, int index0, const btCollisionObjectWrapper*, int partId1, int index1) {
+        is_inside = true;
+        return 0.0;
+    };
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -453,6 +465,9 @@ public:
     void add_terrain_occluder(btGhostObject* go) { _terrain_occluders.push(go); }
     void remove_terrain_occluder(btGhostObject* go);
     bool is_point_inside_terrain_occluder(const btVector3& pt);
+
+    bool is_point_inside(const btVector3& pt, btCollisionObject* col);
+    bool is_point_inside(const btVector3& pt, btCompoundShape* shape);
 
     template<class fn> // void (*fn)(btCollisionObject * obj)
     void for_each_object_in_broadphase(bt32BitAxisSweep3* broadphase, uint revision, fn process_fn) {

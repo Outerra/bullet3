@@ -77,17 +77,7 @@ void ot::discrete_dynamics_world::dump_triangle_list_to_obj(const char* fname, f
 
 namespace ot {
 
-class is_inside_callback : public btCollisionWorld::ContactResultCallback {
-public:
-    bool is_inside = false;
-
-    virtual	btScalar	addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) {
-        is_inside = true;
-        return 0.0;
-    };
-};
-
-void	discrete_dynamics_world::updateAabbs()
+void discrete_dynamics_world::updateAabbs()
 {
     btTransform predictedTrans;
     for (int i = 0; i < m_collisionObjects.size(); i++)
@@ -1137,7 +1127,8 @@ void discrete_dynamics_world::remove_terrain_occluder(btGhostObject* go)
     _terrain_occluders.del_key(go);
 }
 
-bool discrete_dynamics_world::is_point_inside_terrain_occluder(const btVector3& pt) {
+bool discrete_dynamics_world::is_point_inside_terrain_occluder(const btVector3& pt)
+{
     btTransform point_transform;
     point_transform.setIdentity();
     point_transform.setOrigin(pt);
@@ -1156,7 +1147,7 @@ bool discrete_dynamics_world::is_point_inside_terrain_occluder(const btVector3& 
 
         is_inside_callback result;
 
-        contactPairTest(const_cast<btGhostObject*>(go), &point, result);
+        contactPairTest(go, &point, result);
 
         if (result.is_inside) {
             return true;
@@ -1164,6 +1155,50 @@ bool discrete_dynamics_world::is_point_inside_terrain_occluder(const btVector3& 
     }
 
     return false;
+}
+
+bool discrete_dynamics_world::is_point_inside(const btVector3& pt, btCollisionObject* col)
+{
+    btTransform point_transform;
+    point_transform.setIdentity();
+    point_transform.setOrigin(pt);
+
+    btCollisionObject point;
+    btSphereShape point_shape(0.0);
+    point_shape.setMargin(0.0);
+    point.setCollisionShape(&point_shape);
+    point.setWorldTransform(point_transform);
+
+    is_inside_callback result;
+
+    contactPairTest(col, &point, result);
+
+    return result.is_inside;
+}
+
+bool discrete_dynamics_world::is_point_inside(const btVector3& pt, btCompoundShape* shape)
+{
+    btTransform point_transform;
+    point_transform.setIdentity();
+
+    btCollisionObject col;
+    col.setCollisionShape(shape);
+    col.setWorldTransform(point_transform);
+
+    point_transform.setOrigin(pt);
+
+    btSphereShape point_shape(0.0);
+    btCollisionObject point;
+    point_shape.setMargin(0.0);
+    point.setCollisionShape(&point_shape);
+    point.setWorldTransform(point_transform);
+
+
+    is_inside_callback result;
+
+    contactPairTest(&col, &point, result);
+
+    return result.is_inside;
 }
 
 
