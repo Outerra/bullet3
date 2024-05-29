@@ -138,19 +138,19 @@ void physics::pause_rigid_body(btRigidBody* obj, bool pause)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::set_rigid_body_mass(btRigidBody* obj, float mass, const float inertia[3])
+void physics::set_rigid_body_mass(btRigidBody* obj, float mass, const float3& inertia)
 {
-    obj->setMassProps(mass, btVector3(inertia[0], inertia[1], inertia[2]));
+    obj->setMassProps(mass, btVector3(inertia.x, inertia.y, inertia.z));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::set_rigid_body_gravity(btRigidBody* obj, const double gravity[3])
+void physics::set_rigid_body_gravity(btRigidBody* obj, const double3& gravity)
 {
     obj->setGravity(btVector3(gravity[0], gravity[1], gravity[2]));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void physics::set_rigid_body_transform(btRigidBody* obj, const btTransform& tr, const double gravity[3])
+void physics::set_rigid_body_transform(btRigidBody* obj, const btTransform& tr, const double3& gravity)
 {
     obj->setCenterOfMassTransform(tr);
     obj->setGravity(btVector3(gravity[0], gravity[1], gravity[2]));

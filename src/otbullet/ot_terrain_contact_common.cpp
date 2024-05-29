@@ -267,7 +267,7 @@ void ot_terrain_contact_common::collide_sphere_triangle(const bt::triangle& tria
     glm::vec3 cp;
     float u, v, w;
     glm::vec3 tn = glm::normalize(glm::cross(triangle.b - triangle.a, triangle.c - triangle.a));
-    const float dist_sq = coal3d::distance_point_trinagle_sqr(_sphere_origin,
+    const float dist_sq = coal3d::distance_point_triangle_sqr(_sphere_origin,
         triangle.a,
         triangle.b,
         triangle.c,

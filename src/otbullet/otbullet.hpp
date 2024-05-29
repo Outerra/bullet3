@@ -57,7 +57,7 @@ public:
     //ifc_fn void remove_collision_object_from_external_broadphase(bt::external_broadphase * bp, simple_collider * sc, btCollisionObject * co);
 
     ifc_fn void step_simulation(double step, bt::bullet_stats* stats);
-    ifc_fn void ray_test(const double from[3], const double to[3], void* cb, bt::external_broadphase* bp = 0);
+    ifc_fn void ray_test(const double3& from, const double3& to, void* cb, bt::external_broadphase* bp = 0);
 
     ifc_fn void set_current_frame(uint frame);
 
@@ -68,9 +68,9 @@ public:
         btActionInterface* action, bt::constraint_info* constraint, int constraint_type = -1);
     ifc_fn void remove_rigid_body(btRigidBody* obj, btActionInterface* action, bt::constraint_info* constraint);
     ifc_fn void pause_rigid_body(btRigidBody* obj, bool pause);
-    ifc_fn void set_rigid_body_mass(btRigidBody* obj, float mass, const float inertia[3]);
-    ifc_fn void set_rigid_body_gravity(btRigidBody* obj, const double gravity[3]);
-    ifc_fn void set_rigid_body_transform(btRigidBody* obj, const btTransform& tr, const double gravity[3]);
+    ifc_fn void set_rigid_body_mass(btRigidBody* obj, float mass, const float3& inertia);
+    ifc_fn void set_rigid_body_gravity(btRigidBody* obj, const double3& gravity);
+    ifc_fn void set_rigid_body_transform(btRigidBody* obj, const btTransform& tr, const double3& gravity);
     ifc_fn void predict_rigid_body_transform(btRigidBody* obj, double dt, ifc_out btTransform& tr);
     ifc_fn float get_angular_factor(const btRigidBody* obj);
     ifc_fn void set_angular_factor(btRigidBody* obj, float factor);
@@ -100,11 +100,11 @@ public:
 
     ifc_fn btTriangleMesh* create_triangle_mesh();
     ifc_fn void destroy_triangle_mesh(btTriangleMesh* triangle_mesh);
-    ifc_fn void add_triangle(btTriangleMesh* mesh, const float v0[3], const float v1[3], const float v2[3]);
+    ifc_fn void add_triangle(btTriangleMesh* mesh, const float3& v0, const float3& v1, const float3& v2);
 
-    ifc_fn btCollisionShape* create_shape(bt::EShape sh, const float hvec[3], void* data = nullptr);
+    ifc_fn btCollisionShape* create_shape(bt::EShape sh, const float3& hvec, void* data = nullptr);
     ifc_fn btCollisionShape* clone_shape(const btCollisionShape* shape);
-    ifc_fn void add_convex_point(btCollisionShape* shape, const float point[3]);
+    ifc_fn void add_convex_point(btCollisionShape* shape, const float3& point);
     ifc_fn void close_convex_shape(btCollisionShape* shape);
     ifc_fn void destroy_shape(ifc_inout btCollisionShape*& shape);
     ifc_fn void set_collision_shape_local_scaling(btCollisionShape* shape, const float3& scale);
@@ -124,6 +124,8 @@ public:
     ifc_fn void wake_up_object(btCollisionObject* obj);
 
     ifc_fn bool is_point_inside_terrain_ocluder(const double3& pt);
+
+    ifc_fn bool contact_pair_test(btCollisionObject* a, btCollisionObject* b);
 
     ifc_fn void pause_simulation(bool pause);
 
