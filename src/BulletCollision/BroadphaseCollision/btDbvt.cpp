@@ -415,6 +415,8 @@ btDbvt::btDbvt()
 	m_lkhd		=	-1;
 	m_leaves	=	0;
 	m_opath		=	0;
+
+	m_rayTestStacks.resize(EFFICIENT_MAX_THREAD_COUNT);
 }
 
 //
