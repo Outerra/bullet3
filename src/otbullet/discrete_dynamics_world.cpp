@@ -171,6 +171,7 @@ void discrete_dynamics_world::internalSingleStepSimulation(btScalar timeStep)
 //		ot_terrain_collision_step_cleanup();
     ot_terrain_collision_step();
     process_tree_collisions(timeStep);
+    process_active_sensors_internal();
 
 #ifdef _PROFILING_ENABLED
     timer.reset();
@@ -1106,6 +1107,7 @@ discrete_dynamics_world::discrete_dynamics_world(btDispatcher* dispatcher,
     , _tb_cache(1024, coid::reserve_mode::memory)
     , _terrain_mesh_broadphase_pairs(1024, coid::reserve_mode::memory)
     , _task_master(tm)
+    , _active_sensors(coid::abyss_dynarray_size, coid::reserve_mode::virtual_space)
     //, _relocation_offset(0)
 {
     setContext((void*)context);
@@ -1269,6 +1271,15 @@ void discrete_dynamics_world::add_debug_aabb(const btVector3& min, const btVecto
     }
 }
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+void discrete_dynamics_world::get_trigerred_sensors(coid::dynarray32<std::pair<btGhostObject*, btCollisionObject*>>& result_out)
+{
+    result_out.swap(_triggered_sensors);
+}
+
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
 void	discrete_dynamics_world::updateActions(btScalar timeStep)
 {
     static bool use_parallel = true;
@@ -1284,6 +1295,74 @@ void	discrete_dynamics_world::updateActions(btScalar timeStep)
 
         }
     }
+}
+
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+void discrete_dynamics_world::add_sensor_internal(btGhostObject* sensor_ptr, btCollisionObject* trigger_ptr) 
+{
+    DASSERT_RETX(find_sensor_intenal(sensor_ptr, trigger_ptr) == nullptr, "Sensor already added!");
+    coidlog_info("", "Sensor added");
+    _active_sensors.push({ sensor_ptr, trigger_ptr, false });
+}
+
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+void discrete_dynamics_world::remove_sensor_internal(btGhostObject* sensor_ptr, btCollisionObject* trigger_ptr)
+{
+    sensor_data* found = find_sensor_intenal(sensor_ptr, trigger_ptr);
+
+    DASSERT_RETX(sensor_ptr != nullptr, "Sensor not found!");
+    coidlog_info("", "Sensor removed");
+
+    _active_sensors.del_item(found);
+}
+
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+void discrete_dynamics_world::remove_all_sensors_internal(btGhostObject* sensor_ptr) 
+{
+    _active_sensors.del_item_if([&](sensor_data& value) 
+    {
+        return value._sensor_object_ptr == sensor_ptr;
+    });
+}
+
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+discrete_dynamics_world::sensor_data* discrete_dynamics_world::find_sensor_intenal(btGhostObject* sensor_ptr, btCollisionObject* trigger_ptr)
+{
+    sensor_data* found = _active_sensors.find_if([&](sensor_data& value)
+    {
+        return value._sensor_object_ptr == sensor_ptr && value._trigger_object_ptr == trigger_ptr;
+    });
+
+    return found;
+}
+
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+void discrete_dynamics_world::process_active_sensors_internal()
+{
+    _triggered_sensors.reset();
+
+    _active_sensors.for_each([&](sensor_data& sensor) 
+    {
+        if (!sensor._sensor_object_ptr->checkCollideWith(sensor._trigger_object_ptr))
+        {
+            sensor._triggered = false;
+
+            return;
+        }
+
+        if (!sensor._triggered)
+        {
+            sensor._triggered = true;
+            _triggered_sensors.push({ sensor._sensor_object_ptr, sensor._trigger_object_ptr});
+            coidlog_info("", "Sensor trigerred!");
+        }
+    });
+
 }
 
 }// end namespace ot

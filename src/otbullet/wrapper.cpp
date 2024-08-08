@@ -40,6 +40,55 @@ static physics* _physics = nullptr;
 
 extern uint gOuterraSimulationFrame;
 
+class custom_ghost_pair_callback : public btGhostPairCallback
+{
+public:
+    virtual btBroadphasePair* addOverlappingPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1)
+    {
+        RASSERT(_physics != nullptr);
+        btCollisionObject* collision_object0_ptr = static_cast<btCollisionObject*>(proxy0->m_clientObject);
+        btCollisionObject* collision_object1_ptr = static_cast<btCollisionObject*>(proxy1->m_clientObject);
+        btGhostObject* ghost_object0_ptr = btGhostObject::upcast(collision_object0_ptr);
+        btGhostObject* ghost_object1_ptr = btGhostObject::upcast(collision_object1_ptr);
+
+        // ghost object without flags means its not terrain occluder but the trigger
+        if (ghost_object0_ptr && (ghost_object0_ptr->m_otFlags & bt::EOtFlags::OTF_SENSOR_GHOST_OBJECT) == bt::EOtFlags::OTF_SENSOR_GHOST_OBJECT)
+        {
+            _physics->_world->add_sensor_internal(ghost_object0_ptr, collision_object1_ptr);
+        }
+
+        if (ghost_object1_ptr && (ghost_object0_ptr->m_otFlags & bt::EOtFlags::OTF_SENSOR_GHOST_OBJECT) == bt::EOtFlags::OTF_SENSOR_GHOST_OBJECT)
+        {
+            _physics->_world->add_sensor_internal(ghost_object1_ptr, collision_object0_ptr);
+        }
+
+        return btGhostPairCallback::addOverlappingPair(proxy0, proxy1);
+    }
+
+    virtual void* removeOverlappingPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1, btDispatcher* dispatcher)
+    {
+        RASSERT(_physics != nullptr);
+        btCollisionObject* collision_object0_ptr = static_cast<btCollisionObject*>(proxy0->m_clientObject);
+        btCollisionObject* collision_object1_ptr = static_cast<btCollisionObject*>(proxy1->m_clientObject);
+        btGhostObject* ghost_object0_ptr = btGhostObject::upcast(collision_object0_ptr);
+        btGhostObject* ghost_object1_ptr = btGhostObject::upcast(collision_object1_ptr);
+
+        // ghost object without flags means its not terrain occluder but the trigger
+        if (ghost_object0_ptr && (ghost_object0_ptr->m_otFlags & bt::EOtFlags::OTF_SENSOR_GHOST_OBJECT) == bt::EOtFlags::OTF_SENSOR_GHOST_OBJECT)
+        {
+            _physics->_world->remove_sensor_internal(ghost_object0_ptr, collision_object1_ptr);
+        }
+
+        if (ghost_object1_ptr && (ghost_object0_ptr->m_otFlags & bt::EOtFlags::OTF_SENSOR_GHOST_OBJECT) == bt::EOtFlags::OTF_SENSOR_GHOST_OBJECT)
+        {
+            _physics->_world->remove_sensor_internal(ghost_object1_ptr, collision_object0_ptr);
+        }
+
+        return btGhostPairCallback::removeOverlappingPair(proxy0, proxy1, dispatcher);
+    }
+
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 #ifdef _LIB
 
@@ -203,7 +252,7 @@ iref<physics> physics::create(double r, void* context, coid::taskmaster* tm)
     btVector3 worldMax(r, r, r);
 
     _overlappingPairCache = new bt32BitAxisSweep3(worldMin, worldMax, 10000);
-    _overlappingPairCache->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+    _overlappingPairCache->getOverlappingPairCache()->setInternalGhostPairCallback(new custom_ghost_pair_callback());
     _constraintSolver = new btSequentialImpulseConstraintSolver();
 
     ot::discrete_dynamics_world* wrld = new ot::discrete_dynamics_world(
@@ -656,13 +705,15 @@ btCollisionObject* physics::create_collision_object(btCollisionShape* shape, voi
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-btGhostObject* physics::create_ghost_object(btCollisionShape* shape, void* usr1, void* usr2)
+btGhostObject* physics::create_ghost_object(btCollisionShape* shape, void* usr1, void* usr2, bt::EOtFlags ot_flags)
 {
     btGhostObject* obj = new btGhostObject;
     obj->setCollisionShape(shape);
 
     obj->setUserPointer(usr1);
     obj->m_userDataExt = usr2;
+
+    obj->m_otFlags = ot_flags;
 
     return obj;
 }
@@ -723,6 +774,19 @@ bool physics::add_collision_object(btCollisionObject* obj, unsigned int group, u
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+bool physics::add_sensor_object(btGhostObject* obj, unsigned int group, unsigned int mask)
+{
+    if (!_world->addCollisionObject(obj, group, mask)) 
+    {
+        return false;
+    }
+    
+    obj->setCollisionFlags(obj->getCollisionFlags() | btCollisionObject::CollisionFlags::CF_NO_CONTACT_RESPONSE);
+
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void physics::remove_collision_object(btCollisionObject* obj)
 {
     _world->removeCollisionObject(obj);
@@ -742,6 +806,11 @@ void physics::remove_collision_object_external(btCollisionObject* obj)
     if (ghost) {
         _world->remove_terrain_occluder(ghost);
     }
+}
+
+void physics::remove_sensor_object(btGhostObject* obj)
+{
+    _world->removeCollisionObject(obj);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -849,5 +918,12 @@ btTypedConstraint* physics::add_constraint_ball_socket(btRigidBody* rb_a, const 
 
 void physics::remove_constraint(btTypedConstraint* constraint) {
     _physics->_world->removeConstraint(constraint);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void physics::get_triggered_sensors(coid::dynarray32<std::pair<btGhostObject*, btCollisionObject*>>& result_out)
+{
+    _world->get_trigerred_sensors(result_out);
 }
 

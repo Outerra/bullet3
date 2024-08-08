@@ -40,6 +40,7 @@ namespace ot {
 ///
 class physics : public policy_intrusive_base
 {
+    friend class custom_ghost_pair_callback;
 public:
 
     ///Interface for the physics module
@@ -77,14 +78,16 @@ public:
 
 
     ifc_fn btCollisionObject* create_collision_object(btCollisionShape* shape, void* usr1, void* usr2);
-    ifc_fn btGhostObject* create_ghost_object(btCollisionShape* shape, void* usr1, void* usr2);
+    ifc_fn btGhostObject* create_ghost_object(btCollisionShape* shape, void* usr1, void* usr2, bt::EOtFlags ot_flags);
     ifc_fn void destroy_collision_object(btCollisionObject*& obj);
     ifc_fn void destroy_ghost_object(btGhostObject*& obj);
     ifc_fn void update_collision_object(btCollisionObject* obj, const btTransform& tr, bool update_aabb);
     ifc_fn void set_collision_info(btCollisionObject* obj, unsigned int group, unsigned int mask);
     ifc_fn bool add_collision_object(btCollisionObject* obj, unsigned int group, unsigned int mask, bool inactive);
+    ifc_fn bool add_sensor_object(btGhostObject* obj, unsigned int group, unsigned int mask);
     ifc_fn void remove_collision_object(btCollisionObject* obj);
     ifc_fn void remove_collision_object_external(btCollisionObject* obj);
+    ifc_fn void remove_sensor_object(btGhostObject* obj);
     ifc_fn int get_collision_flags(const btCollisionObject* co);
     ifc_fn void set_collision_flags(btCollisionObject* co, int flags);
 
@@ -132,6 +135,10 @@ public:
     /// CONSTRAINTS
     ifc_fn btTypedConstraint* add_constraint_ball_socket(btRigidBody* rb_a, const btVector3& pivot_a, btRigidBody* rb_b, const btVector3& pivot_b, bool disable_collision);
     ifc_fn void remove_constraint(btTypedConstraint* constraint);
+
+    /// @brief Get trigerred sensors
+    /// @param result_out - result array of std::pairs where the 'first' is sensor object ptr  and 'second' is trigger object ptr
+    ifc_fn void get_triggered_sensors(coid::dynarray32<std::pair<btGhostObject*, btCollisionObject*>>& result_out);
 
     ifc_event bool external_broadphases_in_radius(
         const void* context,
