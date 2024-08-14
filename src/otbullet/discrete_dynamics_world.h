@@ -29,10 +29,13 @@ struct skewbox;
 class ot_terrain_contact_common;
 class btGhostObject;
 class btCompoundShape;
+class ot_gost_pair_callback;
 
 namespace bt {
     class terrain_mesh_broadphase;
 }
+
+
 
 namespace ot {
 
@@ -144,6 +147,7 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 class discrete_dynamics_world : public btDiscreteDynamicsWorld
 {
+    friend ot_gost_pair_callback;
 protected:
     struct btCollisionObjectWrapperCtorArgs {
         const btCollisionObjectWrapper* _parent;
@@ -182,6 +186,15 @@ protected:
     coid::dynarray<btGhostObject*> _terrain_occluders;
 
     coid::slotalloc<btBroadphasePair> _terrain_mesh_broadphase_pairs;
+
+    struct sensor_trigger_data
+    {
+        btGhostObject* _sensor_ptr = nullptr;
+        btCollisionObject* _trigger_ptr = nullptr;
+        bool _triggered = false;
+    };
+
+    coid::slotalloc<sensor_trigger_data> _active_sensors;
 
     //coid::dynarray<bt::external_broadphase*> _debug_external_broadphases;
 
@@ -513,6 +526,10 @@ public:
         }
     }
 
+    void on_remove_sensor(btGhostObject* sensor_ptr);
+
+    void get_triggered_sensors(coid::dynarray32<std::pair<btGhostObject*, btCollisionObject*>>& result_out);
+
 protected:
 
     virtual void updateActions(btScalar timeStep) override;
@@ -555,6 +572,10 @@ protected:
 
     void add_debug_aabb(const btVector3& min, const btVector3& max, const btVector3& color);
 
+    void add_sensor_trigger_data_internal(btGhostObject* sensor_ptr, btCollisionObject* trigger_ptr);
+    void remove_sensor_trigger_data_internal(btGhostObject* sensor_ptr, btCollisionObject* trigger_ptr);
+
+    sensor_trigger_data* find_active_trigger_intenral(btGhostObject* sensor_ptr, btCollisionObject* trigger_ptr);
 };
 
 } // namespace ot
