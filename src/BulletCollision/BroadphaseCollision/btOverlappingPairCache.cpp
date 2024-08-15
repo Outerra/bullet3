@@ -383,12 +383,16 @@ void	btHashedOverlappingPairCache::processAllOverlappingPairs(btOverlapCallback*
 	{
 		btBroadphasePair* pair = &m_overlappingPairArray[i];
 
-		if (pair->m_pProxy1->m_collisionFilterGroup & (2|4)) //dynamic objects
-			static_cast<btCollisionObject*>(pair->m_pProxy0->m_clientObject)->m_otFlags |= bt::OTF_POTENTIAL_OBJECT_COLLISION;
-		static_cast<btCollisionObject*>(pair->m_pProxy0->m_clientObject)->m_last_collision_pair_frame = gCurrentFrame;
+		const bool obj_0_is_dynamic = pair->m_pProxy0->m_collisionFilterGroup & (2 | 4);
+		const bool obj_1_is_dynamic = pair->m_pProxy1->m_collisionFilterGroup & (2 | 4);
 
-		if (pair->m_pProxy0->m_collisionFilterGroup & (2|4)) //dynamic objects
+		if (obj_0_is_dynamic && obj_1_is_dynamic)
+		{
+			static_cast<btCollisionObject*>(pair->m_pProxy0->m_clientObject)->m_otFlags |= bt::OTF_POTENTIAL_OBJECT_COLLISION;
 			static_cast<btCollisionObject*>(pair->m_pProxy1->m_clientObject)->m_otFlags |= bt::OTF_POTENTIAL_OBJECT_COLLISION;
+		}
+
+		static_cast<btCollisionObject*>(pair->m_pProxy0->m_clientObject)->m_last_collision_pair_frame = gCurrentFrame;
 		static_cast<btCollisionObject*>(pair->m_pProxy1->m_clientObject)->m_last_collision_pair_frame = gCurrentFrame;
 
 		if (callback->processOverlap(*pair))

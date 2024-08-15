@@ -226,8 +226,6 @@ public:
         {
             _physics->_world->remove_sensor_trigger_data_internal(btGhostObject::upcast(col_obj1), col_obj0);
         }
-
-        return btGhostPairCallback::addOverlappingPair(proxy0, proxy1);
         
         return btGhostPairCallback::removeOverlappingPair(proxy0, proxy1, dispatcher);
     }
@@ -246,7 +244,7 @@ iref<physics> physics::create(double r, void* context, coid::taskmaster* tm)
     btVector3 worldMax(r, r, r);
 
     _overlappingPairCache = new bt32BitAxisSweep3(worldMin, worldMax, 10000);
-    _overlappingPairCache->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+    _overlappingPairCache->getOverlappingPairCache()->setInternalGhostPairCallback(new ot_gost_pair_callback());
     _constraintSolver = new btSequentialImpulseConstraintSolver();
 
     ot::discrete_dynamics_world* wrld = new ot::discrete_dynamics_world(
@@ -707,13 +705,15 @@ btCollisionObject* physics::create_collision_object(btCollisionShape* shape, voi
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-btGhostObject* physics::create_ghost_object(btCollisionShape* shape, void* usr1, void* usr2)
+btGhostObject* physics::create_ghost_object(btCollisionShape* shape, void* usr1, void* usr2, bt::EOtFlags flags)
 {
     btGhostObject* obj = new btGhostObject;
     obj->setCollisionShape(shape);
 
     obj->setUserPointer(usr1);
     obj->m_userDataExt = usr2;
+    
+    obj->m_otFlags |= flags;
 
     return obj;
 }

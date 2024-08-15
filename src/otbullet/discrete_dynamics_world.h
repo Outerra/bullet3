@@ -195,6 +195,7 @@ protected:
     };
 
     coid::slotalloc<sensor_trigger_data> _active_sensors;
+    coid::dynarray32<std::pair<btGhostObject*, btCollisionObject*>> _triggered_sensors;
 
     //coid::dynarray<bt::external_broadphase*> _debug_external_broadphases;
 
@@ -526,8 +527,6 @@ public:
         }
     }
 
-    void on_remove_sensor(btGhostObject* sensor_ptr);
-
     void get_triggered_sensors(coid::dynarray32<std::pair<btGhostObject*, btCollisionObject*>>& result_out);
 
 protected:
@@ -574,6 +573,7 @@ protected:
 
     void add_sensor_trigger_data_internal(btGhostObject* sensor_ptr, btCollisionObject* trigger_ptr);
     void remove_sensor_trigger_data_internal(btGhostObject* sensor_ptr, btCollisionObject* trigger_ptr);
+    void update_sensors_internal();
 
     sensor_trigger_data* find_active_trigger_intenral(btGhostObject* sensor_ptr, btCollisionObject* trigger_ptr);
 };

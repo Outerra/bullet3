@@ -208,6 +208,8 @@ void discrete_dynamics_world::internalSingleStepSimulation(btScalar timeStep)
 
     updateActivationState(timeStep);
 
+    update_sensors_internal();
+
     if (0 != m_internalTickCallback) {
         (*m_internalTickCallback)(this, timeStep);
     }
@@ -1308,6 +1310,39 @@ void discrete_dynamics_world::remove_sensor_trigger_data_internal(btGhostObject*
     DASSERT_RETX(found != nullptr, "sensor-trigger pair not found!");
 
     _active_sensors.del_item(found);
+
+    _triggered_sensors.del_if([&](std::pair<btGhostObject*, btCollisionObject*>& data)
+    {
+        return data.first == sensor_ptr && data.second == trigger_ptr;
+    });
+}
+
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+void discrete_dynamics_world::update_sensors_internal()
+{
+    _active_sensors.for_each([this](sensor_trigger_data& data) 
+    {
+        const bool do_collide = data._sensor_ptr->checkCollideWith(data._trigger_ptr);
+
+        if (data._triggered)
+        {
+            if (do_collide) 
+            {
+                // still trigerred
+            }
+            else 
+            {
+                // what to do when untrigerred?
+            }
+        }
+        else if (do_collide)
+        {
+            _triggered_sensors.push({data._sensor_ptr, data._trigger_ptr});
+        }
+
+        data._triggered = do_collide;
+    });
 }
 
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -1339,14 +1374,10 @@ void	discrete_dynamics_world::updateActions(btScalar timeStep)
 }
 
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-void discrete_dynamics_world::on_remove_sensor(btGhostObject* sensor_ptr)
-{
-}
-
-
-//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void discrete_dynamics_world::get_triggered_sensors(coid::dynarray32<std::pair<btGhostObject*, btCollisionObject*>>& result_out)
 {
+    result_out.swap(_triggered_sensors);
+    _triggered_sensors.reset();
 }
 
 }// end namespace ot
