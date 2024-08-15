@@ -77,6 +77,7 @@ void ot::discrete_dynamics_world::dump_triangle_list_to_obj(const char* fname, f
 
 namespace ot {
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void discrete_dynamics_world::updateAabbs()
 {
     btTransform predictedTrans;
@@ -115,7 +116,7 @@ bt::external_broadphase* discrete_dynamics_world::create_external_broadphase(con
     return result;
 }
 
-
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void discrete_dynamics_world::delete_external_broadphase(bt::external_broadphase* bp) {
 
     bp->_procedural_objects.for_each([&](btCollisionObject*& proc_obj)
@@ -132,7 +133,7 @@ void discrete_dynamics_world::delete_external_broadphase(bt::external_broadphase
     _external_broadphase_pool.del_item(bp);
 }
 
-
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void discrete_dynamics_world::internalSingleStepSimulation(btScalar timeStep)
 {
 #ifdef _PROFILING_ENABLED
@@ -207,6 +208,8 @@ void discrete_dynamics_world::internalSingleStepSimulation(btScalar timeStep)
 
     updateActivationState(timeStep);
 
+    update_sensors_internal();
+
     if (0 != m_internalTickCallback) {
         (*m_internalTickCallback)(this, timeStep);
     }
@@ -218,6 +221,7 @@ void discrete_dynamics_world::internalSingleStepSimulation(btScalar timeStep)
 
 }
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void discrete_dynamics_world::process_terrain_broadphases(const coid::dynarray<bt::external_broadphase*>& broadphase, btCollisionObject* col_obj)
 {
     CPU_PROFILE_FUNCTION();
@@ -260,6 +264,7 @@ void discrete_dynamics_world::process_terrain_broadphases(const coid::dynarray<b
     });
 }
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void discrete_dynamics_world::update_terrain_mesh_broadphase(bt::external_broadphase* bp)
 {
     bool procedural_objects_cleared = false;
@@ -335,6 +340,7 @@ void discrete_dynamics_world::update_terrain_mesh_broadphase(bt::external_broadp
     bp->_dirty = false;
 }
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void discrete_dynamics_world::add_terrain_broadphase_collision_pair(btCollisionObject* obj1, btCollisionObject* obj2)
 {
     btBroadphasePair* pair = _terrain_mesh_broadphase_pairs.find_if([&](const btBroadphasePair& bp) {
@@ -360,6 +366,7 @@ void discrete_dynamics_world::add_terrain_broadphase_collision_pair(btCollisionO
     }
 }
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void discrete_dynamics_world::remove_terrain_broadphase_collision_pair(btBroadphasePair& pair)
 {
     if (pair.m_algorithm) {
@@ -376,6 +383,7 @@ void discrete_dynamics_world::remove_terrain_broadphase_collision_pair(btBroadph
     _terrain_mesh_broadphase_pairs.del_item(&pair);
 }
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void discrete_dynamics_world::process_terrain_broadphase_collision_pairs()
 {
     btDispatcherInfo& dispatchInfo = getDispatchInfo();
@@ -396,10 +404,9 @@ void discrete_dynamics_world::process_terrain_broadphase_collision_pairs()
             remove_terrain_broadphase_collision_pair(bp);
         }
     });
-
-
 }
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void discrete_dynamics_world::rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback) const
 {
     THREAD_LOCAL_SINGLETON_DEF(coid::dynarray32<bt::external_broadphase*>) bps;
@@ -422,6 +429,7 @@ void discrete_dynamics_world::rayTest(const btVector3& rayFromWorld, const btVec
     }
 }
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void discrete_dynamics_world::rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback, bt::external_broadphase* bp) const
 {
     btCollisionWorld::btSingleRayCallback rayCB(rayFromWorld, rayToWorld, this, resultCallback);
@@ -433,6 +441,7 @@ void discrete_dynamics_world::rayTest(const btVector3& rayFromWorld, const btVec
     }
 }
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void discrete_dynamics_world::removeRigidBody(btRigidBody* body)
 {
     const uint32 m_id = body->getTerrainManifoldHandle();
@@ -453,11 +462,13 @@ void discrete_dynamics_world::removeRigidBody(btRigidBody* body)
     btDiscreteDynamicsWorld::removeRigidBody(body);
 }
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void discrete_dynamics_world::removeCollisionObject(btCollisionObject* collisionObject)
 {
     btDiscreteDynamicsWorld::removeCollisionObject(collisionObject);
 }
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void discrete_dynamics_world::removeCollisionObject_external(btCollisionObject* collisionObject)
 {
     _terrain_mesh_broadphase_pairs.for_each([&](btBroadphasePair& bp, uints idx) {
@@ -477,6 +488,7 @@ void discrete_dynamics_world::removeCollisionObject_external(btCollisionObject* 
     collisionObject->setBroadphaseHandle(nullptr);
 }
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void discrete_dynamics_world::ot_terrain_collision_step()
 {
 #ifdef _PROFILING_ENABLED
@@ -770,6 +782,7 @@ void discrete_dynamics_world::ot_terrain_collision_step()
     gContactAddedCallback = nullptr;
 }
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void discrete_dynamics_world::prepare_tree_collision_pairs(btCollisionObject* cur_obj, const coid::dynarray<uint>& tree_batches_cache, uint32 frame)
 {
     for (uints i = 0; i < tree_batches_cache.size(); i++) {
@@ -812,6 +825,7 @@ void discrete_dynamics_world::prepare_tree_collision_pairs(btCollisionObject* cu
     }
 }
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void discrete_dynamics_world::build_tb_collision_info(bt::tree_batch* tb)
 {
     for (uint8 i = 0; i < tb->tree_count; i++) {
@@ -830,6 +844,7 @@ void discrete_dynamics_world::build_tb_collision_info(bt::tree_batch* tb)
     }
 }
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void discrete_dynamics_world::process_tree_collisions(btScalar time_step)
 {
     _tree_collision_pairs.for_each([&](tree_collision_pair& tcp) {
@@ -912,6 +927,7 @@ void discrete_dynamics_world::process_tree_collisions(btScalar time_step)
     });
 }
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void discrete_dynamics_world::get_obb(const btCollisionShape* cs, const btTransform& t, double3& cen, float3x3& basis)
 {
     btVector3 min, max;
@@ -930,6 +946,7 @@ void discrete_dynamics_world::get_obb(const btCollisionShape* cs, const btTransf
     basis[2] = float3(bt_basis[2][0], bt_basis[2][1], bt_basis[2][2]);
 }
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void discrete_dynamics_world::oob_to_aabb(const btVector3& src_cen, const btMatrix3x3& src_basis, const btVector3& dst_cen, const btMatrix3x3& dst_basis, btVector3& aabb_cen, btVector3& aabb_half)
 {
     aabb_cen = src_cen - dst_cen;
@@ -962,6 +979,7 @@ void discrete_dynamics_world::oob_to_aabb(const btVector3& src_cen, const btMatr
         });
     }*/
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 bt::tree_collision_info* discrete_dynamics_world::get_tree_collision_info(const tree_collision_pair& tcp)
 {
     uint tree_id = tcp.tree_col_info;
@@ -971,12 +989,14 @@ bt::tree_collision_info* discrete_dynamics_world::get_tree_collision_info(const 
     return tb->info(tid);
 }
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 bt::tree* discrete_dynamics_world::get_tree(const tree_collision_pair& tcp)
 {
     uint tree_id = tcp.tree_col_info;
     return get_tree(tree_id);
 }
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 bt::tree* discrete_dynamics_world::get_tree(uint tree_id)
 {
     uint bid = tree_id >> 4;
@@ -985,6 +1005,7 @@ bt::tree* discrete_dynamics_world::get_tree(uint tree_id)
     return &tb->trees[tid];
 }
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void discrete_dynamics_world::debugDrawWorld(btScalar extrapolation_step)
 {
     if (!m_debugDrawer) {
@@ -1084,8 +1105,7 @@ void discrete_dynamics_world::debugDrawWorld(btScalar extrapolation_step)
     });
 }
 
-
-
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 discrete_dynamics_world::discrete_dynamics_world(btDispatcher* dispatcher,
     btBroadphaseInterface* pairCache,
     btConstraintSolver* constraintSolver,
@@ -1122,11 +1142,13 @@ discrete_dynamics_world::discrete_dynamics_world(btDispatcher* dispatcher,
     _compound_processing_stack.reserve(128, false);
 }
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void discrete_dynamics_world::remove_terrain_occluder(btGhostObject* go)
 {
     _terrain_occluders.del_key(go);
 }
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 bool discrete_dynamics_world::is_point_inside_terrain_occluder(const btVector3& pt)
 {
     btTransform point_transform;
@@ -1157,6 +1179,7 @@ bool discrete_dynamics_world::is_point_inside_terrain_occluder(const btVector3& 
     return false;
 }
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 bool discrete_dynamics_world::is_point_inside(const btVector3& pt, btCollisionObject* col)
 {
     btTransform point_transform;
@@ -1176,6 +1199,7 @@ bool discrete_dynamics_world::is_point_inside(const btVector3& pt, btCollisionOb
     return result.is_inside;
 }
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 bool discrete_dynamics_world::is_point_inside(const btVector3& pt, btCompoundShape* shape)
 {
     btTransform point_transform;
@@ -1201,7 +1225,7 @@ bool discrete_dynamics_world::is_point_inside(const btVector3& pt, btCompoundSha
     return result.is_inside;
 }
 
-
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 /*void discrete_dynamics_world::set_potential_collision_flag(btRigidBody * rb)
 {
     rb->m_otFlags &= ~bt::EOtFlags::OTF_POTENTIAL_OBJECT_COLLISION;
@@ -1215,6 +1239,7 @@ bool discrete_dynamics_world::is_point_inside(const btVector3& pt, btCompoundSha
     }
 }*/
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void discrete_dynamics_world::add_debug_aabb(const btVector3& min, const btVector3& max, const btVector3& color)
 {
     if (m_debugDrawer) {
@@ -1269,6 +1294,68 @@ void discrete_dynamics_world::add_debug_aabb(const btVector3& min, const btVecto
     }
 }
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+void discrete_dynamics_world::add_sensor_trigger_data_internal(btGhostObject* sensor_ptr, btCollisionObject* trigger_ptr)
+{
+    DASSERTX(find_active_trigger_intenral(sensor_ptr, trigger_ptr) == nullptr, "sensor-trigger pair already added!");
+    
+    _active_sensors.push({ sensor_ptr, trigger_ptr, false });
+}
+
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+void discrete_dynamics_world::remove_sensor_trigger_data_internal(btGhostObject* sensor_ptr, btCollisionObject* trigger_ptr)
+{
+    sensor_trigger_data* found = find_active_trigger_intenral(sensor_ptr, trigger_ptr);
+
+    DASSERT_RETX(found != nullptr, "sensor-trigger pair not found!");
+
+    _active_sensors.del_item(found);
+
+    _triggered_sensors.del_if([&](std::pair<btGhostObject*, btCollisionObject*>& data)
+    {
+        return data.first == sensor_ptr && data.second == trigger_ptr;
+    });
+}
+
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+void discrete_dynamics_world::update_sensors_internal()
+{
+    _active_sensors.for_each([this](sensor_trigger_data& data) 
+    {
+        const bool do_collide = data._sensor_ptr->checkCollideWith(data._trigger_ptr);
+
+        if (data._triggered)
+        {
+            if (do_collide) 
+            {
+                // still trigerred
+            }
+            else 
+            {
+                // what to do when untrigerred?
+            }
+        }
+        else if (do_collide)
+        {
+            _triggered_sensors.push({data._sensor_ptr, data._trigger_ptr});
+        }
+
+        data._triggered = do_collide;
+    });
+}
+
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+discrete_dynamics_world::sensor_trigger_data* discrete_dynamics_world::find_active_trigger_intenral(btGhostObject* sensor_ptr, btCollisionObject* trigger_ptr)
+{
+    return _active_sensors.find_if([&](sensor_trigger_data& data)
+    {
+        return data._sensor_ptr == sensor_ptr && data._trigger_ptr == trigger_ptr;
+    });
+}
+
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void	discrete_dynamics_world::updateActions(btScalar timeStep)
 {
     static bool use_parallel = true;
@@ -1284,6 +1371,13 @@ void	discrete_dynamics_world::updateActions(btScalar timeStep)
 
         }
     }
+}
+
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+void discrete_dynamics_world::get_triggered_sensors(coid::dynarray32<std::pair<btGhostObject*, btCollisionObject*>>& result_out)
+{
+    result_out.swap(_triggered_sensors);
+    _triggered_sensors.reset();
 }
 
 }// end namespace ot
