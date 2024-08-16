@@ -77,7 +77,7 @@ public:
     ifc_fn void set_angular_factor(btRigidBody* obj, float factor);
 
 
-    ifc_fn btCollisionObject* create_collision_object(btCollisionShape* shape, void* usr1, void* usr2);
+    ifc_fn btCollisionObject* create_collision_object(btCollisionShape* shape, void* usr1, void* usr2, bool kinematic);
     ifc_fn btGhostObject* create_ghost_object(btCollisionShape* shape, void* usr1, void* usr2, bt::EOtFlags flags);
     ifc_fn void destroy_collision_object(btCollisionObject*& obj);
     ifc_fn void destroy_ghost_object(btGhostObject*& obj);

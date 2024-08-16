@@ -693,13 +693,19 @@ void physics::destroy_compound_shape(btCompoundShape*& shape)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-btCollisionObject* physics::create_collision_object(btCollisionShape* shape, void* usr1, void* usr2)
+btCollisionObject* physics::create_collision_object(btCollisionShape* shape, void* usr1, void* usr2, bool kinematic)
 {
     btCollisionObject* obj = new btCollisionObject;
     obj->setCollisionShape(shape);
 
     obj->setUserPointer(usr1);
     obj->m_userDataExt = usr2;
+
+    if (kinematic)
+    {
+        obj->setCollisionFlags(obj->getCollisionFlags() | btCollisionObject::CollisionFlags::CF_KINEMATIC_OBJECT);
+        obj->setActivationState(DISABLE_DEACTIVATION);
+    }
 
     return obj;
 }
