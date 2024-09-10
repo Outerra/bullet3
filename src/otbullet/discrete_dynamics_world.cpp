@@ -130,7 +130,7 @@ void discrete_dynamics_world::delete_external_broadphase(bt::external_broadphase
         delete (proc_obj);
     });
 
-    _external_broadphase_pool.del_item(bp);
+    _external_broadphase_pool.del_item_by_ptr(bp);
 }
 
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -380,7 +380,7 @@ void discrete_dynamics_world::remove_terrain_broadphase_collision_pair(btBroadph
         ghost->removeOverlappingObjectInternal(pair.m_pProxy1, getDispatcher());
     }
 
-    _terrain_mesh_broadphase_pairs.del_item(&pair);
+    _terrain_mesh_broadphase_pairs.del_item_by_ptr(&pair);
 }
 
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -447,7 +447,7 @@ void discrete_dynamics_world::removeRigidBody(btRigidBody* body)
     const uint32 m_id = body->getTerrainManifoldHandle();
     if (m_id != 0xffffffff) {
         btPersistentManifold** m_ptr = _manifolds.get_item(m_id);
-        _manifolds.del_item(m_ptr);
+        _manifolds.del_item_by_ptr(m_ptr);
         m_dispatcher1->releaseManifold(*m_ptr);
     }
 
@@ -764,7 +764,7 @@ void discrete_dynamics_world::ot_terrain_collision_step()
         if (manifold->getNumContacts() == 0 /*|| (tri_count == 0)*/) {
             getDispatcher()->releaseManifold(manifold);
             _manifolds.get_item(rb->getTerrainManifoldHandle());
-            _manifolds.del_item(_manifolds.get_item(rb->getTerrainManifoldHandle()));
+            _manifolds.del_item_by_ptr(_manifolds.get_item(rb->getTerrainManifoldHandle()));
             rb->setTerrainManifoldHandle(UMAX32);
         }
 
@@ -854,7 +854,7 @@ void discrete_dynamics_world::process_tree_collisions(btScalar time_step)
 
         if (!tcp.reused) {
             dispatcher->releaseManifold(manifold);
-            _tree_collision_pairs.del_item(&tcp);
+            _tree_collision_pairs.del_item_by_ptr(&tcp);
             return;
         }
 
@@ -1295,21 +1295,21 @@ void discrete_dynamics_world::add_debug_aabb(const btVector3& min, const btVecto
 }
 
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-void discrete_dynamics_world::add_sensor_trigger_data_internal(btGhostObject* sensor_ptr, btCollisionObject* trigger_ptr)
+void discrete_dynamics_world::add_sensor_trigger_data_internal(btPairCachingGhostObject* sensor_ptr, btCollisionObject* trigger_ptr, btBroadphasePair* pair_ptr)
 {
     DASSERTX(find_active_trigger_intenral(sensor_ptr, trigger_ptr) == nullptr, "sensor-trigger pair already added!");
     
-    _active_sensors.push({ sensor_ptr, trigger_ptr, false });
+    _active_sensors.push({ sensor_ptr, trigger_ptr, pair_ptr, false });
 }
 
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-void discrete_dynamics_world::remove_sensor_trigger_data_internal(btGhostObject* sensor_ptr, btCollisionObject* trigger_ptr)
+void discrete_dynamics_world::remove_sensor_trigger_data_internal(btPairCachingGhostObject* sensor_ptr, btCollisionObject* trigger_ptr)
 {
     sensor_trigger_data* found = find_active_trigger_intenral(sensor_ptr, trigger_ptr);
 
     DASSERT_RETX(found != nullptr, "sensor-trigger pair not found!");
 
-    _active_sensors.del_item(found);
+    _active_sensors.del_item_by_ptr(found);
 
     _triggered_sensors.del_if([&](std::pair<btGhostObject*, btCollisionObject*>& data)
     {
@@ -1321,9 +1321,32 @@ void discrete_dynamics_world::remove_sensor_trigger_data_internal(btGhostObject*
 
 void discrete_dynamics_world::update_sensors_internal()
 {
-    _active_sensors.for_each([this](sensor_trigger_data& data) 
+    _active_sensors.for_each([this](sensor_trigger_data& data)
     {
-        const bool do_collide = data._sensor_ptr->checkCollideWith(data._trigger_ptr);
+        THREAD_LOCAL_SINGLETON_DEF(btManifoldArray) manifolds;
+        manifolds->clear();
+
+        int64 idx = data._pair_ptr - getBroadphase()->getOverlappingPairCache()->getOverlappingPairArrayPtr();
+        
+        if (data._pair_ptr == nullptr || idx < 0 || idx > getBroadphase()->getOverlappingPairCache()->getNumOverlappingPairs())
+        {
+            btBroadphasePairArray& pairs = data._sensor_ptr->getOverlappingPairCache()->getOverlappingPairArray();
+            for (int i = 0; i < pairs.size(); ++i)
+            {
+                if ((pairs[i].m_pProxy0->m_clientObject == data._sensor_ptr && pairs[i].m_pProxy1->m_clientObject == data._trigger_ptr) ||
+                    (pairs[i].m_pProxy1->m_clientObject == data._sensor_ptr && pairs[i].m_pProxy0->m_clientObject == data._trigger_ptr))
+                {
+                    data._pair_ptr = &pairs[i];
+                    data._pair_ptr = getBroadphase()->getOverlappingPairCache()->findPair(data._pair_ptr->m_pProxy0, data._pair_ptr->m_pProxy1);
+                    break;
+                }
+            }
+        }
+
+        if (data._pair_ptr->m_algorithm)
+            data._pair_ptr->m_algorithm->getAllContactManifolds(*manifolds);
+
+        const bool do_collide = manifolds->size() > 0;
 
         if (data._triggered)
         {
@@ -1347,7 +1370,7 @@ void discrete_dynamics_world::update_sensors_internal()
 
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-discrete_dynamics_world::sensor_trigger_data* discrete_dynamics_world::find_active_trigger_intenral(btGhostObject* sensor_ptr, btCollisionObject* trigger_ptr)
+discrete_dynamics_world::sensor_trigger_data* discrete_dynamics_world::find_active_trigger_intenral(btPairCachingGhostObject* sensor_ptr, btCollisionObject* trigger_ptr)
 {
     return _active_sensors.find_if([&](sensor_trigger_data& data)
     {
