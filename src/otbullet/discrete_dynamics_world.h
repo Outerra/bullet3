@@ -189,8 +189,9 @@ protected:
 
     struct sensor_trigger_data
     {
-        btGhostObject* _sensor_ptr = nullptr;
+        btPairCachingGhostObject* _sensor_ptr = nullptr;
         btCollisionObject* _trigger_ptr = nullptr;
+        btBroadphasePair* _pair_ptr = nullptr;
         bool _triggered = false;
     };
 
@@ -571,11 +572,11 @@ protected:
 
     void add_debug_aabb(const btVector3& min, const btVector3& max, const btVector3& color);
 
-    void add_sensor_trigger_data_internal(btGhostObject* sensor_ptr, btCollisionObject* trigger_ptr);
-    void remove_sensor_trigger_data_internal(btGhostObject* sensor_ptr, btCollisionObject* trigger_ptr);
+    void add_sensor_trigger_data_internal(btPairCachingGhostObject* sensor_ptr, btCollisionObject* trigger_ptr, btBroadphasePair* pair_ptr);
+    void remove_sensor_trigger_data_internal(btPairCachingGhostObject* sensor_ptr, btCollisionObject* trigger_ptr);
     void update_sensors_internal();
 
-    sensor_trigger_data* find_active_trigger_intenral(btGhostObject* sensor_ptr, btCollisionObject* trigger_ptr);
+    sensor_trigger_data* find_active_trigger_intenral(btPairCachingGhostObject* sensor_ptr, btCollisionObject* trigger_ptr);
 };
 
 } // namespace ot

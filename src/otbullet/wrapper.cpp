@@ -196,20 +196,22 @@ class ot_gost_pair_callback : public btGhostPairCallback
 public:
     btBroadphasePair* addOverlappingPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1) override
     {
+        btBroadphasePair* result = btGhostPairCallback::addOverlappingPair(proxy0, proxy1);
+
         btCollisionObject* col_obj0 = static_cast<btCollisionObject*>(proxy0->m_clientObject);
         btCollisionObject* col_obj1 = static_cast<btCollisionObject*>(proxy1->m_clientObject);
         
         if(col_obj0->m_otFlags & bt::EOtFlags::OTF_SENSOR_GHOST_OBJECT)
         {
-            _physics->_world->add_sensor_trigger_data_internal(btGhostObject::upcast(col_obj0), col_obj1);
+            _physics->_world->add_sensor_trigger_data_internal(static_cast<btPairCachingGhostObject*>(col_obj0), col_obj1, result);
         }
         
         if (col_obj1->m_otFlags & bt::EOtFlags::OTF_SENSOR_GHOST_OBJECT)
         {
-            _physics->_world->add_sensor_trigger_data_internal(btGhostObject::upcast(col_obj1), col_obj0);
+            _physics->_world->add_sensor_trigger_data_internal(static_cast<btPairCachingGhostObject*>(col_obj1), col_obj0, result);
         }
         
-        return btGhostPairCallback::addOverlappingPair(proxy0, proxy1);
+        return result;
     }
 
     void* removeOverlappingPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1, btDispatcher* dispatcher) override 
@@ -219,12 +221,12 @@ public:
 
         if (col_obj0->m_otFlags & bt::EOtFlags::OTF_SENSOR_GHOST_OBJECT)
         {
-            _physics->_world->remove_sensor_trigger_data_internal(btGhostObject::upcast(col_obj0), col_obj1);
+            _physics->_world->remove_sensor_trigger_data_internal(static_cast<btPairCachingGhostObject*>(col_obj0), col_obj1);
         }
 
         if (col_obj1->m_otFlags & bt::EOtFlags::OTF_SENSOR_GHOST_OBJECT)
         {
-            _physics->_world->remove_sensor_trigger_data_internal(btGhostObject::upcast(col_obj1), col_obj0);
+            _physics->_world->remove_sensor_trigger_data_internal(static_cast<btPairCachingGhostObject*>(col_obj1), col_obj0);
         }
         
         return btGhostPairCallback::removeOverlappingPair(proxy0, proxy1, dispatcher);
@@ -725,6 +727,20 @@ btGhostObject* physics::create_ghost_object(btCollisionShape* shape, void* usr1,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+btPairCachingGhostObject* physics::create_pair_caching_ghost_object(btCollisionShape* shape, void* usr1, void* usr2, bt::EOtFlags flags)
+{
+    btPairCachingGhostObject* obj = new btPairCachingGhostObject;
+    obj->setCollisionShape(shape);
+
+    obj->setUserPointer(usr1);
+    obj->m_userDataExt = usr2;
+
+    obj->m_otFlags |= flags;
+
+    return obj;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void physics::set_collision_info(btCollisionObject* obj, unsigned int group, unsigned int mask)
 {
     btBroadphaseProxy* bp = obj->getBroadphaseHandle();
@@ -743,6 +759,13 @@ void physics::destroy_collision_object(btCollisionObject*& obj)
 
 ////////////////////////////////////////////////////////////////////////////////
 void physics::destroy_ghost_object(btGhostObject*& obj)
+{
+    if (obj) delete obj;
+    obj = 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void physics::destroy_pair_caching_ghost_object(btPairCachingGhostObject*& obj)
 {
     if (obj) delete obj;
     obj = 0;
@@ -781,7 +804,7 @@ bool physics::add_collision_object(btCollisionObject* obj, unsigned int group, u
 
 
 ////////////////////////////////////////////////////////////////////////////////
-bool physics::add_sensor_object(btGhostObject* obj, unsigned int group, unsigned int mask)
+bool physics::add_sensor_object(btPairCachingGhostObject* obj, unsigned int group, unsigned int mask)
 {
     if (!_world->addCollisionObject(obj, group, mask)) {
         return false;
