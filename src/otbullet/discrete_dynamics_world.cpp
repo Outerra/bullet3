@@ -322,8 +322,8 @@ void discrete_dynamics_world::update_terrain_mesh_broadphase(bt::external_broadp
             btGhostObject* ghost = btGhostObject::upcast(entry._collision_object);
             if (ghost) {
                 entry._collision_object->setCollisionFlags(entry._collision_object->getCollisionFlags() |
-                    btCollisionObject::CollisionFlags::CF_NO_CONTACT_RESPONSE |
-                    btCollisionObject::CollisionFlags::CF_DISABLE_VISUALIZE_OBJECT);
+                    btCollisionObject::CollisionFlags::CF_NO_CONTACT_RESPONSE/* |
+                    btCollisionObject::CollisionFlags::CF_DISABLE_VISUALIZE_OBJECT*/);
                 add_terrain_occluder(ghost);
             }
 
@@ -1442,7 +1442,7 @@ void discrete_dynamics_world::add_debug_aabb(const btVector3& min, const btVecto
 void discrete_dynamics_world::add_sensor_trigger_data_internal(btPairCachingGhostObject* sensor_ptr, btCollisionObject* trigger_ptr, btBroadphasePair* pair_ptr)
 {
     DASSERTX(find_active_trigger_intenral(sensor_ptr, trigger_ptr) == nullptr, "sensor-trigger pair already added!");
-    
+
     _active_sensors.push({ sensor_ptr, trigger_ptr, pair_ptr, false });
 }
 
@@ -1471,7 +1471,7 @@ void discrete_dynamics_world::update_sensors_internal()
         manifolds->clear();
 
         int64 idx = data._pair_ptr - getBroadphase()->getOverlappingPairCache()->getOverlappingPairArrayPtr();
-        
+
         if (data._pair_ptr == nullptr || idx < 0 || idx > getBroadphase()->getOverlappingPairCache()->getNumOverlappingPairs())
         {
             btBroadphasePairArray& pairs = data._sensor_ptr->getOverlappingPairCache()->getOverlappingPairArray();
@@ -1494,11 +1494,11 @@ void discrete_dynamics_world::update_sensors_internal()
 
         if (data._triggered)
         {
-            if (do_collide) 
+            if (do_collide)
             {
                 // still trigerred
             }
-            else 
+            else
             {
                 // what to do when untrigerred?
             }

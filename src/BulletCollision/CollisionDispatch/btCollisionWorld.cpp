@@ -1493,27 +1493,32 @@ void	btCollisionWorld::debugDrawWorld(btScalar extrapolation_step)
 					{
 						btVector3 color(btScalar(0.4), btScalar(0.4), btScalar(0.4));
 
-						switch (colObj->getActivationState())
-						{
-						case  ACTIVE_TAG:
-							if (colObj->m_otFlags & bt::OTF_POTENTIAL_OBJECT_COLLISION)
-								color = defaultColors.m_activeDynColObject;
-							else
-								color = defaultColors.m_activeObject;
-							break;
-						case ISLAND_SLEEPING:
-							color = defaultColors.m_deactivatedObject; break;
-						case WANTS_DEACTIVATION:
-							color = defaultColors.m_wantsDeactivationObject; break;
-						case DISABLE_DEACTIVATION:
-							color = defaultColors.m_disabledDeactivationObject; break;
-						case DISABLE_SIMULATION:
-							color = defaultColors.m_disabledSimulationObject; break;
-						default:
-						{
-							color = btVector3(btScalar(.3), btScalar(0.3), btScalar(0.3));
+						if (colObj->isGhostObject()) {
+							color[0] = color[1] = 1.0;
 						}
-						};
+						else {
+							switch (colObj->getActivationState())
+							{
+								case  ACTIVE_TAG:
+									if (colObj->m_otFlags & bt::OTF_POTENTIAL_OBJECT_COLLISION)
+										color = defaultColors.m_activeDynColObject;
+									else
+										color = defaultColors.m_activeObject;
+									break;
+								case ISLAND_SLEEPING:
+									color = defaultColors.m_deactivatedObject; break;
+								case WANTS_DEACTIVATION:
+									color = defaultColors.m_wantsDeactivationObject; break;
+								case DISABLE_DEACTIVATION:
+									color = defaultColors.m_disabledDeactivationObject; break;
+								case DISABLE_SIMULATION:
+									color = defaultColors.m_disabledSimulationObject; break;
+								default:
+								{
+									color = btVector3(btScalar(.3), btScalar(0.3), btScalar(0.3));
+								}
+							}
+						}
 
 						// Object not visible
 						if (colObj->getBroadphaseHandle() && colObj->getBroadphaseHandle()->m_collisionFilterGroup == 0) 
