@@ -95,10 +95,7 @@ class btRigidBody  : public btCollisionObject
 
 	int				m_rigidbodyFlags;
 	
-	int				m_debugBodyId;
-
-    unsigned int    m_terrainManifoldHandle;
-	
+	int				m_debugBodyId;	
 
 protected:
 
@@ -556,14 +553,6 @@ public:
 	btVector3 getLocalInertia() const;
 
 	///////////////////////////////////////////////
-
-    unsigned int getTerrainManifoldHandle() const {
-        return m_terrainManifoldHandle;
-    }
-
-    void setTerrainManifoldHandle(unsigned int terrainManifoldHandle) {
-        m_terrainManifoldHandle = terrainManifoldHandle;
-    }
 
 	virtual	int	calculateSerializeBufferSize()	const;
 
