@@ -109,6 +109,8 @@ protected:
 	///internal update revision number. It will be increased when the object changes. This allows some subsystems to perform lazy evaluation.
 	int			m_updateRevision;
 
+	unsigned int    m_terrainManifoldHandle;
+
 public:
 
 	///users can point to their objects, m_userPointer is not used by Bullet, see setUserPointer/getUserPointer
@@ -567,6 +569,15 @@ public:
 
 	virtual void predictIntegratedTransform(btScalar step, btTransform& predictedTransform);
 
+
+	/// OT stuff
+	unsigned int getTerrainManifoldHandle() const {
+		return m_terrainManifoldHandle;
+	}
+
+	void setTerrainManifoldHandle(unsigned int terrainManifoldHandle) {
+		m_terrainManifoldHandle = terrainManifoldHandle;
+	}
 };
 
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
