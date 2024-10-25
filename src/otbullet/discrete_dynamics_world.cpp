@@ -519,7 +519,8 @@ void discrete_dynamics_world::ot_terrain_collision_step()
                 obj->getCollisionShape()->getShapeType() != CAPSULE_SHAPE_PROXYTYPE &&
                 !obj->getCollisionShape()->isConvex() &&
                 obj->getCollisionShape()->getShapeType() != COMPOUND_SHAPE_PROXYTYPE) ||
-            (rb->getBroadphaseHandle()->m_collisionFilterMask & ot::collision::cg_terrain) == 0)
+            (rb->getBroadphaseHandle()->m_collisionFilterMask & ot::collision::cg_terrain) == 0
+            || (rb->m_otFlags & bt::EOtFlags::OTF_DISABLE_OT_WORLD_COLLISIONS) != 0)
         {
             continue;
         }
