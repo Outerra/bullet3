@@ -41,7 +41,9 @@ btCollisionObject::btCollisionObject()
 		m_ccdSweptSphereRadius(btScalar(0.)),
 		m_ccdMotionThreshold(btScalar(0.)),
 		m_checkCollideWith(false),
-		m_updateRevision(0)
+		m_updateRevision(0),
+		m_terrainManifoldHandle(0xffffffff)
+
 {
 	m_worldTransform.setIdentity();
 }

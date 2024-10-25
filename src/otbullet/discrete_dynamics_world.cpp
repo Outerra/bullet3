@@ -512,36 +512,38 @@ void discrete_dynamics_world::ot_terrain_collision_step()
         _cow_internal.clear();
         _compound_processing_stack.clear();
         btCollisionObject* obj = m_collisionObjects[i];
-        btRigidBody* rb = btRigidBody::upcast(obj);
+        const bool is_rigid_body = obj->isRigidBody();
+        const bool is_kinematic = obj->isKinematicObject();
 
-        if (!rb ||
+        if ((!is_rigid_body && !is_kinematic) ||
             (obj->getCollisionShape()->getShapeType() != SPHERE_SHAPE_PROXYTYPE &&
                 obj->getCollisionShape()->getShapeType() != CAPSULE_SHAPE_PROXYTYPE &&
                 !obj->getCollisionShape()->isConvex() &&
                 obj->getCollisionShape()->getShapeType() != COMPOUND_SHAPE_PROXYTYPE) ||
-            (rb->getBroadphaseHandle()->m_collisionFilterMask & ot::collision::cg_terrain) == 0
-            || (rb->m_otFlags & bt::EOtFlags::OTF_DISABLE_OT_WORLD_COLLISIONS) != 0)
+            (obj->getBroadphaseHandle()->m_collisionFilterMask & ot::collision::cg_terrain) == 0
+            || (obj->m_otFlags & bt::EOtFlags::OTF_DISABLE_OT_WORLD_COLLISIONS) != 0)
+           
         {
             continue;
         }
 
-        if (rb->getActivationState() == ISLAND_SLEEPING) {
+        if (obj->getActivationState() == ISLAND_SLEEPING) {
             continue;
         }
 
-        rb->m_otFlags &= ~(bt::OTF_POTENTIAL_OBJECT_COLLISION | bt::OTF_POTENTIAL_TERRAIN_OBJECT_COLLISION);
+        obj->m_otFlags &= ~(bt::OTF_POTENTIAL_OBJECT_COLLISION | bt::OTF_POTENTIAL_TERRAIN_OBJECT_COLLISION);
 
         btPersistentManifold* manifold;
-        if (rb->getTerrainManifoldHandle() == UMAX32) {
+        if (obj->getTerrainManifoldHandle() == UMAX32) {
             manifold = getDispatcher()->getNewManifold(obj, _planet_body);
             btPersistentManifold** manifold_h_ptr = _manifolds.add();
             *manifold_h_ptr = manifold;
             uints manifold_handle = _manifolds.get_item_id(manifold_h_ptr);
-            rb->setTerrainManifoldHandle((uint)manifold_handle);
+            obj->setTerrainManifoldHandle((uint)manifold_handle);
             manifold->setContactBreakingThreshold(obj->getCollisionShape()->getContactBreakingThreshold(gContactBreakingThreshold));
         }
         else {
-            manifold = *_manifolds.get_item(rb->getTerrainManifoldHandle());
+            manifold = *_manifolds.get_item(obj->getTerrainManifoldHandle());
         }
 
 
@@ -734,7 +736,7 @@ void discrete_dynamics_world::ot_terrain_collision_step()
                     -glm::length(_from - under_terrain_contact));
             }
 
-            if (_tree_batches.size() > 0) {
+            if (_tree_batches.size() > 0 && is_rigid_body) {
                 prepare_tree_collision_pairs(obj, _tree_batches, gCurrentFrame);
             }
 
@@ -764,9 +766,9 @@ void discrete_dynamics_world::ot_terrain_collision_step()
 
         if (manifold->getNumContacts() == 0 /*|| (tri_count == 0)*/) {
             getDispatcher()->releaseManifold(manifold);
-            _manifolds.get_item(rb->getTerrainManifoldHandle());
-            _manifolds.del_item_by_ptr(_manifolds.get_item(rb->getTerrainManifoldHandle()));
-            rb->setTerrainManifoldHandle(UMAX32);
+            _manifolds.get_item(obj->getTerrainManifoldHandle());
+            _manifolds.del_item_by_ptr(_manifolds.get_item(obj->getTerrainManifoldHandle()));
+            obj->setTerrainManifoldHandle(UMAX32);
         }
 
         //// tu budem pisat
