@@ -305,6 +305,7 @@
     <ClCompile Include="..\..\src\otbullet\tree_batch.cpp" />
     <ClCompile Include="..\..\src\otbullet\wrapper.cpp" />
     <ClCompile Include="multithread_default_collision_configuration.cpp" />
+    <ClCompile Include="navigation_probe.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\comm\_build\msvc\2022\comm_static.vcxproj">
@@ -326,6 +327,7 @@
     <ClInclude Include="..\..\src\otbullet\physics.js.h" />
     <ClInclude Include="..\..\src\otbullet\physics_cfg.h" />
     <ClInclude Include="..\..\src\otbullet\tree_batch.h" />
+    <ClInclude Include="navigation_probe.h" />
     <ClInclude Include="otflags.h" />
     <ClInclude Include="multithread_default_collision_configuration.h" />
     <ClInclude Include="shape_info_cfg.h" />

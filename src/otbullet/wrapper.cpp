@@ -1,6 +1,6 @@
 #include "discrete_dynamics_world.h"
-
 #include "multithread_default_collision_configuration.h"
+#include "navigation_probe.h"
 
 #include <BulletCollision/CollisionShapes/btCompoundShape.h>
 #include <BulletCollision/CollisionShapes/btCollisionShape.h>
@@ -25,6 +25,8 @@
 
 #include "otbullet.hpp"
 #include "physics_cfg.h"
+
+#include <ot/glm/glm_bt.h>
 
 #include <comm/ref_i.h>
 #include <comm/commexception.h>
@@ -813,6 +815,40 @@ bool physics::add_sensor_object(btPairCachingGhostObject* obj, unsigned int grou
     obj->setCollisionFlags(obj->getCollisionFlags() | btCollisionObject::CollisionFlags::CF_NO_CONTACT_RESPONSE);
 
     return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+bt::ot_navigation_probe* physics::create_navigation_probe(float3 half_vec, float3 offset, unsigned int group, unsigned int mask)
+{
+    btCollisionShape* shape_ptr = create_shape(bt::EShape::SHAPE_CAPSULE, half_vec);;
+    
+    btPairCachingGhostObject* object_ptr = new btPairCachingGhostObject();
+    object_ptr->setCollisionShape(shape_ptr);
+    object_ptr->setCollisionFlags(object_ptr->getCollisionFlags() | btCollisionObject::CollisionFlags::CF_NO_CONTACT_RESPONSE | btCollisionObject::CollisionFlags::CF_KINEMATIC_OBJECT);
+
+    _world->addCollisionObject(object_ptr, group, mask);
+
+    return new bt::ot_navigation_probe(object_ptr, offset);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void physics::navigation_probe_sim_step(bt::ot_navigation_probe* probe_ptr, const double3& target_position, const quat& target_rotation, float dt)
+{
+    probe_ptr->sim_step(_world ,target_position, target_rotation, dt);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void physics::update_navigation_probe(bt::ot_navigation_probe* probe_ptr, const double3& position, const quat& rotation)
+{
+    probe_ptr->set_transform(position, rotation);
+}
+
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+void physics::get_navigation_probe_transform(bt::ot_navigation_probe* probe_ptr, double3& position_out, quat& rotation_out)
+{
+    position_out = probe_ptr->get_pos();
+    rotation_out = probe_ptr->get_rot();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

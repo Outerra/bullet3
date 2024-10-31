@@ -8,6 +8,7 @@
     <ClCompile Include="..\..\src\otbullet\ot_terrain_contact_common.cpp" />
     <ClCompile Include="..\..\src\otbullet\tree_batch.cpp" />
     <ClCompile Include="multithread_default_collision_configuration.cpp" />
+    <ClCompile Include="navigation_probe.cpp" />
   </ItemGroup>
   <ItemGroup>
     <hpp Include="..\..\src\otbullet\otbullet.hpp" />
@@ -22,6 +23,7 @@
     <ClInclude Include="physics.h" />
     <ClInclude Include="multithread_default_collision_configuration.h" />
     <ClInclude Include="otflags.h" />
+    <ClInclude Include="navigation_probe.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="version.rc" />

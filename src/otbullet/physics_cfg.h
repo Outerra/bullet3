@@ -201,6 +201,7 @@ struct external_broadphase {
         {}
     };
 
+    btGhostPairCallback _ghost_pair_callback;
     bt32BitAxisSweep3* _broadphase;
     coid::dynarray<broadphase_entry> _entries;
     coid::dynarray<btCollisionObject*> _procedural_objects;

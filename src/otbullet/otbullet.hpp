@@ -23,6 +23,7 @@ namespace bt {
     class physics;
     struct ot_world_physics_stats;
     struct external_broadphase;
+    class ot_navigation_probe;
 }
 extern bt::physics* BT;
 
@@ -88,6 +89,12 @@ public:
     ifc_fn void set_collision_info(btCollisionObject* obj, unsigned int group, unsigned int mask);
     ifc_fn bool add_collision_object(btCollisionObject* obj, unsigned int group, unsigned int mask, bool inactive);
     ifc_fn bool add_sensor_object(btPairCachingGhostObject* obj, unsigned int group, unsigned int mask);
+
+    ifc_fn bt::ot_navigation_probe* create_navigation_probe(float3 half_vec, float3 offset, unsigned int group, unsigned int mask);
+    ifc_fn void navigation_probe_sim_step(bt::ot_navigation_probe* probe_ptr, const double3& target_position, const quat& target_rotation, float dt);
+    ifc_fn void update_navigation_probe(bt::ot_navigation_probe* probe_ptr, const double3& position, const quat& rotation);
+    ifc_fn void get_navigation_probe_transform(bt::ot_navigation_probe* probe_ptr, double3& position_out, quat& rotation_out);
+
 
     ifc_fn void remove_collision_object(btCollisionObject* obj);
     ifc_fn void remove_sensor_object(btGhostObject* obj);

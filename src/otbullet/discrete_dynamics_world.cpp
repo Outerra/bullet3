@@ -357,10 +357,17 @@ void discrete_dynamics_world::add_terrain_broadphase_collision_pair(btCollisionO
         pair->m_pProxy0 = obj1->getBroadphaseHandle();
         pair->m_pProxy1 = obj2->getBroadphaseHandle();
 
+        if (obj1->isGhostObject()) 
+        {
         btGhostObject* ghost = btGhostObject::upcast(obj1);
-        if (ghost) {
             ghost->addOverlappingObjectInternal(obj2->getBroadphaseHandle());
         }
+
+        if (obj2->isGhostObject())
+        {
+            btGhostObject* ghost = btGhostObject::upcast(obj2);
+            ghost->addOverlappingObjectInternal(obj1->getBroadphaseHandle());
+        }        
 
         obj2->m_otFlags |= bt::OTF_POTENTIAL_TERRAIN_OBJECT_COLLISION;
     }
@@ -375,9 +382,19 @@ void discrete_dynamics_world::remove_terrain_broadphase_collision_pair(btBroadph
         pair.m_algorithm = 0;
     }
 
-    btGhostObject* ghost = btGhostObject::upcast(reinterpret_cast<btCollisionObject*>(pair.m_pProxy0->m_clientObject));
-    if (ghost) {
+    btCollisionObject* col_obj_0 = static_cast<btCollisionObject*>(pair.m_pProxy0->m_clientObject);
+    btCollisionObject* col_obj_1 = static_cast<btCollisionObject*>(pair.m_pProxy1->m_clientObject);
+
+    if (col_obj_0->isGhostObject()) 
+    {
+        btGhostObject* ghost = btGhostObject::upcast(col_obj_0);
         ghost->removeOverlappingObjectInternal(pair.m_pProxy1, getDispatcher());
+    }
+
+    if (col_obj_1->isGhostObject())
+    {
+        btGhostObject* ghost = btGhostObject::upcast(col_obj_1);
+        ghost->removeOverlappingObjectInternal(pair.m_pProxy0, getDispatcher());
     }
 
     _terrain_mesh_broadphase_pairs.del_item_by_ptr(&pair);
