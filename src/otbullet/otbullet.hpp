@@ -146,6 +146,14 @@ public:
         ifc_out coid::dynarray<bt::external_broadphase*>& broadphases
     );
 
+    ifc_eventx(=0) void external_broadphases_in_box(
+        const void* context,
+        const double3& center,
+        float3x3 basis,
+        uint frame,
+        ifc_out coid::dynarray32<bt::external_broadphase*>& broadphases
+    );
+
     ifc_event bool terrain_collisions(
         const void* context,
         const double3& center,

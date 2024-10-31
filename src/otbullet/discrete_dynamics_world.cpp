@@ -17,8 +17,10 @@
 #include <BulletDynamics/Dynamics/btActionInterface.h>
 
 
+
 #include <LinearMath/btIDebugDraw.h>
 #include <LinearMath/btAabbUtil2.h>
+#include <LinearMath/btQuickprof.h>
 
 #include "ot_terrain_contact_common.h"
 
@@ -28,6 +30,7 @@
 #include <comm/profiler/profiler.h>
 
 #include <ot/glm/glm_ext.h>
+#include <ot/glm/glm_bt.h>
 #include <ot/sys/object_cfg.h>
 
 extern unsigned int gOuterraSimulationFrame;
@@ -442,6 +445,114 @@ namespace ot {
             }
     }
 
+
+struct btSingleSweepCallback : public btBroadphaseRayCallback
+{
+
+    btTransform	m_convexFromTrans;
+    btTransform	m_convexToTrans;
+    btVector3	m_hitNormal;
+    const btCollisionWorld* m_world;
+    btCollisionWorld::ConvexResultCallback& m_resultCallback;
+    btScalar	m_allowedCcdPenetration;
+    const btConvexShape* m_castShape;
+
+
+    btSingleSweepCallback(const btConvexShape* castShape, const btTransform& convexFromTrans, const btTransform& convexToTrans, const btCollisionWorld* world, btCollisionWorld::ConvexResultCallback& resultCallback, btScalar allowedPenetration)
+        :m_convexFromTrans(convexFromTrans),
+        m_convexToTrans(convexToTrans),
+        m_world(world),
+        m_resultCallback(resultCallback),
+        m_allowedCcdPenetration(allowedPenetration),
+        m_castShape(castShape)
+    {
+        btVector3 unnormalizedRayDir = (m_convexToTrans.getOrigin() - m_convexFromTrans.getOrigin());
+        btVector3 rayDir = unnormalizedRayDir.normalized();
+        ///what about division by zero? --> just set rayDirection[i] to INF/BT_LARGE_FLOAT
+        m_rayDirectionInverse[0] = rayDir[0] == btScalar(0.0) ? btScalar(BT_LARGE_FLOAT) : btScalar(1.0) / rayDir[0];
+        m_rayDirectionInverse[1] = rayDir[1] == btScalar(0.0) ? btScalar(BT_LARGE_FLOAT) : btScalar(1.0) / rayDir[1];
+        m_rayDirectionInverse[2] = rayDir[2] == btScalar(0.0) ? btScalar(BT_LARGE_FLOAT) : btScalar(1.0) / rayDir[2];
+        m_signs[0] = m_rayDirectionInverse[0] < 0.0;
+        m_signs[1] = m_rayDirectionInverse[1] < 0.0;
+        m_signs[2] = m_rayDirectionInverse[2] < 0.0;
+
+        m_lambda_max = rayDir.dot(unnormalizedRayDir);
+
+    }
+
+    virtual bool	process(const btBroadphaseProxy* proxy)
+    {
+        ///terminate further convex sweep tests, once the closestHitFraction reached zero
+        if (m_resultCallback.m_closestHitFraction == btScalar(0.f))
+            return false;
+
+        btCollisionObject* collisionObject = (btCollisionObject*)proxy->m_clientObject;
+
+        //only perform raycast if filterMask matches
+        if (m_resultCallback.needsCollision(collisionObject->getBroadphaseHandle())) {
+            //RigidcollisionObject* collisionObject = ctrl->GetRigidcollisionObject();
+            m_world->objectQuerySingle(m_castShape, m_convexFromTrans, m_convexToTrans,
+                collisionObject,
+                collisionObject->getCollisionShape(),
+                collisionObject->getWorldTransform(),
+                m_resultCallback,
+                m_allowedCcdPenetration);
+        }
+
+        return true;
+    }
+};
+
+void discrete_dynamics_world::convexSweepTest(const btConvexShape* castShape, const btTransform& convexFromWorld, const btTransform& convexToWorld, ConvexResultCallback& resultCallback, btScalar allowedCcdPenetration) const
+{
+
+    THREAD_LOCAL_SINGLETON_DEF(coid::dynarray32<bt::external_broadphase*>) bps;
+    bps->clear();
+
+    BT_PROFILE("convexSweepTest");
+    /// use the broadphase to accelerate the search for objects, based on their aabb
+    /// and for each object with ray-aabb overlap, perform an exact ray test
+    /// unfortunately the implementation for rayTest and convexSweepTest duplicated, albeit practically identical
+
+
+
+    btTransform	convexFromTrans, convexToTrans;
+    convexFromTrans = convexFromWorld;
+    convexToTrans = convexToWorld;
+    btVector3 castShapeAabbMin, castShapeAabbMax;
+    /* Compute AABB that encompasses angular movement */
+    {
+        btVector3 linVel, angVel;
+        btTransformUtil::calculateVelocity(convexFromTrans, convexToTrans, 1.0f, linVel, angVel);
+        btVector3 zeroLinVel;
+        zeroLinVel.setValue(0, 0, 0);
+        btTransform R;
+        R.setIdentity();
+        R.setRotation(convexFromTrans.getRotation());
+        castShape->calculateTemporalAabb(R, zeroLinVel, angVel, 1.0f, castShapeAabbMin, castShapeAabbMax);
+    }
+
+    btSingleSweepCallback	convexCB(castShape, convexFromWorld, convexToWorld, this, resultCallback, allowedCcdPenetration);
+    m_broadphasePairCache->rayTest(convexFromTrans.getOrigin(), convexToTrans.getOrigin(), convexCB, castShapeAabbMin, castShapeAabbMax);
+
+    double3 aabb_min = bt::todouble3(castShapeAabbMin);
+    double3 aabb_max = bt::todouble3(castShapeAabbMax);
+    double3 center = bt::todouble3(convexToTrans.getOrigin());
+    double3 half = (aabb_min + aabb_max) * 0.5;
+    float3x3 basis;
+    basis[0][0] = float(half.x);
+    basis[1][1] = float(half.y);
+    basis[2][2] = float(half.z);
+
+    _obb_intersect_broadphase(m_context, center, basis, *bps);
+
+    for(bt::external_broadphase * ebp_ptr : *bps)
+    {
+        ebp_ptr->_broadphase->rayTest(convexFromTrans.getOrigin(), convexToTrans.getOrigin(), convexCB, castShapeAabbMin, castShapeAabbMax);
+    }
+}
+
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     void discrete_dynamics_world::removeRigidBody(btRigidBody * body)
     {
         const uint32 m_id = body->getTerrainManifoldHandle();

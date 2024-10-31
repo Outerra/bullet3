@@ -213,6 +213,9 @@ public:
     void rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback) const override;
     void rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback, bt::external_broadphase* bp) const;
 
+    void convexSweepTest(const btConvexShape* castShape, const btTransform& convexFromWorld, const btTransform& convexToWorld, ConvexResultCallback& resultCallback, btScalar allowedCcdPenetration = btScalar(0.)) const override;
+
+
     virtual void removeRigidBody(btRigidBody* body) override;
     virtual void removeCollisionObject(btCollisionObject* collisionObject) override;
     void removeCollisionObject_external(btCollisionObject* collisionObject);
@@ -247,6 +250,12 @@ public:
         float3& under_normal,
         coid::dynarray<bt::external_broadphase*>& broadphases);
 
+    typedef void(*fn_terrain_obb_intersect_broadphase)(
+        const void* context,
+        const double3& center,
+        const float3x3& basis,
+        coid::dynarray32<bt::external_broadphase*>& broadphases);
+
     typedef float3(*fn_process_tree_collision)(btRigidBody * obj, bt::tree_collision_contex & ctx, float time_step, coid::slotalloc<bt::tree_batch>& tree_batches );
 
     typedef float(*fn_terrain_ray_intersect)(
@@ -270,6 +279,8 @@ public:
         double3* hitpoint);
 
     fn_ext_collision_2 _aabb_intersect;
+    fn_terrain_obb_intersect_broadphase _obb_intersect_broadphase;
+
     fn_terrain_ray_intersect _terrain_ray_intersect;
     fn_terrain_ray_intersect_broadphase _terrain_ray_intersect_broadphase;
     fn_elevation_above_terrain _elevation_above_terrain;
