@@ -120,6 +120,15 @@ static int _ext_collider_obb(
         tree_batches, frame, is_above_tm, under_contact, under_normal, broadphases);
 }
 
+static void _ext_collider_obb_intersect_broadphase(
+    const void* planet,
+    const double3& center,
+    const float3x3& basis,
+    coid::dynarray32<bt::external_broadphase*>& broadphases)
+{
+    _physics->external_broadphases_in_box(planet, center, basis, gCurrentFrame, broadphases);
+}
+
 static float _ext_terrain_ray_intersect(
     const void* planet,
     const double3& from,
@@ -267,6 +276,7 @@ iref<physics> physics::create(double r, void* context, coid::taskmaster* tm)
 
     wrld->_aabb_intersect = &_ext_collider_obb;
     wrld->_terrain_ray_intersect_broadphase = &_ext_terrain_ray_intersect_broadphase;
+    wrld->_obb_intersect_broadphase = &_ext_collider_obb_intersect_broadphase;
 
     _physics->_world = wrld;
 
