@@ -31,12 +31,14 @@ echo %userver%>otbullet\version.last
 
 rem rev number
 
-call git rev-parse --short HEAD >otbullet\revision.last
-set /p revision=<otbullet\revision.last
+call git rev-parse --short=8 HEAD >otbullet\revision.last
+set /p REVISION=<otbullet\revision.last
 
 echo Revision: %revision%
 
-set VERSTR=%userver%.%revision%
+set REVISION=x%REVISION%
+
+set VERSTR=%userver%
 set VERLST=%userver%
 set VERLST=%VERLST:.=,%
 
