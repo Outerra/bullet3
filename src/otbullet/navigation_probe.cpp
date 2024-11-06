@@ -105,15 +105,10 @@ void bt::ot_navigation_probe::sim_step(btCollisionWorld* world_ptr, const double
     callback.m_collisionFilterGroup = _ghost_object->getBroadphaseHandle()->m_collisionFilterGroup;
     callback.m_collisionFilterMask = _ghost_object->getBroadphaseHandle()->m_collisionFilterMask;
 
-    constexpr double added_margin = 0.1;
-
-    btScalar margin = _collision_shape->getMargin();
-    _collision_shape->setMargin(margin + added_margin);
     if (sweepDirNegative.length2() > 0.0001)
     {
-        world_ptr->convexSweepTest(_collision_shape, start, end, callback, world_ptr->getDispatchInfo().m_allowedCcdPenetration);
+        world_ptr->convexSweepTest(_collision_shape, start, end, callback, 0.0);
     }
-    _collision_shape->setMargin(margin);
 
     if (callback.hasHit() && needs_collision_with_internal(callback.m_hitCollisionObject))
     {
