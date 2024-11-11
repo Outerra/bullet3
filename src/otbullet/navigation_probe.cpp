@@ -120,8 +120,6 @@ void bt::ot_navigation_probe::sim_step(btCollisionWorld* world_ptr, const double
     }
 
     _ghost_object->setWorldTransform(btTransform(target_transform.getRotation(), current_position_bt));
-
-    coidlog_info("", "Num overlapping objects: " << _ghost_object->getNumOverlappingObjects());
 }
 
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
