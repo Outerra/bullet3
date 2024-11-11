@@ -79,9 +79,14 @@ xcopy ..\bin\x64\Debug\otbulletd.pdb ..\..\..\..\bin\ /y
 
 rem check if we can amend
 set amend=
-for /f %%g in ('git rev-list @{u}..@ --count') do set amend=%%g
+for /f %%g in ('git rev-list origin/HEAD..HEAD --count') do set amend=%%g
 
-if "%amend%"=="" (
+rem check if HEAD commit is no-merge commit 
+if not "%amend%"=="0" (
+    for /f %%g in ('git rev-list HEAD --count --no-walk --no-merges') do set amend=%%g
+)
+
+if "%amend%"=="0" (	
     git commit -m "build version update" otbullet/version.last
 ) else (
     git commit --amend --no-edit otbullet/version.last
