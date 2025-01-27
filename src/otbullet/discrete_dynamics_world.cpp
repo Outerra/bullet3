@@ -636,7 +636,8 @@ void discrete_dynamics_world::ot_terrain_collision_step()
     if (!_common_data)
         _common_data = new ot_terrain_contact_common(0.00f, this, _pb_wrap);
 
-    for (int i = 0; i < m_collisionObjects.size(); i++) {
+    for (int i = 0; i < m_collisionObjects.size(); i++)
+    {
         _cow_internal.clear();
         _compound_processing_stack.clear();
         btCollisionObject* obj = m_collisionObjects[i];
@@ -650,7 +651,7 @@ void discrete_dynamics_world::ot_terrain_collision_step()
                 obj->getCollisionShape()->getShapeType() != COMPOUND_SHAPE_PROXYTYPE) ||
             (obj->getBroadphaseHandle()->m_collisionFilterMask & ot::collision::cg_terrain) == 0
             || (obj->m_otFlags & bt::EOtFlags::OTF_DISABLE_OT_WORLD_COLLISIONS) != 0)
-           
+
         {
             continue;
         }
@@ -661,19 +662,21 @@ void discrete_dynamics_world::ot_terrain_collision_step()
 
         obj->m_otFlags &= ~(bt::OTF_POTENTIAL_OBJECT_COLLISION | bt::OTF_POTENTIAL_TERRAIN_OBJECT_COLLISION);
 
-        btPersistentManifold* manifold;
-        if (obj->getTerrainManifoldHandle() == UMAX32) {
-            manifold = getDispatcher()->getNewManifold(obj, _planet_body);
-            btPersistentManifold** manifold_h_ptr = _manifolds.add();
-            *manifold_h_ptr = manifold;
-            uints manifold_handle = _manifolds.get_item_id(manifold_h_ptr);
-            obj->setTerrainManifoldHandle((uint)manifold_handle);
-            manifold->setContactBreakingThreshold(obj->getCollisionShape()->getContactBreakingThreshold(gContactBreakingThreshold));
+        btPersistentManifold* manifold = nullptr;
+        if (is_rigid_body)
+        {
+            if (obj->getTerrainManifoldHandle() == UMAX32) {
+                manifold = getDispatcher()->getNewManifold(obj, _planet_body);
+                btPersistentManifold** manifold_h_ptr = _manifolds.add();
+                *manifold_h_ptr = manifold;
+                uints manifold_handle = _manifolds.get_item_id(manifold_h_ptr);
+                obj->setTerrainManifoldHandle((uint)manifold_handle);
+                manifold->setContactBreakingThreshold(obj->getCollisionShape()->getContactBreakingThreshold(gContactBreakingThreshold));
+            }
+            else {
+                manifold = *_manifolds.get_item(obj->getTerrainManifoldHandle());
+            }
         }
-        else {
-            manifold = *_manifolds.get_item(obj->getTerrainManifoldHandle());
-        }
-
 
         btCollisionObjectWrapper planet_wrapper(0, _planet_body->getCollisionShape(), _planet_body, btTransform::getIdentity(), -1, -1);
         btCollisionObjectWrapper collider_wrapper(0, obj->getCollisionShape(), obj, obj->getWorldTransform(), -1, -1);
@@ -699,7 +702,6 @@ void discrete_dynamics_world::ot_terrain_collision_step()
             new (_cow_internal.add_uninit(1)) btCollisionObjectWrapperCtorArgs(0, obj->getCollisionShape(), obj, obj->getWorldTransform(), -1, -1);
 
         }
-
 
         res.setPersistentManifold(manifold);
 
@@ -791,16 +793,8 @@ void discrete_dynamics_world::ot_terrain_collision_step()
                 is_above_tm, under_terrain_contact, under_terrain_normal, broadphases);
 
             if (col_result == 0 && broadphases.size() == 0 && _tree_batches.size() == 0) {
-                //DASSERT(_tree_batches.size() == 0);
                 continue;
             }
-            /*
-                            if (_relocation_offset != _tb_cache.get_array().ptr()) {
-                                coidlog_warning("discrete_dynamics_world", "Tree baches slot allocator rebased. Tree batches count: " << _tb_cache.count());
-                                repair_tree_batches();
-                                repair_tree_collision_pairs();
-                            }*/
-
 
             process_terrain_broadphases(broadphases, obj);
 
@@ -820,93 +814,95 @@ void discrete_dynamics_world::ot_terrain_collision_step()
                 ? obj->m_otFlags | (bt::EOtFlags::OTF_POTENTIAL_TUNNEL_COLLISION)
                 : obj->m_otFlags & ~bt::EOtFlags::OTF_POTENTIAL_TUNNEL_COLLISION;
 
-            tri_count += uint(_triangles.size());
+            if (is_rigid_body)
+            {
+                if (_triangles.size() > 0)
+                {
+                    tri_count += uint(_triangles.size());
 
-            if (_triangles.size() > 0) {
-
-                if (m_debugDrawer && !(obj->getCollisionFlags() & btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT)) {
-                    _triangles.for_each([&](const bt::triangle& t) {
-                        *_debug_terrain_triangles.push() = t;
-                    });
-                }
-
-#ifdef _PROFILING_ENABLED
-                timer.reset();
-
-#endif // _PROFILING_ENABLED
-
-                if (is_above_tm) {
-                    static coid::nsec_timer timer;
-                    timer.reset();
-                    {
-                        CPU_PROFILE_SCOPE(process_triangle_cache);
-                        _common_data->process_triangle_cache(_triangles);
+                    if (m_debugDrawer && !(obj->getCollisionFlags() & btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT)) {
+                        _triangles.for_each([&](const bt::triangle& t) {
+                            *_debug_terrain_triangles.push() = t;
+                        });
                     }
-                    //uint time_ms = timer.time_ns() * 0.000001f;
-                    //static bool ass = false;
-                    //DASSERT(ass || time_ms < 2.f);
-                }
-                else {
-                    gContactAddedCallback = plane_contact_added;
-                    _common_data->collide_object_plane(_elevation_above_terrain);
-                }
 
 #ifdef _PROFILING_ENABLED
-                _stats.triangles_processed_count += _triangles.size();
-                _stats.triangle_processing_time_ms += timer.time_ns() * 0.000001f;
+                    timer.reset();
+
 #endif // _PROFILING_ENABLED
 
-            }
-            else if (col_result == -1 && !is_potentially_inside_tunnel) {
-                gContactAddedCallback = nullptr;
-                res.addContactPoint(btVector3(under_terrain_normal.x, under_terrain_normal.y, under_terrain_normal.z),
-                    btVector3(_from.x, _from.y, _from.z),
-                    -glm::length(_from - under_terrain_contact));
-            }
+                    if (is_above_tm) {
+                        static coid::nsec_timer timer;
+                        timer.reset();
+                        {
+                            CPU_PROFILE_SCOPE(process_triangle_cache);
+                            _common_data->process_triangle_cache(_triangles);
+                        }
+                        //uint time_ms = timer.time_ns() * 0.000001f;
+                        //static bool ass = false;
+                        //DASSERT(ass || time_ms < 2.f);
+                    }
+                    else {
+                        gContactAddedCallback = plane_contact_added;
+                        _common_data->collide_object_plane(_elevation_above_terrain);
+                    }
 
-            if (_tree_batches.size() > 0 && is_rigid_body) {
-                prepare_tree_collision_pairs(obj, _tree_batches, gCurrentFrame);
-            }
+#ifdef _PROFILING_ENABLED
+                    _stats.triangles_processed_count += _triangles.size();
+                    _stats.triangle_processing_time_ms += timer.time_ns() * 0.000001f;
+#endif // _PROFILING_ENABLED
 
-            _common_data->process_collision_points();
-        }
-        int before = res.getPersistentManifold()->getNumContacts();
+                }
+                else if (col_result == -1 && !is_potentially_inside_tunnel) {
+                    gContactAddedCallback = nullptr;
+                    res.addContactPoint(btVector3(under_terrain_normal.x, under_terrain_normal.y, under_terrain_normal.z),
+                        btVector3(_from.x, _from.y, _from.z),
+                        -glm::length(_from - under_terrain_contact));
+                }
 
-        res.refreshContactPoints();
+                if (_tree_batches.size() > 0)
+                {
+                    prepare_tree_collision_pairs(obj, _tree_batches, gCurrentFrame);
+                }
+            
+                _common_data->process_collision_points();
 
+                int before = res.getPersistentManifold()->getNumContacts();
 
-        //
-        if (obj->m_otFlags & bt::EOtFlags::OTF_POTENTIAL_TUNNEL_COLLISION) {
-            btPersistentManifold* man = res.getPersistentManifold();
-            int num_contacts = man->getNumContacts();
-            for (int j = 0; j < num_contacts; j++) {
-                btManifoldPoint& pt = man->getContactPoint(j);
+                res.refreshContactPoints();
 
-                if (is_point_inside_terrain_occluder(pt.getPositionWorldOnB())) {
-                    man->removeContactPoint(j);
-                    j--;
-                    num_contacts--;
+                //
+                if (obj->m_otFlags & bt::EOtFlags::OTF_POTENTIAL_TUNNEL_COLLISION) {
+                    btPersistentManifold* man = res.getPersistentManifold();
+                    int num_contacts = man->getNumContacts();
+                    for (int j = 0; j < num_contacts; j++) {
+                        btManifoldPoint& pt = man->getContactPoint(j);
+
+                        if (is_point_inside_terrain_occluder(pt.getPositionWorldOnB())) {
+                            man->removeContactPoint(j);
+                            j--;
+                            num_contacts--;
+                        }
+                    }
+                }
+
+                //DASSERT(manifold->getNumContacts() == 0);
+
+                if (manifold->getNumContacts() == 0 /*|| (tri_count == 0)*/) {
+                    getDispatcher()->releaseManifold(manifold);
+                    _manifolds.get_item(obj->getTerrainManifoldHandle());
+                    _manifolds.del_item_by_ptr(_manifolds.get_item(obj->getTerrainManifoldHandle()));
+                    obj->setTerrainManifoldHandle(UMAX32);
                 }
             }
         }
 
-        //DASSERT(manifold->getNumContacts() == 0);
-
-        if (manifold->getNumContacts() == 0 /*|| (tri_count == 0)*/) {
-            getDispatcher()->releaseManifold(manifold);
-            _manifolds.get_item(obj->getTerrainManifoldHandle());
-            _manifolds.del_item_by_ptr(_manifolds.get_item(obj->getTerrainManifoldHandle()));
-            obj->setTerrainManifoldHandle(UMAX32);
-        }
-
-        //// tu budem pisat
         if (m_debugDrawer) {
             broadphases.for_each([&](bt::external_broadphase* bp) {
                 //_debug_external_broadphases.push_if_absent(bp);
                 bp->_was_used_this_frame = true;
             });
         }
-
     }
 
     process_terrain_broadphase_collision_pairs();
