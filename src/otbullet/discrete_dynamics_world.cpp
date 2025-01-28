@@ -885,16 +885,15 @@ void discrete_dynamics_world::ot_terrain_collision_step()
                         }
                     }
                 }
-
-                //DASSERT(manifold->getNumContacts() == 0);
-
-                if (manifold->getNumContacts() == 0 /*|| (tri_count == 0)*/) {
-                    getDispatcher()->releaseManifold(manifold);
-                    _manifolds.get_item(obj->getTerrainManifoldHandle());
-                    _manifolds.del_item_by_ptr(_manifolds.get_item(obj->getTerrainManifoldHandle()));
-                    obj->setTerrainManifoldHandle(UMAX32);
-                }
             }
+        }
+
+        if(manifold != nullptr && manifold->getNumContacts() == 0 ) 
+        {
+            getDispatcher()->releaseManifold(manifold);
+            _manifolds.get_item(obj->getTerrainManifoldHandle());
+            _manifolds.del_item_by_ptr(_manifolds.get_item(obj->getTerrainManifoldHandle()));
+            obj->setTerrainManifoldHandle(UMAX32);
         }
 
         if (m_debugDrawer) {
