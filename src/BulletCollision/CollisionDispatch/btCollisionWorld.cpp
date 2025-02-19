@@ -1515,6 +1515,12 @@ void	btCollisionWorld::debugDrawWorld(btScalar extrapolation_step)
 						}
 						};
 
+						// Object not visible
+						if (colObj->getBroadphaseHandle() && colObj->getBroadphaseHandle()->m_collisionFilterGroup == 0) 
+						{
+							color = btVector3(btScalar(0), btScalar(0), btScalar(0));
+						}
+
 						btTransform obj_transform;
 						colObj->predictIntegratedTransform(extrapolation_step, obj_transform);
 						debugDrawObject(obj_transform, colObj->getCollisionShape(), color);

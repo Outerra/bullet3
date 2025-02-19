@@ -236,7 +236,9 @@ void discrete_dynamics_world::process_terrain_broadphases(const coid::dynarray<b
     const btVector3 half = (max - min) * 0.5;
     const btVector3 cen = (max + min) * 0.5;
 
-    uint col_obj_mask = col_obj->getBroadphaseHandle()->m_collisionFilterMask;
+    const uint col_obj_group = col_obj->getBroadphaseHandle()->m_collisionFilterGroup;
+    const uint col_obj_mask = col_obj->getBroadphaseHandle()->m_collisionFilterMask;
+
 
     broadphase.for_each([&](bt::external_broadphase* bp) {
         if (bp->_dirty) {
@@ -246,10 +248,17 @@ void discrete_dynamics_world::process_terrain_broadphases(const coid::dynarray<b
         query_volume_aabb(bp->_broadphase,
             double3(cen[0], cen[1], cen[2]),
             double3(half[0], half[1], half[2]),
-            [&](btBroadphaseProxy* proxy) {
-                if (proxy->m_ot_revision == bp->_revision) {
-                    add_debug_aabb(proxy->m_aabbMin, proxy->m_aabbMax, btVector3(1, 0, 0));
-                    add_terrain_broadphase_collision_pair(static_cast<btCollisionObject*>(proxy->m_clientObject), col_obj);
+            [&](btBroadphaseProxy* proxy) 
+            {
+                const bool can_collide = ((proxy->m_collisionFilterGroup & col_obj_mask) != 0)
+                     && ((col_obj_group & proxy->m_collisionFilterMask) != 0);
+                if (proxy->m_ot_revision == bp->_revision ) 
+                {
+                    if (can_collide)
+                    {
+                        add_debug_aabb(proxy->m_aabbMin, proxy->m_aabbMax, btVector3(1, 0, 0));
+                        add_terrain_broadphase_collision_pair(static_cast<btCollisionObject*>(proxy->m_clientObject), col_obj);
+                    }
                 }
                 else {
                     DASSERT(bp->_broadphase->ownsProxy(proxy));
@@ -281,11 +290,14 @@ void discrete_dynamics_world::update_terrain_mesh_broadphase(bt::external_broadp
         min -= contactThreshold;
         max += contactThreshold;
 
-        if (bp->_broadphase->ownsProxy(proxy) && proxy->m_ot_revision != 0xffffffff) {
+        if (bp->_broadphase->ownsProxy(proxy) && proxy->m_ot_revision != 0xffffffff) 
+        {
             bp->_broadphase->setAabb(proxy, min, max, getDispatcher());
         }
-        else {
-            if (proxy) {
+        else 
+        {
+            if (proxy) 
+            {
                 bt::external_broadphase* proxy_owner = _external_broadphase_pool.find_if([&](bt::external_broadphase& ebp) {
                     return ebp._broadphase->ownsProxy(proxy);
                 });
@@ -1222,6 +1234,12 @@ void discrete_dynamics_world::debugDrawWorld(btScalar extrapolation_step)
                             color = btVector3(btScalar(.3), btScalar(0.3), btScalar(0.3));
                         }
                         };
+
+                        // Object not visible
+                        if (colObj->getBroadphaseHandle() && colObj->getBroadphaseHandle()->m_collisionFilterGroup == 0)
+                        {
+                            color = btVector3(btScalar(0), btScalar(0), btScalar(0));
+                        }
 
                         debugDrawObject(colObj->getWorldTransform(), colObj->getCollisionShape(), color * 0.5);
                     }
