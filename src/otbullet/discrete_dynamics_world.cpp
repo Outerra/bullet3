@@ -907,13 +907,6 @@ void discrete_dynamics_world::ot_terrain_collision_step()
             _manifolds.del_item_by_ptr(_manifolds.get_item(obj->getTerrainManifoldHandle()));
             obj->setTerrainManifoldHandle(UMAX32);
         }
-
-        if (m_debugDrawer) {
-            broadphases.for_each([&](bt::external_broadphase* bp) {
-                //_debug_external_broadphases.push_if_absent(bp);
-                bp->_was_used_this_frame = true;
-            });
-        }
     }
 
     process_terrain_broadphase_collision_pairs();
@@ -1199,22 +1192,17 @@ void discrete_dynamics_world::debugDrawWorld(btScalar extrapolation_step)
     }
 
     // Debug draw external broadphases
+    bool draw_wire = ddraw->getDebugMode() & btIDebugDraw::DBG_DrawWireframe;
+    bool draw_aabb = ddraw->getDebugMode() & btIDebugDraw::DBG_DrawAabb;
 
     _external_broadphase_pool.for_each([&](bt::external_broadphase& bp) {
-        if (!bp._was_used_this_frame && _simulation_running) {
-            return;
-        }
-
-        bp._was_used_this_frame = false;
-
         const btIDebugDraw::DefaultColors& defaultColors = ddraw->getDefaultColors();
-        if ((ddraw->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb)))
+        if (draw_wire || draw_aabb)
         {
-
             for_each_object_in_broadphase(bp._broadphase, bp._revision, [&](btCollisionObject* colObj) {
                 if ((colObj->getCollisionFlags() & btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT) == 0)
                 {
-                    if (ddraw && (ddraw->getDebugMode() & btIDebugDraw::DBG_DrawWireframe))
+                    if (draw_wire)
                     {
                         btVector3 color(btScalar(0.4), btScalar(0.4), btScalar(0.4));
 
