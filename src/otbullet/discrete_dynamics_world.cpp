@@ -1146,7 +1146,8 @@ bt::tree* discrete_dynamics_world::get_tree(uint tree_id)
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void discrete_dynamics_world::debugDrawWorld(btScalar extrapolation_step)
 {
-    if (!m_debugDrawer) {
+    btIDebugDraw* ddraw = getDebugDrawer();
+    if (!ddraw) {
         return;
     }
 
@@ -1175,9 +1176,9 @@ void discrete_dynamics_world::debugDrawWorld(btScalar extrapolation_step)
         b += parent_offset;
         c += parent_offset;
 
-        m_debugDrawer->drawLine(a, b, cl_white);
-        m_debugDrawer->drawLine(b, c, cl_white);
-        m_debugDrawer->drawLine(c, a, cl_white);
+        ddraw->drawLine(a, b, cl_white);
+        ddraw->drawLine(b, c, cl_white);
+        ddraw->drawLine(c, a, cl_white);
     }
 
     _debug_trees.for_each([&](uint tid)
@@ -1190,11 +1191,11 @@ void discrete_dynamics_world::debugDrawWorld(btScalar extrapolation_step)
         btVector3 bt_norm(bt_p1.normalized());
         btVector3 bt_p2 = bt_p1 + bt_norm * t->height;
 
-        m_debugDrawer->drawLine(bt_p1, bt_p2, cl_white);
+        ddraw->drawLine(bt_p1, bt_p2, cl_white);
     });
 
     for (int i = 0; i < _debug_lines.size(); i += 3) {
-        m_debugDrawer->drawLine(_debug_lines[i], _debug_lines[i + 1], _debug_lines[i + 2]);
+        ddraw->drawLine(_debug_lines[i], _debug_lines[i + 1], _debug_lines[i + 2]);
     }
 
     // Debug draw external broadphases
@@ -1206,14 +1207,14 @@ void discrete_dynamics_world::debugDrawWorld(btScalar extrapolation_step)
 
         bp._was_used_this_frame = false;
 
-        const btIDebugDraw::DefaultColors& defaultColors = getDebugDrawer()->getDefaultColors();
-        if ((getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb)))
+        const btIDebugDraw::DefaultColors& defaultColors = ddraw->getDefaultColors();
+        if ((ddraw->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb)))
         {
 
             for_each_object_in_broadphase(bp._broadphase, bp._revision, [&](btCollisionObject* colObj) {
                 if ((colObj->getCollisionFlags() & btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT) == 0)
                 {
-                    if (getDebugDrawer() && (getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawWireframe))
+                    if (ddraw && (ddraw->getDebugMode() & btIDebugDraw::DBG_DrawWireframe))
                     {
                         btVector3 color(btScalar(0.4), btScalar(0.4), btScalar(0.4));
 
