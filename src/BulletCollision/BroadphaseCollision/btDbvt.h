@@ -21,7 +21,7 @@ subject to the following restrictions:
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btTransform.h"
 #include "LinearMath/btAabbUtil2.h"
-
+#include <atomic>
 //
 // Compile time configuration
 //
@@ -258,6 +258,11 @@ struct	btDbvt
 		DOUBLE_STACKSIZE	=	SIMPLE_STACKSIZE*2
 	};
 
+	enum {
+		// it is ok to use more than EFFICIENT_MAX_THREAD_COUNT, recommended to use below EFFICIENT_MAX_THREAD_COUNT
+		EFFICIENT_MAX_THREAD_COUNT = 10
+	};
+
 	// Fields
 	btDbvtNode*		m_root;
 	btDbvtNode*		m_free;
@@ -267,7 +272,7 @@ struct	btDbvt
 
 	
 	btAlignedObjectArray<sStkNN>	m_stkStack;
-	mutable btAlignedObjectArray<const btDbvtNode*>	m_rayTestStack;
+	btAlignedObjectArray< btAlignedObjectArray<const btDbvtNode*> > m_rayTestStacks;
 
 
 	// Methods
@@ -357,7 +362,7 @@ struct	btDbvt
 								btScalar lambda_max,
 								const btVector3& aabbMin,
 								const btVector3& aabbMax,
-								DBVT_IPOLICY) const;
+								DBVT_IPOLICY);
 
 	DBVT_PREFIX
 		static void		collideKDOP(const btDbvtNode* root,
@@ -401,6 +406,18 @@ struct	btDbvt
 	//
 private:
 	btDbvt(const btDbvt&)	{}	
+	DBVT_PREFIX
+		void		rayTestInternalStackTraverse(btAlignedObjectArray<const btDbvtNode*>& stack,
+			const btDbvtNode* root,
+			const btVector3& rayFrom,
+			const btVector3& rayTo,
+			const btVector3& rayDirectionInverse,
+			unsigned int signs[3],
+			btScalar lambda_max,
+			const btVector3& aabbMin,
+			const btVector3& aabbMax,
+			DBVT_IPOLICY) const;
+
 };
 
 //
@@ -998,7 +1015,38 @@ inline void		btDbvt::collideTVNoStackAlloc(	const btDbvtNode* root,
 
 
 DBVT_PREFIX
-inline void		btDbvt::rayTestInternal(	const btDbvtNode* root,
+inline void		btDbvt::rayTestInternal(const btDbvtNode* root,
+	const btVector3& rayFrom,
+	const btVector3& rayTo,
+	const btVector3& rayDirectionInverse,
+	unsigned int signs[3],
+	btScalar lambda_max,
+	const btVector3& aabbMin,
+	const btVector3& aabbMax,
+	DBVT_IPOLICY)
+{
+	const unsigned int NullIndex = ~0U;
+	thread_local static unsigned int ThreadIndex = NullIndex;
+	static std::atomic<unsigned int> ThreadCounter = 0;
+	if (ThreadIndex == NullIndex)
+	{
+		ThreadIndex = ThreadCounter++;
+	}
+
+	if (ThreadIndex < EFFICIENT_MAX_THREAD_COUNT)
+	{
+		rayTestInternalStackTraverse(m_rayTestStacks[ThreadIndex], root, rayFrom, rayTo, rayDirectionInverse, signs, lambda_max, aabbMin, aabbMax, policy);
+	}
+	else
+	{
+		btAlignedObjectArray<const btDbvtNode*> localStack;
+		rayTestInternalStackTraverse(localStack, root, rayFrom, rayTo, rayDirectionInverse, signs, lambda_max, aabbMin, aabbMax, policy);
+	}
+}
+
+DBVT_PREFIX
+inline void		btDbvt::rayTestInternalStackTraverse(btAlignedObjectArray<const btDbvtNode*>& stack,
+	const btDbvtNode* root,
 								const btVector3& rayFrom,
 								const btVector3& rayTo,
 								const btVector3& rayDirectionInverse,
@@ -1012,11 +1060,9 @@ inline void		btDbvt::rayTestInternal(	const btDbvtNode* root,
 	DBVT_CHECKTYPE
 	if(root)
 	{
-		btVector3 resultNormal;
-
 		int								depth=1;
 		int								treshold=DOUBLE_STACKSIZE-2;
-		btAlignedObjectArray<const btDbvtNode*>&	stack = m_rayTestStack;
+		
 		stack.resize(DOUBLE_STACKSIZE);
 		stack[0]=root;
 		btVector3 bounds[2];
