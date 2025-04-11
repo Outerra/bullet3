@@ -756,9 +756,12 @@ btPairCachingGhostObject* physics::create_pair_caching_ghost_object(btCollisionS
 void physics::set_collision_info(btCollisionObject* obj, unsigned int group, unsigned int mask)
 {
     btBroadphaseProxy* bp = obj->getBroadphaseHandle();
-    if (bp) {
+    if (bp) 
+    {
         bp->m_collisionFilterGroup = group;
         bp->m_collisionFilterMask = mask;
+        _overlappingPairCache->getOverlappingPairCache()->cleanProxyFromPairs(bp, _dispatcher);
+        _world->clean_external_broadphase_proxy_from_pairs(bp);
     }
 }
 

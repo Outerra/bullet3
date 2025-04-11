@@ -137,6 +137,20 @@ void discrete_dynamics_world::delete_external_broadphase(bt::external_broadphase
 }
 
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+void discrete_dynamics_world::clean_external_broadphase_proxy_from_pairs(btBroadphaseProxy* proxy_ptr)
+{
+    _terrain_mesh_broadphase_pairs.for_each([&](btBroadphasePair& bp) {
+        btCollisionObject* obj0 = reinterpret_cast<btCollisionObject*>(bp.m_pProxy0->m_clientObject);
+        btCollisionObject* obj1 = reinterpret_cast<btCollisionObject*>(bp.m_pProxy1->m_clientObject);
+        if (proxy_ptr->m_clientObject == bp.m_pProxy0->m_clientObject || proxy_ptr->m_clientObject == bp.m_pProxy1->m_clientObject)
+        {
+            remove_terrain_broadphase_collision_pair(bp);
+        }
+    });
+}
+
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void discrete_dynamics_world::internalSingleStepSimulation(btScalar timeStep)
 {
 #ifdef _PROFILING_ENABLED
