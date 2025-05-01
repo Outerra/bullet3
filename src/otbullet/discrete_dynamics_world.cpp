@@ -619,6 +619,22 @@ void discrete_dynamics_world::removeRigidBody(btRigidBody* body)
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void discrete_dynamics_world::removeCollisionObject(btCollisionObject* collisionObject)
 {
+    btGhostObject* ghost_object_ptr = btGhostObject::upcast(collisionObject);
+
+    if (ghost_object_ptr != nullptr)
+    {
+        _terrain_mesh_broadphase_pairs.for_each([&](btBroadphasePair& bp, uints idx) {
+            
+            if (bp.m_pProxy0->m_clientObject == collisionObject || bp.m_pProxy1->m_clientObject == collisionObject) 
+            {
+                btBroadphaseProxy* otherProxy = bp.m_pProxy0->m_clientObject == collisionObject ? bp.m_pProxy1 : bp.m_pProxy0;
+                ghost_object_ptr->removeOverlappingObjectInternal(otherProxy, nullptr);
+
+                remove_terrain_broadphase_collision_pair(bp);
+            }
+        });
+    }
+
     btDiscreteDynamicsWorld::removeCollisionObject(collisionObject);
 }
 
