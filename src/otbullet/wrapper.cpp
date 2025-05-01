@@ -845,6 +845,19 @@ bt::ot_navigation_probe* physics::create_navigation_probe(float3 half_vec, float
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void physics::destroy_navigation_probe(bt::ot_navigation_probe* probe_ptr)
+{
+    if (probe_ptr == nullptr)
+    {
+        return;
+    }
+
+    _world->removeCollisionObject(probe_ptr->_ghost_object);
+    delete probe_ptr->_ghost_object;
+    delete probe_ptr->_collision_shape;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void physics::navigation_probe_sim_step(bt::ot_navigation_probe* probe_ptr, const double3& target_position, const quat& target_rotation, float dt)
 {
     probe_ptr->sim_step(_world ,target_position, target_rotation, dt);

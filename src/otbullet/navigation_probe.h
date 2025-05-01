@@ -6,12 +6,14 @@ class btConvexShape;
 class btCollisionWorld;
 class btTransform;
 class btCollisionObject;
+class physics;
 
 namespace bt
 {
 
 class ot_navigation_probe
 {
+    friend ::physics;
 public: // methods only
     ot_navigation_probe(
         btPairCachingGhostObject* ghost_object_ptr,
