@@ -3,6 +3,7 @@
 #include <BulletDynamics/ConstraintSolver/btTypedConstraint.h>
 #include <BulletCollision/CollisionShapes/btCapsuleShape.h>
 #include <BulletCollision/BroadphaseCollision/btAxisSweep3.h>
+#include <BulletCollision/CollisionDispatch/btGhostObject.h>
 #include <ot/glm/glm_types.h>
 
 #include <comm/dynarray.h>
