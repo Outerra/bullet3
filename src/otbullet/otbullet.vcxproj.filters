@@ -9,6 +9,7 @@
     <ClCompile Include="..\..\src\otbullet\tree_batch.cpp" />
     <ClCompile Include="multithread_default_collision_configuration.cpp" />
     <ClCompile Include="navigation_probe.cpp" />
+    <ClCompile Include="btDbvt_ot.cpp" />
   </ItemGroup>
   <ItemGroup>
     <hpp Include="..\..\src\otbullet\otbullet.hpp" />

@@ -304,6 +304,7 @@
     <ClCompile Include="..\..\src\otbullet\rigid_body.cpp" />
     <ClCompile Include="..\..\src\otbullet\tree_batch.cpp" />
     <ClCompile Include="..\..\src\otbullet\wrapper.cpp" />
+    <ClCompile Include="btDbvt_ot.cpp" />
     <ClCompile Include="multithread_default_collision_configuration.cpp" />
     <ClCompile Include="navigation_probe.cpp" />
   </ItemGroup>

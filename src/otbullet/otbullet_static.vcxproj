@@ -271,6 +271,7 @@
     <ClCompile Include="..\..\src\otbullet\rigid_body.cpp" />
     <ClCompile Include="..\..\src\otbullet\tree_batch.cpp" />
     <ClCompile Include="..\..\src\otbullet\wrapper.cpp" />
+    <ClCompile Include="btDbvt_ot.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\otbullet\discrete_dynamics_world.h" />
