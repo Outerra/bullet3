@@ -267,12 +267,14 @@ struct	btDbvt
 
 	
 	btAlignedObjectArray<sStkNN>	m_stkStack;
-	mutable btAlignedObjectArray<const btDbvtNode*>	m_rayTestStack;
+	//mutable btAlignedObjectArray<const btDbvtNode*>	m_rayTestStack;				//< OT change: not used anymore because of race condition in rayTestInternal. (e.g updateAction with used with parallel for loop)
 
 
 	// Methods
 	btDbvt();
 	~btDbvt();
+	static btAlignedObjectArray<const btDbvtNode*>& getPooledRayTestStack();
+	static void releasePooledRayTestStack(btAlignedObjectArray<const btDbvtNode*>& stack);
 	void			clear();
 	bool			empty() const { return(0==m_root); }
 	void			optimizeBottomUp();
@@ -996,7 +998,6 @@ inline void		btDbvt::collideTVNoStackAlloc(	const btDbvtNode* root,
 	}
 }
 
-
 DBVT_PREFIX
 inline void		btDbvt::rayTestInternal(	const btDbvtNode* root,
 								const btVector3& rayFrom,
@@ -1016,7 +1017,7 @@ inline void		btDbvt::rayTestInternal(	const btDbvtNode* root,
 
 		int								depth=1;
 		int								treshold=DOUBLE_STACKSIZE-2;
-		btAlignedObjectArray<const btDbvtNode*>&	stack = m_rayTestStack;
+		btAlignedObjectArray<const btDbvtNode*>& stack = getPooledRayTestStack();			// use getPooledStack instead of m_rayTestStack for thread safety
 		stack.resize(DOUBLE_STACKSIZE);
 		stack[0]=root;
 		btVector3 bounds[2];
@@ -1046,6 +1047,8 @@ inline void		btDbvt::rayTestInternal(	const btDbvtNode* root,
 				}
 			}
 		} while(depth);
+
+		releasePooledRayTestStack(stack);
 	}
 }
 

@@ -7,6 +7,7 @@
     <ClCompile Include="..\..\src\otbullet\discrete_dynamics_world.cpp" />
     <ClCompile Include="..\..\src\otbullet\ot_terrain_contact_common.cpp" />
     <ClCompile Include="..\..\src\otbullet\tree_batch.cpp" />
+    <ClCompile Include="btDbvt_ot.cpp" />
   </ItemGroup>
   <ItemGroup>
     <hpp Include="..\..\src\otbullet\otbullet.hpp" />
