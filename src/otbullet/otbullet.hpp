@@ -39,7 +39,7 @@ namespace ot {
 
 
 ///
-class physics : public policy_intrusive_base
+class physics : public coid::ref_intrusive_base
 {
     friend class ot_gost_pair_callback;
 public:

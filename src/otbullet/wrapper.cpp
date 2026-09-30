@@ -287,7 +287,7 @@ iref<physics> physics::create(double r, void* context, coid::taskmaster* tm)
     // default mode
     _physics->_dbg_draw_mode = btIDebugDraw::DBG_DrawContactPoints | btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawConstraints | btIDebugDraw::DBG_DrawConstraintLimits;
 
-    return _physics;
+    return iref<physics>(_physics);
 }
 
 iref<physics> physics::get()
@@ -296,7 +296,7 @@ iref<physics> physics::get()
         throw coid::exception("Bullet not initialized yet!");
     }
 
-    return _physics;
+    return iref<physics>(_physics);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
