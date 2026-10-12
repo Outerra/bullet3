@@ -634,6 +634,7 @@ void physics::close_convex_shape(btCollisionShape* shape)
 {
     shape->setMargin(0.005);
     static_cast<btConvexHullShape*>(shape)->recalcLocalAabb();
+    static_cast<btConvexHullShape*>(shape)->initializePolyhedralFeatures();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
